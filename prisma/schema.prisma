@@ -1,0 +1,167 @@
+// Rapid - SaaS para talleres de pintura automotriz
+// Prisma schema mapeado contra el SQL Server existente.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model WorkOrder {
+  id            Int       @id(map: "PK__WorkOrde__3214EC07B767C033") @default(autoincrement()) @map("Id")
+  orderNumber   Int       @unique(map: "UQ__WorkOrde__CAC5E7431FE44356") @map("OrderNumber")
+  customerName  String?   @map("CustomerName") @db.NVarChar(150)
+  phone         String?   @map("Phone") @db.NVarChar(50)
+  email         String?   @map("Email") @db.NVarChar(150)
+  address       String?   @map("Address") @db.NVarChar(250)
+  brand         String?   @map("Brand") @db.NVarChar(80)
+  model         String?   @map("Model") @db.NVarChar(80)
+  vehicleYear   Int?      @map("VehicleYear")
+  color         String?   @map("Color") @db.NVarChar(50)
+  plate         String?   @map("Plate") @db.NVarChar(30)
+  mileage       String?   @map("Mileage") @db.NVarChar(50)
+  engine        String?   @map("Engine") @db.NVarChar(50)
+  status        String    @default("RECEIVED", map: "DF__WorkOrder__Statu__38996AB5") @map("Status") @db.NVarChar(50)
+  notes         String?   @map("Notes") @db.NVarChar(Max)
+  createdAt     DateTime? @default(dbgenerated("sysdatetime()"), map: "DF__WorkOrder__Creat__398D8EEE") @map("CreatedAt")
+  updatedAt     DateTime? @map("UpdatedAt")
+
+  receptions           WorkOrderReception[]
+  photos               WorkOrderPhoto[]
+  damages              WorkOrderDamage[]
+  materialRequisitions MaterialRequisition[]
+  laborOrders          LaborOrder[]
+
+  @@map("WorkOrder")
+}
+
+model WorkOrderReception {
+  id                        Int       @id(map: "PK__WorkOrde__3214EC0705CE3673") @default(autoincrement()) @map("Id")
+  workOrderId               Int       @map("WorkOrderId")
+  deliveryDate              DateTime? @map("DeliveryDate") @db.Date
+  deliveryTime              DateTime? @map("DeliveryTime") @db.Time
+  exitDate                  DateTime? @map("ExitDate") @db.Date
+  exitTime                  DateTime? @map("ExitTime") @db.Time
+  fuelLevel                 String?   @map("FuelLevel") @db.NVarChar(20)
+  observations              String?   @map("Observations") @db.NVarChar(Max)
+  requestedDamages          String?   @map("RequestedDamages") @db.NVarChar(Max)
+  customerDeliverySignature String?   @map("CustomerDeliverySignature") @db.NVarChar(500)
+  customerReceivedSignature String?   @map("CustomerReceivedSignature") @db.NVarChar(500)
+  receivedBy                String?   @map("ReceivedBy") @db.NVarChar(150)
+  deliveredBy               String?   @map("DeliveredBy") @db.NVarChar(150)
+  createdAt                 DateTime? @default(dbgenerated("sysdatetime()"), map: "DF__WorkOrder__Creat__3C69FB99") @map("CreatedAt")
+
+  workOrder WorkOrder                     @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderReception_WorkOrder")
+  checklist WorkOrderReceptionChecklist[]
+
+  @@map("WorkOrderReception")
+}
+
+model WorkOrderReceptionChecklist {
+  id                   Int      @id(map: "PK__WorkOrde__3214EC07A4BFEC1A") @default(autoincrement()) @map("Id")
+  workOrderReceptionId Int      @map("WorkOrderReceptionId")
+  itemName             String   @map("ItemName") @db.NVarChar(100)
+  isChecked            Boolean  @default(false, map: "DF__WorkOrder__IsChe__403A8C7D") @map("IsChecked")
+  yesValue             Boolean? @map("YesValue")
+  noValue              Boolean? @map("NoValue")
+  comments             String?  @map("Comments") @db.NVarChar(Max)
+  hasComment           Boolean  @default(false, map: "DF_WorkOrderReceptionChecklist_HasComment") @map("HasComment")
+
+  reception WorkOrderReception @relation(fields: [workOrderReceptionId], references: [id], onUpdate: NoAction, map: "FK_Checklist_Reception")
+
+  @@map("WorkOrderReceptionChecklist")
+}
+
+model WorkOrderPhoto {
+  id          Int       @id(map: "PK__WorkOrde__3214EC0782CDD5C9") @default(autoincrement()) @map("Id")
+  workOrderId Int       @map("WorkOrderId")
+  photoUrl    String    @map("PhotoUrl") @db.NVarChar(500)
+  photoType   String?   @map("PhotoType") @db.NVarChar(50)
+  description String?   @map("Description") @db.NVarChar(250)
+  createdAt   DateTime? @default(dbgenerated("sysdatetime()"), map: "DF__WorkOrder__Creat__440B1D61") @map("CreatedAt")
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderPhoto_WorkOrder")
+
+  @@map("WorkOrderPhoto")
+}
+
+model WorkOrderDamage {
+  id          Int      @id(map: "PK__WorkOrde__3214EC0797756682") @default(autoincrement()) @map("Id")
+  workOrderId Int      @map("WorkOrderId")
+  vehicleSide String?  @map("VehicleSide") @db.NVarChar(30)
+  damageType  String?  @map("DamageType") @db.NVarChar(50)
+  positionX   Decimal? @map("PositionX") @db.Decimal(10, 4)
+  positionY   Decimal? @map("PositionY") @db.Decimal(10, 4)
+  description String?  @map("Description") @db.NVarChar(250)
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderDamage_WorkOrder")
+
+  @@map("WorkOrderDamage")
+}
+
+model MaterialRequisition {
+  id           Int       @id(map: "PK__Material__3214EC076872FBDF") @default(autoincrement()) @map("Id")
+  workOrderId  Int       @map("WorkOrderId")
+  disassembler String?   @map("Disassembler") @db.NVarChar(150) // Desarme
+  desab        String?   @map("Desab") @db.NVarChar(150)        // Desabollador
+  prep         String?   @map("Prep") @db.NVarChar(150)         // Preparador
+  painter      String?   @map("Painter") @db.NVarChar(150)      // Pintor
+  polisher     String?   @map("Polisher") @db.NVarChar(150)     // Pulidor
+  total        Decimal?  @map("Total") @db.Decimal(18, 2)
+  createdAt    DateTime? @default(dbgenerated("sysdatetime()"), map: "DF__MaterialR__Creat__4AB81AF0") @map("CreatedAt")
+
+  workOrder WorkOrder                 @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_MaterialRequisition_WorkOrder")
+  items     MaterialRequisitionItem[]
+
+  @@map("MaterialRequisition")
+}
+
+model MaterialRequisitionItem {
+  id                    Int      @id(map: "PK__Material__3214EC07554D5DF4") @default(autoincrement()) @map("Id")
+  materialRequisitionId Int      @map("MaterialRequisitionId")
+  productName           String   @map("ProductName") @db.NVarChar(150)
+  quantity              Decimal? @map("Quantity") @db.Decimal(18, 2)
+  unitPrice             Decimal? @map("UnitPrice") @db.Decimal(18, 2)
+  total                 Decimal? @map("Total") @db.Decimal(18, 2)
+  assignedEmployee      String?  @map("AssignedEmployee") @db.NVarChar(150)
+
+  requisition MaterialRequisition @relation(fields: [materialRequisitionId], references: [id], onUpdate: NoAction, map: "FK_MaterialItem_Requisition")
+
+  @@map("MaterialRequisitionItem")
+}
+
+model LaborOrder {
+  id           Int       @id(map: "PK__LaborOrd__3214EC07E1DA3F99") @default(autoincrement()) @map("Id")
+  workOrderId  Int       @map("WorkOrderId")
+  disassembler String?   @map("Disassembler") @db.NVarChar(150) // Desarme
+  desab        String?   @map("Desab") @db.NVarChar(150)        // Desabollador
+  prep         String?   @map("Prep") @db.NVarChar(150)         // Preparador
+  painter      String?   @map("Painter") @db.NVarChar(150)      // Pintor
+  polisher     String?   @map("Polisher") @db.NVarChar(150)     // Pulidor
+  total        Decimal?  @map("Total") @db.Decimal(18, 2)
+  createdAt    DateTime? @default(dbgenerated("sysdatetime()"), map: "DF__LaborOrde__Creat__5165187F") @map("CreatedAt")
+
+  workOrder WorkOrder        @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_LaborOrder_WorkOrder")
+  items     LaborOrderItem[]
+
+  @@map("LaborOrder")
+}
+
+model LaborOrderItem {
+  id               Int      @id(map: "PK__LaborOrd__3214EC07B9FF4953") @default(autoincrement()) @map("Id")
+  laborOrderId     Int      @map("LaborOrderId")
+  partName         String   @map("PartName") @db.NVarChar(150)
+  disassemblerCost Decimal? @map("DisassemblerCost") @db.Decimal(18, 2)
+  desabCost        Decimal? @map("DesabCost") @db.Decimal(18, 2)
+  prepCost         Decimal? @map("PrepCost") @db.Decimal(18, 2)
+  painterCost      Decimal? @map("PainterCost") @db.Decimal(18, 2)
+  polisherCost     Decimal? @map("PolisherCost") @db.Decimal(18, 2)
+  total            Decimal? @map("Total") @db.Decimal(18, 2)
+
+  laborOrder LaborOrder @relation(fields: [laborOrderId], references: [id], onUpdate: NoAction, map: "FK_LaborItem_LaborOrder")
+
+  @@map("LaborOrderItem")
+}
