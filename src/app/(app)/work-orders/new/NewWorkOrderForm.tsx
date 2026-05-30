@@ -15,14 +15,11 @@ import { TextInput } from "@/components/forms/TextInput";
 import { SelectInput } from "@/components/forms/SelectInput";
 import { TextAreaInput } from "@/components/forms/TextAreaInput";
 import { ChecklistGrid } from "@/components/forms/ChecklistGrid";
-import {
-  FUEL_LEVELS,
-  DAMAGE_SIDES,
-  DAMAGE_TYPES,
-  PHOTO_TYPES,
-} from "@/lib/constants";
+import { PhotoUploadList } from "@/components/forms/PhotoUploadList";
+import { FUEL_LEVELS, DAMAGE_SIDES, DAMAGE_TYPES } from "@/lib/constants";
 import { createWorkOrderAction } from "../actions";
 import { toDateInputValue } from "@/lib/formatters/date";
+import { buildDefaultChecklistFormValues } from "@/lib/checklist";
 
 function makeDefaultValues(): WorkOrderFormValues {
   return {
@@ -44,47 +41,11 @@ function makeDefaultValues(): WorkOrderFormValues {
     observations: "",
     receivedBy: "",
     notes: "",
-    checklist: {
-      ac: false,
-      carpets: false,
-      seats: false,
-      speakers: false,
-      seatBelts: false,
-      radio: false,
-      documents: false,
-      rearViewMirror: false,
-      alarm: false,
-      checkEngine: false,
-      abs: false,
-      airbag: false,
-      brake: false,
-      tireLight: false,
-      stabilityLight: false,
-      jack: false,
-      spareTire: false,
-      logos: false,
-      wheelKeys: false,
-      keychains: false,
-      lenses: false,
-      speakerCovers: false,
-      gasCap: false,
-      antennas: false,
-      batteries: false,
-      windows: false,
-    },
+    checklist: buildDefaultChecklistFormValues(),
     damages: [],
     photos: [],
   };
 }
-
-const sections = [
-  { id: "cliente", label: "Cliente" },
-  { id: "vehiculo", label: "Vehículo" },
-  { id: "recepcion", label: "Recepción" },
-  { id: "checklist", label: "Checklist" },
-  { id: "daños", label: "Daños" },
-  { id: "fotos", label: "Fotos" },
-] as const;
 
 export function NewWorkOrderForm() {
   const router = useRouter();
@@ -121,26 +82,15 @@ export function NewWorkOrderForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 pb-12">
-      <div className="card sticky top-0 z-10 px-3 sm:px-4 py-2.5 flex flex-wrap items-center gap-1.5 backdrop-blur bg-white/95">
-        {sections.map((s) => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            className="text-xs px-3 py-1.5 rounded-full text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-bg font-medium"
-          >
-            {s.label}
-          </a>
-        ))}
-        <div className="ml-auto flex items-center gap-2">
-          <Link href="/work-orders" className="btn-secondary">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Cancelar</span>
-          </Link>
-          <button type="submit" disabled={isPending} className="btn-primary">
-            <Save className="w-4 h-4" />
-            {isPending ? "Guardando..." : "Guardar orden"}
-          </button>
-        </div>
+      <div className="card sticky top-0 z-10 px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-end gap-2 backdrop-blur bg-white/95">
+        <Link href="/work-orders" className="btn-secondary">
+          <ArrowLeft className="w-4 h-4" />
+          <span className="hidden sm:inline">Cancelar</span>
+        </Link>
+        <button type="submit" disabled={isPending} className="btn-primary">
+          <Save className="w-4 h-4" />
+          {isPending ? "Guardando..." : "Guardar orden"}
+        </button>
       </div>
 
       {submitError && (
@@ -298,7 +248,7 @@ export function NewWorkOrderForm() {
       <section id="checklist" className="card p-5">
         <SectionHeader
           title="Checklist de recepción"
-          subtitle="Marca los elementos verificados al momento de la recepción"
+          subtitle="Marca los elementos verificados y agrega comentarios si aplica"
         />
         <ChecklistGrid control={control} />
       </section>
@@ -401,76 +351,17 @@ export function NewWorkOrderForm() {
 
       {/* Fotos */}
       <section id="fotos" className="card p-5">
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div>
-            <h2 className="font-bold text-lg">Fotografías</h2>
-            <p className="text-sm text-rapid-text-muted">
-              URLs de fotos del vehículo. Súbelas previamente a tu
-              almacenamiento.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="btn-secondary text-xs"
-            onClick={() =>
-              photosArray.append({
-                photoUrl: "",
-                photoType: "GENERAL",
-                description: "",
-              })
-            }
-          >
-            <Plus className="w-4 h-4" /> Agregar foto
-          </button>
-        </div>
-
-        {photosArray.fields.length === 0 ? (
-          <EmptyMini text="No hay fotos. Agrega URLs de fotos del vehículo." />
-        ) : (
-          <div className="space-y-3">
-            {photosArray.fields.map((field, idx) => (
-              <div
-                key={field.id}
-                className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 p-3 rounded-lg bg-rapid-bg/50 border border-rapid-border"
-              >
-                <TextInput
-                  label="URL *"
-                  placeholder="https://..."
-                  containerClassName="sm:col-span-5"
-                  {...register(`photos.${idx}.photoUrl`)}
-                  error={errors.photos?.[idx]?.photoUrl?.message}
-                />
-                <Controller
-                  control={control}
-                  name={`photos.${idx}.photoType`}
-                  render={({ field: f }) => (
-                    <SelectInput
-                      label="Tipo"
-                      options={PHOTO_TYPES}
-                      containerClassName="sm:col-span-2"
-                      {...f}
-                    />
-                  )}
-                />
-                <TextInput
-                  label="Descripción"
-                  placeholder="Opcional"
-                  containerClassName="sm:col-span-4"
-                  {...register(`photos.${idx}.description`)}
-                />
-                <div className="sm:col-span-1 flex items-end justify-end">
-                  <button
-                    type="button"
-                    onClick={() => photosArray.remove(idx)}
-                    className="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:bg-red-50 rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <SectionHeader
+          title="Fotografías"
+          subtitle="Carga imágenes desde tu dispositivo. Se guardan en el servidor local del taller."
+        />
+        <PhotoUploadList
+          control={control}
+          fields={photosArray.fields}
+          append={photosArray.append}
+          remove={photosArray.remove}
+          errors={errors}
+        />
       </section>
 
       <section className="card p-5">

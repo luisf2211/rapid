@@ -19,7 +19,6 @@ export default async function LaborOrdersPage() {
   return (
     <>
       <PageHeader
-        breadcrumb="Operaciones"
         title="Mano de obra"
         subtitle="Órdenes de mano de obra registradas, agrupadas por orden de trabajo."
         actions={

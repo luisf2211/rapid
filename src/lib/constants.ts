@@ -40,6 +40,11 @@ export const DAMAGE_TYPES = [
 
 export const PHOTO_TYPES = [
   { value: "GENERAL", label: "General" },
+  { value: "RECEPTION", label: "Recepción" },
+  { value: "FRONT", label: "Frente" },
+  { value: "BACK", label: "Atrás" },
+  { value: "LEFT", label: "Izquierda" },
+  { value: "RIGHT", label: "Derecha" },
   { value: "DAMAGE", label: "Daño" },
   { value: "BEFORE", label: "Antes" },
   { value: "AFTER", label: "Después" },

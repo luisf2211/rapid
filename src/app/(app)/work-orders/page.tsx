@@ -25,7 +25,6 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
   return (
     <>
       <PageHeader
-        breadcrumb="Operaciones"
         title="Órdenes de recepción"
         subtitle="Listado completo de órdenes registradas en el taller."
         actions={

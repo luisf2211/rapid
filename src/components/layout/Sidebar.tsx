@@ -43,9 +43,6 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-5 space-y-0.5">
-        <p className="px-3 mb-2 text-[10px] uppercase tracking-[0.18em] text-white/40 font-semibold">
-          Operaciones
-        </p>
         {navItems.map((item) => {
           const active =
             pathname === item.href ||
@@ -77,18 +74,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="m-4 mb-5 rounded-xl bg-gradient-to-br from-rapid-green/15 to-transparent border border-white/5 p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="dot-live" />
-          <span className="text-xs font-medium text-white/80">
-            Sistema operativo
-          </span>
-        </div>
-        <p className="text-[11px] text-white/50 leading-relaxed">
-          MVP del taller en tiempo real. Datos sincronizados con SQL Server.
-        </p>
-      </div>
     </aside>
   );
 }

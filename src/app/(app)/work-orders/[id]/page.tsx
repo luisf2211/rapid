@@ -18,8 +18,8 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   getWorkOrderById,
   getWorkOrderFinancialSummary,
-  checklistRowsToMap,
 } from "@/services/work-orders.service";
+import { checklistRowsToDetails } from "@/lib/checklist";
 import { formatMoney } from "@/lib/formatters/money";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
 import {
@@ -74,14 +74,6 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
   return (
     <>
       <PageHeader
-        breadcrumb={
-          <>
-            <Link href="/work-orders" className="hover:underline">
-              Órdenes
-            </Link>{" "}
-            · #{String(order.orderNumber).padStart(5, "0")}
-          </>
-        }
         title={`${order.brand ?? ""} ${order.model ?? ""} ${
           order.vehicleYear ?? ""
         }`.trim() || "Orden de trabajo"}
@@ -199,7 +191,10 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           {
             id: "checklist",
             label: "Checklist",
-            count: reception?.checklist.filter((c) => c.isChecked).length ?? 0,
+            count:
+              reception?.checklist.filter(
+                (c) => c.isChecked || c.hasComment || c.comments,
+              ).length ?? 0,
             content: <ChecklistTab reception={reception} />,
           },
           {
@@ -389,16 +384,21 @@ function ReceptionTab({
 }
 
 function ChecklistTab({ reception }: { reception: Reception | null }) {
-  const map = checklistRowsToMap(reception?.checklist);
+  const { checked, comments } = checklistRowsToDetails(reception?.checklist);
   const total = CHECKLIST_ITEMS.length;
-  const checkedCount = CHECKLIST_ITEMS.filter((it) => map[it.field]).length;
+  const checkedCount = CHECKLIST_ITEMS.filter((it) => checked[it.field]).length;
+  const commentCount = CHECKLIST_ITEMS.filter(
+    (it) => comments[it.field],
+  ).length;
+
   return (
     <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-lg">Checklist de recepción</h3>
           <p className="text-sm text-rapid-text-muted">
-            {checkedCount} de {total} elementos verificados
+            {checkedCount} de {total} verificados
+            {commentCount > 0 && ` · ${commentCount} con comentario`}
           </p>
         </div>
         <div className="text-right">
@@ -407,26 +407,36 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
         {CHECKLIST_ITEMS.map((item) => {
-          const ok = map[item.field];
+          const ok = checked[item.field];
+          const comment = comments[item.field];
           return (
             <div
               key={item.field}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${
+              className={`rounded-lg border p-3 text-sm ${
                 ok
                   ? "border-rapid-green/30 bg-rapid-green-soft/40"
-                  : "border-rapid-border bg-rapid-bg/40 text-rapid-text-muted"
+                  : comment
+                    ? "border-amber-200 bg-amber-50/50"
+                    : "border-rapid-border bg-rapid-bg/40 text-rapid-text-muted"
               }`}
             >
-              <span
-                className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                  ok ? "bg-rapid-green text-white" : "bg-gray-200"
-                }`}
-              >
-                {ok && <Check className="w-3 h-3" strokeWidth={3} />}
-              </span>
-              <span className="font-medium">{item.label}</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
+                    ok ? "bg-rapid-green text-white" : "bg-gray-200"
+                  }`}
+                >
+                  {ok && <Check className="w-3 h-3" strokeWidth={3} />}
+                </span>
+                <span className="font-semibold text-rapid-text">{item.label}</span>
+              </div>
+              {comment && (
+                <p className="mt-2 text-xs text-rapid-text leading-relaxed pl-6 border-l-2 border-rapid-green/40">
+                  {comment}
+                </p>
+              )}
             </div>
           );
         })}

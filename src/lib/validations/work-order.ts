@@ -1,33 +1,18 @@
 import { z } from "zod";
+import { CHECKLIST_ITEMS, type ChecklistField } from "@/lib/constants";
 
-export const checklistSchema = z.object({
-  ac: z.boolean().default(false),
-  carpets: z.boolean().default(false),
-  seats: z.boolean().default(false),
-  speakers: z.boolean().default(false),
-  seatBelts: z.boolean().default(false),
-  radio: z.boolean().default(false),
-  documents: z.boolean().default(false),
-  rearViewMirror: z.boolean().default(false),
-  alarm: z.boolean().default(false),
-  checkEngine: z.boolean().default(false),
-  abs: z.boolean().default(false),
-  airbag: z.boolean().default(false),
-  brake: z.boolean().default(false),
-  tireLight: z.boolean().default(false),
-  stabilityLight: z.boolean().default(false),
-  jack: z.boolean().default(false),
-  spareTire: z.boolean().default(false),
-  logos: z.boolean().default(false),
-  wheelKeys: z.boolean().default(false),
-  keychains: z.boolean().default(false),
-  lenses: z.boolean().default(false),
-  speakerCovers: z.boolean().default(false),
-  gasCap: z.boolean().default(false),
-  antennas: z.boolean().default(false),
-  batteries: z.boolean().default(false),
-  windows: z.boolean().default(false),
+export const checklistItemSchema = z.object({
+  checked: z.boolean().default(false),
+  comment: z.string().max(4000).optional().or(z.literal("")),
 });
+
+export type ChecklistItemInput = z.infer<typeof checklistItemSchema>;
+
+const checklistShape = Object.fromEntries(
+  CHECKLIST_ITEMS.map((item) => [item.field, checklistItemSchema]),
+) as Record<ChecklistField, typeof checklistItemSchema>;
+
+export const checklistSchema = z.object(checklistShape);
 
 export type ChecklistInput = z.infer<typeof checklistSchema>;
 
@@ -42,10 +27,21 @@ export const damageSchema = z.object({
 export type DamageInput = z.infer<typeof damageSchema>;
 
 export const photoSchema = z.object({
-  photoUrl: z.string().min(1, "URL requerida").max(500),
+  photoUrl: z.string().min(1, "Imagen requerida").max(500),
   photoType: z
-    .enum(["GENERAL", "DAMAGE", "BEFORE", "AFTER", "DOCUMENT"])
-    .default("GENERAL"),
+    .enum([
+      "GENERAL",
+      "RECEPTION",
+      "FRONT",
+      "BACK",
+      "LEFT",
+      "RIGHT",
+      "DAMAGE",
+      "BEFORE",
+      "AFTER",
+      "DOCUMENT",
+    ])
+    .default("RECEPTION"),
   description: z.string().max(250).optional().or(z.literal("")),
 });
 

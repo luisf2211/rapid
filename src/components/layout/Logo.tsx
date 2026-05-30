@@ -27,14 +27,9 @@ export function Logo({ className, variant = "dark" }: LogoProps) {
           </svg>
         </div>
       </div>
-      <div className="flex flex-col leading-tight">
-        <span className={cn("font-bold tracking-tight text-lg", textColor)}>
-          Rapid
-        </span>
-        <span className="text-[10px] uppercase tracking-[0.18em] text-rapid-green font-semibold">
-          Paint Shop OS
-        </span>
-      </div>
+      <span className={cn("font-bold tracking-tight text-lg", textColor)}>
+        Rapid
+      </span>
     </div>
   );
 }

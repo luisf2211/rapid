@@ -33,14 +33,6 @@ export default async function NewLaborOrderPage({ searchParams }: PageProps) {
   return (
     <>
       <PageHeader
-        breadcrumb={
-          <>
-            <Link href="/labor-orders" className="hover:underline">
-              Mano de obra
-            </Link>{" "}
-            · Nueva
-          </>
-        }
         title="Nueva orden de mano de obra"
         subtitle="Selecciona la orden y desglosa el costo de cada pieza."
         actions={

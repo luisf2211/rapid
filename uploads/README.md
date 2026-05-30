@@ -12,9 +12,10 @@ uploads/
 
 ## Uso
 
-1. Coloca archivos en `uploads/field/` con el mismo nombre que `PhotoUrl` en SQL Server  
-   (ej. `179f9ec8-1ad3-4115-bfba-27ec75c2766e.jpg`).
-2. La app los expone en `http://localhost:3000/uploads/field/<archivo>.jpg`.
+1. **Desde la app:** en Nueva orden de recepción → pestaña Fotos → **Cargar imágenes**.  
+   Los archivos se guardan aquí automáticamente con un nombre UUID.
+2. **Manual:** coloca archivos en `uploads/field/` con el mismo nombre que `PhotoUrl` en SQL Server.
+3. La app los expone en `http://localhost:3000/uploads/field/<archivo>.jpg`.
 
 Configuración en `.env`:
 

@@ -7,14 +7,6 @@ export default function NewWorkOrderPage() {
   return (
     <>
       <PageHeader
-        breadcrumb={
-          <>
-            <Link href="/work-orders" className="hover:underline">
-              Órdenes
-            </Link>{" "}
-            · Nueva
-          </>
-        }
         title="Nueva orden de recepción"
         subtitle="Registra el vehículo, su condición y el checklist de recepción."
         actions={

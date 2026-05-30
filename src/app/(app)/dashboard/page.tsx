@@ -29,7 +29,6 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
-        breadcrumb="Inicio"
         title="Dashboard"
         subtitle="Estado general del taller. Datos en tiempo real desde SQL Server."
         badge={

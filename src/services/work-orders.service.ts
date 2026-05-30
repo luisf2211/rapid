@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import {
   CHECKLIST_ITEMS,
-  CHECKLIST_FIELD_BY_LABEL,
-  type ChecklistField,
 } from "@/lib/constants";
+import { checklistFieldToDbItemName } from "@/lib/checklist";
 import type { WorkOrderInput } from "@/lib/validations/work-order";
 
 async function generateOrderNumber(): Promise<number> {
@@ -83,33 +82,21 @@ export async function getWorkOrderById(id: number) {
   return order;
 }
 
-/**
- * Converts an array of WorkOrderReceptionChecklist rows into a friendly map
- * keyed by our ChecklistField names.
- */
-export function checklistRowsToMap(
-  rows: { itemName: string; isChecked: boolean }[] | null | undefined,
-): Record<ChecklistField, boolean> {
-  const map: Record<string, boolean> = {};
-  for (const item of CHECKLIST_ITEMS) map[item.field] = false;
-  if (!rows) return map as Record<ChecklistField, boolean>;
-  for (const row of rows) {
-    const field = CHECKLIST_FIELD_BY_LABEL[row.itemName];
-    if (field) map[field] = row.isChecked;
-  }
-  return map as Record<ChecklistField, boolean>;
-}
-
 export async function createWorkOrder(input: WorkOrderInput) {
   const orderNumber = await generateOrderNumber();
   const deliveryDate = new Date(`${input.deliveryDate}T00:00:00.000Z`);
   const deliveryTime = buildTimeDate(input.deliveryTime);
 
-  const checklistRows = CHECKLIST_ITEMS.map((it) => ({
-    itemName: it.label,
-    isChecked: Boolean(input.checklist[it.field]),
-    hasComment: false,
-  }));
+  const checklistRows = CHECKLIST_ITEMS.map((it) => {
+    const entry = input.checklist[it.field];
+    const comment = entry?.comment?.trim() ?? "";
+    return {
+      itemName: checklistFieldToDbItemName(it.field),
+      isChecked: Boolean(entry?.checked),
+      comments: comment || null,
+      hasComment: comment.length > 0,
+    };
+  });
 
   return prisma.workOrder.create({
     data: {

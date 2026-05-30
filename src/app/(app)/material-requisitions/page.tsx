@@ -19,7 +19,6 @@ export default async function MaterialRequisitionsPage() {
   return (
     <>
       <PageHeader
-        breadcrumb="Operaciones"
         title="Requisición de materiales"
         subtitle="Todas las requisiciones registradas en el taller, agrupadas por orden."
         actions={

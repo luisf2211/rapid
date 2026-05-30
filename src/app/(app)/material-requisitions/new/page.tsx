@@ -35,17 +35,6 @@ export default async function NewMaterialRequisitionPage({
   return (
     <>
       <PageHeader
-        breadcrumb={
-          <>
-            <Link
-              href="/material-requisitions"
-              className="hover:underline"
-            >
-              Requisiciones
-            </Link>{" "}
-            · Nueva
-          </>
-        }
         title="Nueva requisición de materiales"
         subtitle="Selecciona la orden y agrega los materiales requeridos."
         actions={
