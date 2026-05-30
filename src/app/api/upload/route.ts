@@ -12,7 +12,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Archivo requerido" }, { status: 400 });
     }
 
-    const result = await saveUploadedImage(file);
+    const subfolderRaw = formData.get("subfolder");
+    const subfolder =
+      typeof subfolderRaw === "string" && /^[a-z][a-z0-9_-]*$/.test(subfolderRaw)
+        ? subfolderRaw
+        : "field";
+
+    const result = await saveUploadedImage(file, subfolder);
     return NextResponse.json(result);
   } catch (error) {
     const message =

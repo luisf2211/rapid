@@ -32,10 +32,58 @@ model WorkOrder {
   receptions           WorkOrderReception[]
   photos               WorkOrderPhoto[]
   damages              WorkOrderDamage[]
+  quotationId          Int?                  @map("QuotationId")
   materialRequisitions MaterialRequisition[]
   laborOrders          LaborOrder[]
+  inventoryMovements   InventoryMovement[]
+  quotation            Quotation?            @relation("WorkOrderFromQuotation", fields: [quotationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  convertedFrom        Quotation?            @relation("QuotationConvertedWorkOrder")
 
   @@map("WorkOrder")
+}
+
+model InventoryPart {
+  id               Int       @id(map: "PK_InventoryPart") @default(autoincrement()) @map("Id")
+  sku              String    @map("Sku") @db.NVarChar(50)
+  name             String    @map("Name") @db.NVarChar(150)
+  description      String?   @map("Description") @db.NVarChar(250)
+  category         String?   @map("Category") @db.NVarChar(80)
+  unit             String    @default("PZ", map: "DF_InventoryPart_Unit") @map("Unit") @db.NVarChar(20)
+  quantityOnHand   Decimal   @default(0, map: "DF_InventoryPart_Qty") @map("QuantityOnHand") @db.Decimal(18, 2)
+  reservedQuantity Decimal   @default(0, map: "DF_InventoryPart_ReservedQty") @map("ReservedQuantity") @db.Decimal(18, 2)
+  minQuantity      Decimal?  @map("MinQuantity") @db.Decimal(18, 2)
+  unitCost         Decimal?  @map("UnitCost") @db.Decimal(18, 2)
+  location         String?   @map("Location") @db.NVarChar(80)
+  isActive         Boolean   @default(true, map: "DF_InventoryPart_IsActive") @map("IsActive")
+  createdAt        DateTime  @default(dbgenerated("sysdatetime()"), map: "DF_InventoryPart_CreatedAt") @map("CreatedAt")
+  createdBy        String?   @map("CreatedBy") @db.NVarChar(150)
+  updatedAt        DateTime? @map("UpdatedAt")
+  updatedBy        String?   @map("UpdatedBy") @db.NVarChar(150)
+
+  movements              InventoryMovement[]
+  quotationMaterialLines QuotationMaterialLine[]
+
+  @@map("InventoryPart")
+}
+
+model InventoryMovement {
+  id                 Int       @id(map: "PK_InventoryMovement") @default(autoincrement()) @map("Id")
+  inventoryPartId    Int       @map("InventoryPartId")
+  movementType       String    @map("MovementType") @db.NVarChar(20)
+  quantity           Decimal   @map("Quantity") @db.Decimal(18, 2)
+  quantityBefore     Decimal?  @map("QuantityBefore") @db.Decimal(18, 2)
+  quantityAfter      Decimal?  @map("QuantityAfter") @db.Decimal(18, 2)
+  unitCostAtMovement Decimal?  @map("UnitCostAtMovement") @db.Decimal(18, 2)
+  reason             String?   @map("Reason") @db.NVarChar(50)
+  workOrderId        Int?      @map("WorkOrderId")
+  notes              String?   @map("Notes") @db.NVarChar(250)
+  createdBy          String?   @map("CreatedBy") @db.NVarChar(150)
+  createdAt          DateTime  @default(dbgenerated("sysdatetime()"), map: "DF_InventoryMovement_CreatedAt") @map("CreatedAt")
+
+  part      InventoryPart @relation(fields: [inventoryPartId], references: [id], onUpdate: NoAction, map: "FK_InventoryMovement_Part")
+  workOrder WorkOrder?    @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_InventoryMovement_WorkOrder")
+
+  @@map("InventoryMovement")
 }
 
 model WorkOrderReception {
@@ -164,4 +212,140 @@ model LaborOrderItem {
   laborOrder LaborOrder @relation(fields: [laborOrderId], references: [id], onUpdate: NoAction, map: "FK_LaborItem_LaborOrder")
 
   @@map("LaborOrderItem")
+}
+
+model Quotation {
+  id               Int       @id(map: "PK_Quotation") @default(autoincrement()) @map("Id")
+  quotationNumber  Int       @unique(map: "UQ_Quotation_Number") @map("QuotationNumber")
+  quotationDate    DateTime  @default(dbgenerated("CAST(SYSDATETIME() AS DATE)"), map: "DF_Quotation_Date") @map("QuotationDate") @db.Date
+  validUntil       DateTime? @map("ValidUntil") @db.Date
+  quotationType    String    @default("PRIVATE", map: "DF_Quotation_Type") @map("QuotationType") @db.NVarChar(20)
+  status           String    @default("DRAFT", map: "DF_Quotation_Status") @map("Status") @db.NVarChar(30)
+  customerName     String    @map("CustomerName") @db.NVarChar(150)
+  phone            String?   @map("Phone") @db.NVarChar(50)
+  email            String?   @map("Email") @db.NVarChar(150)
+  nationalId       String?   @map("NationalId") @db.NVarChar(30)
+  address          String?   @map("Address") @db.NVarChar(250)
+  brand            String?   @map("Brand") @db.NVarChar(80)
+  model            String?   @map("Model") @db.NVarChar(80)
+  vehicleYear      Int?      @map("VehicleYear")
+  color            String?   @map("Color") @db.NVarChar(50)
+  plate            String?   @map("Plate") @db.NVarChar(30)
+  vin              String?   @map("Vin") @db.NVarChar(30)
+  mileage          String?   @map("Mileage") @db.NVarChar(50)
+  insuranceCompany String?   @map("InsuranceCompany") @db.NVarChar(150)
+  policyNumber     String?   @map("PolicyNumber") @db.NVarChar(80)
+  claimNumber      String?   @map("ClaimNumber") @db.NVarChar(80)
+  adjusterName     String?   @map("AdjusterName") @db.NVarChar(150)
+  adjusterPhone    String?   @map("AdjusterPhone") @db.NVarChar(50)
+  deductibleAmount Decimal?  @map("DeductibleAmount") @db.Decimal(18, 2)
+  laborSubtotal    Decimal   @default(0, map: "DF_Quotation_Labor") @map("LaborSubtotal") @db.Decimal(18, 2)
+  materialSubtotal Decimal   @default(0, map: "DF_Quotation_Material") @map("MaterialSubtotal") @db.Decimal(18, 2)
+  partsSubtotal    Decimal   @default(0, map: "DF_Quotation_Parts") @map("PartsSubtotal") @db.Decimal(18, 2)
+  taxRate          Decimal   @default(0.18, map: "DF_Quotation_TaxRate") @map("TaxRate") @db.Decimal(5, 4)
+  taxAmount        Decimal   @default(0, map: "DF_Quotation_Tax") @map("TaxAmount") @db.Decimal(18, 2)
+  discountAmount   Decimal   @default(0, map: "DF_Quotation_Discount") @map("DiscountAmount") @db.Decimal(18, 2)
+  grandTotal       Decimal   @default(0, map: "DF_Quotation_Total") @map("GrandTotal") @db.Decimal(18, 2)
+  estimatedDays    Int?      @map("EstimatedDays")
+  warrantyNotes    String?   @map("WarrantyNotes") @db.NVarChar(500)
+  termsNotes       String?   @map("TermsNotes") @db.NVarChar(Max)
+  internalNotes    String?   @map("InternalNotes") @db.NVarChar(Max)
+  workOrderId      Int?      @unique(map: "UQ_Quotation_WorkOrder") @map("WorkOrderId")
+  approvedAt       DateTime? @map("ApprovedAt")
+  approvedBy       String?   @map("ApprovedBy") @db.NVarChar(150)
+  rejectedAt       DateTime? @map("RejectedAt")
+  rejectedBy       String?   @map("RejectedBy") @db.NVarChar(150)
+  rejectionReason  String?   @map("RejectionReason") @db.NVarChar(500)
+  convertedAt      DateTime? @map("ConvertedAt")
+  convertedBy      String?   @map("ConvertedBy") @db.NVarChar(150)
+  createdAt        DateTime  @default(dbgenerated("sysdatetime()"), map: "DF_Quotation_CreatedAt") @map("CreatedAt")
+  createdBy        String?   @map("CreatedBy") @db.NVarChar(150)
+  updatedAt        DateTime? @map("UpdatedAt")
+  updatedBy        String?   @map("UpdatedBy") @db.NVarChar(150)
+
+  workOrder     WorkOrder?              @relation("QuotationConvertedWorkOrder", fields: [workOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sourceOrders  WorkOrder[]             @relation("WorkOrderFromQuotation")
+  laborLines    QuotationLaborLine[]
+  materialLines QuotationMaterialLine[]
+  partLines     QuotationPartLine[]
+  damages       QuotationDamage[]
+  photos        QuotationPhoto[]
+
+  @@map("Quotation")
+}
+
+model QuotationLaborLine {
+  id              Int      @id(map: "PK_QuotationLaborLine") @default(autoincrement()) @map("Id")
+  quotationId     Int      @map("QuotationId")
+  area            String   @map("Area") @db.NVarChar(50)
+  description     String?  @map("Description") @db.NVarChar(250)
+  estimatedHours  Decimal? @map("EstimatedHours") @db.Decimal(8, 2)
+  hourlyRate      Decimal? @map("HourlyRate") @db.Decimal(18, 2)
+  lineTotal       Decimal  @default(0, map: "DF_QuotationLabor_Total") @map("LineTotal") @db.Decimal(18, 2)
+  sortOrder       Int      @default(0, map: "DF_QuotationLabor_Sort") @map("SortOrder")
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("QuotationLaborLine")
+}
+
+model QuotationMaterialLine {
+  id              Int      @id(map: "PK_QuotationMaterialLine") @default(autoincrement()) @map("Id")
+  quotationId     Int      @map("QuotationId")
+  inventoryPartId Int?     @map("InventoryPartId")
+  productName     String   @map("ProductName") @db.NVarChar(150)
+  quantity        Decimal  @default(1, map: "DF_QuotationMaterial_Qty") @map("Quantity") @db.Decimal(18, 2)
+  unit            String?  @map("Unit") @db.NVarChar(20)
+  unitPrice       Decimal  @default(0, map: "DF_QuotationMaterial_Price") @map("UnitPrice") @db.Decimal(18, 2)
+  lineTotal       Decimal  @default(0, map: "DF_QuotationMaterial_Total") @map("LineTotal") @db.Decimal(18, 2)
+  sortOrder       Int      @default(0, map: "DF_QuotationMaterial_Sort") @map("SortOrder")
+
+  quotation     Quotation      @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  inventoryPart InventoryPart? @relation(fields: [inventoryPartId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("QuotationMaterialLine")
+}
+
+model QuotationPartLine {
+  id          Int      @id(map: "PK_QuotationPartLine") @default(autoincrement()) @map("Id")
+  quotationId Int      @map("QuotationId")
+  partName    String   @map("PartName") @db.NVarChar(150)
+  description String?  @map("Description") @db.NVarChar(250)
+  quantity    Decimal  @default(1, map: "DF_QuotationPart_Qty") @map("Quantity") @db.Decimal(18, 2)
+  unitPrice   Decimal  @default(0, map: "DF_QuotationPart_Price") @map("UnitPrice") @db.Decimal(18, 2)
+  lineTotal   Decimal  @default(0, map: "DF_QuotationPart_Total") @map("LineTotal") @db.Decimal(18, 2)
+  sortOrder   Int      @default(0, map: "DF_QuotationPart_Sort") @map("SortOrder")
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("QuotationPartLine")
+}
+
+model QuotationDamage {
+  id          Int      @id(map: "PK_QuotationDamage") @default(autoincrement()) @map("Id")
+  quotationId Int      @map("QuotationId")
+  partName    String?  @map("PartName") @db.NVarChar(150)
+  vehicleSide String?  @map("VehicleSide") @db.NVarChar(30)
+  damageType  String?  @map("DamageType") @db.NVarChar(50)
+  description String?  @map("Description") @db.NVarChar(500)
+  positionX   Decimal? @map("PositionX") @db.Decimal(10, 4)
+  positionY   Decimal? @map("PositionY") @db.Decimal(10, 4)
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("QuotationDamage")
+}
+
+model QuotationPhoto {
+  id          Int      @id(map: "PK_QuotationPhoto") @default(autoincrement()) @map("Id")
+  quotationId Int      @map("QuotationId")
+  photoUrl    String   @map("PhotoUrl") @db.NVarChar(500)
+  category    String?  @map("Category") @db.NVarChar(50)
+  description String?  @map("Description") @db.NVarChar(250)
+  createdAt   DateTime @default(dbgenerated("sysdatetime()"), map: "DF_QuotationPhoto_Created") @map("CreatedAt")
+  createdBy   String?  @map("CreatedBy") @db.NVarChar(150)
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("QuotationPhoto")
 }

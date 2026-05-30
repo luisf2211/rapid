@@ -130,6 +130,85 @@ export const SUGGESTED_MATERIALS = [
   "Cera",
 ];
 
+export const INVENTORY_UNITS = [
+  { value: "PZ", label: "Pieza" },
+  { value: "LT", label: "Litro" },
+  { value: "KG", label: "Kilogramo" },
+  { value: "ML", label: "Mililitro" },
+  { value: "SET", label: "Juego" },
+] as const;
+
+export const INVENTORY_CATEGORIES = [
+  "Carrocería",
+  "Pintura",
+  "Consumibles",
+  "Herramienta",
+  "Refacción",
+  "Otro",
+] as const;
+
+export const INVENTORY_MOVEMENT_TYPES = {
+  IN: "IN",
+  OUT: "OUT",
+  ADJUST: "ADJUST",
+} as const;
+
+export const INVENTORY_MOVEMENT_LABELS: Record<string, string> = {
+  IN: "Entrada",
+  OUT: "Salida",
+  ADJUST: "Ajuste",
+};
+
+export const INVENTORY_MOVEMENT_REASONS = [
+  { value: "PURCHASE", label: "Compra" },
+  { value: "WORK_ORDER", label: "Orden de trabajo" },
+  { value: "ADJUSTMENT", label: "Ajuste de inventario" },
+  { value: "RETURN", label: "Devolución" },
+  { value: "DAMAGE", label: "Merma / daño" },
+  { value: "OTHER", label: "Otro" },
+] as const;
+
+export const QUOTATION_TYPES = [
+  { value: "PRIVATE", label: "Particular" },
+  { value: "INSURANCE", label: "Aseguradora" },
+] as const;
+
+export const QUOTATION_STATUSES = {
+  DRAFT: "DRAFT",
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+  CONVERTED: "CONVERTED",
+} as const;
+
+export const QUOTATION_STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Borrador",
+  PENDING: "Pendiente",
+  APPROVED: "Aprobada",
+  REJECTED: "Rechazada",
+  CONVERTED: "Convertida",
+};
+
+export const QUOTATION_PHOTO_CATEGORIES = [
+  { value: "INSPECTION", label: "Inspección / daño" },
+  { value: "BEFORE", label: "Antes" },
+  { value: "DURING", label: "Durante trabajo" },
+  { value: "AFTER", label: "Después" },
+] as const;
+
+export const QUOTATION_PHOTO_CATEGORY_LABELS: Record<string, string> =
+  Object.fromEntries(
+    QUOTATION_PHOTO_CATEGORIES.map((c) => [c.value, c.label]),
+  );
+
+export const QUOTATION_LABOR_AREAS = [
+  { value: "DESAB", label: "Desabollado" },
+  { value: "PREP", label: "Preparación" },
+  { value: "PAINT", label: "Pintura" },
+  { value: "POLISH", label: "Pulido" },
+  { value: "ASSEMBLY", label: "Armado" },
+] as const;
+
 export const SUGGESTED_PARTS = [
   "Bomper delantero",
   "Bomper trasero",

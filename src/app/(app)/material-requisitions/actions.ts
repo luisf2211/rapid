@@ -24,6 +24,10 @@ export async function createMaterialRequisitionAction(
   try {
     const req = await createMaterialRequisition(parsed.data);
     revalidatePath("/material-requisitions");
+    revalidatePath("/inventory");
+    for (const item of parsed.data.items) {
+      revalidatePath(`/inventory/${item.inventoryPartId}`);
+    }
     revalidatePath(`/work-orders/${parsed.data.workOrderId}`);
     revalidatePath("/dashboard");
     return { ok: true, id: req.id, workOrderId: parsed.data.workOrderId };

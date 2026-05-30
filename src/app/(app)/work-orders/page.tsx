@@ -36,22 +36,25 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
 
       <form
         method="get"
-        className="card p-3 sm:p-4 mb-4 flex flex-col sm:flex-row gap-2 items-stretch"
+        className="card p-4 mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_11.5rem_auto] md:items-center"
       >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rapid-text-muted" />
+        <div className="relative min-w-0">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rapid-text-muted"
+            aria-hidden
+          />
           <input
             type="text"
             name="q"
             defaultValue={q ?? ""}
-            placeholder="Buscar por cliente, placa, marca, modelo o número de orden..."
-            className="form-input pl-9"
+            placeholder="Buscar por cliente, placa, marca, modelo..."
+            className="form-input w-full pl-10"
           />
         </div>
         <select
           name="status"
           defaultValue={status ?? ""}
-          className="form-input sm:w-56"
+          className="form-input w-full pr-9 appearance-none bg-no-repeat bg-[length:16px_16px] bg-[right_0.75rem_center] bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22></polyline></svg>')]"
         >
           <option value="">Todos los estados</option>
           <option value="RECEIVED">Recibida</option>
@@ -60,7 +63,7 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
           <option value="DELIVERED">Entregada</option>
           <option value="CANCELLED">Cancelada</option>
         </select>
-        <button type="submit" className="btn-dark">
+        <button type="submit" className="btn-dark w-full md:w-auto justify-self-stretch md:justify-self-auto">
           Filtrar
         </button>
       </form>

@@ -1,0 +1,374 @@
+/* Estilos solo para impresión de cotizaciones / presupuestos */
+
+@page {
+  size: letter;
+  margin: 12mm;
+}
+
+@media print {
+  body {
+    margin: 0;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+.qdoc {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  color: #111;
+  line-height: 1.35;
+  max-width: 8.5in;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.qdoc-red {
+  color: #c41e3a;
+}
+
+.qdoc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 3px solid #c41e3a;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.qdoc-logo-block {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.qdoc-logo-mark {
+  width: 52px;
+  height: 52px;
+  border: 3px solid #c41e3a;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 22px;
+  color: #c41e3a;
+  flex-shrink: 0;
+}
+
+.qdoc-logo-img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.qdoc-brand-name {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #c41e3a;
+  line-height: 1;
+}
+
+.qdoc-brand-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #333;
+  margin-top: 2px;
+}
+
+.qdoc-company-meta {
+  font-size: 8.5pt;
+  color: #444;
+  margin-top: 6px;
+}
+
+.qdoc-doc-meta {
+  text-align: right;
+  min-width: 200px;
+}
+
+.qdoc-doc-title {
+  font-size: 14pt;
+  font-weight: 800;
+  color: #c41e3a;
+  letter-spacing: 0.04em;
+}
+
+.qdoc-doc-number {
+  font-size: 11pt;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.qdoc-meta-line {
+  font-size: 9pt;
+  color: #444;
+  margin-top: 2px;
+}
+
+.qdoc-section-title {
+  font-size: 8pt;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #c41e3a;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 3px;
+}
+
+.qdoc-box {
+  border: 1px solid #ccc;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  font-size: 9pt;
+}
+
+.qdoc-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.qdoc-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.qdoc-field {
+  margin-bottom: 3px;
+}
+
+.qdoc-field strong {
+  color: #333;
+}
+
+.qdoc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  margin-bottom: 12px;
+}
+
+.qdoc-table th {
+  background: #f3f3f3;
+  border: 1px solid #bbb;
+  padding: 5px 6px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 7.5pt;
+  text-transform: uppercase;
+}
+
+.qdoc-table td {
+  border: 1px solid #ccc;
+  padding: 5px 6px;
+  vertical-align: top;
+}
+
+.qdoc-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.qdoc-totals {
+  width: 240px;
+  margin-left: auto;
+  font-size: 9pt;
+}
+
+.qdoc-totals tr td {
+  border: none;
+  padding: 3px 0;
+}
+
+.qdoc-totals tr td:last-child {
+  text-align: right;
+  font-weight: 600;
+}
+
+.qdoc-totals .grand td {
+  font-size: 11pt;
+  font-weight: 800;
+  color: #c41e3a;
+  border-top: 2px solid #c41e3a;
+  padding-top: 6px;
+}
+
+.qdoc-photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.qdoc-photo {
+  border: 1px solid #ccc;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.qdoc-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qdoc-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  color: #888;
+}
+
+.qdoc-conditions {
+  font-size: 8.5pt;
+  color: #333;
+  margin: 10px 0;
+  padding-left: 16px;
+}
+
+.qdoc-conditions li {
+  margin-bottom: 4px;
+}
+
+.qdoc-footer {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 2px solid #c41e3a;
+  text-align: center;
+  font-size: 8pt;
+  color: #555;
+}
+
+.qdoc-signatures-block {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+  page-break-inside: avoid;
+}
+
+.qdoc-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 8px;
+}
+
+.qdoc-sig-cell {
+  text-align: center;
+  font-size: 9pt;
+}
+
+.qdoc-sig-space {
+  height: 52px;
+  border-bottom: 1px solid #333;
+  margin-bottom: 6px;
+}
+
+.qdoc-sig-space--sm {
+  height: 36px;
+  max-width: 280px;
+  margin: 16px auto 6px;
+}
+
+.qdoc-sig-label {
+  font-weight: 700;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #333;
+  margin: 0;
+}
+
+.qdoc-sig-name {
+  margin: 4px 0 0;
+  font-size: 9pt;
+  color: #444;
+}
+
+.qdoc-sig-hint {
+  margin: 4px 0 0;
+  font-size: 8pt;
+  color: #888;
+}
+
+.qdoc-sig-date {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 9pt;
+  color: #444;
+}
+
+.qdoc-sig-insurance {
+  margin-top: 8px;
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px dashed #ccc;
+}
+
+.qdoc-sig-line {
+  border-top: 1px solid #333;
+  margin-top: 48px;
+  padding-top: 4px;
+  text-align: center;
+}
+
+.qdoc-summary-box {
+  border: 2px solid #c41e3a;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.qdoc-summary-box table {
+  width: 100%;
+  font-size: 9pt;
+}
+
+.qdoc-summary-box td:last-child {
+  text-align: right;
+  font-weight: 600;
+}
+
+.qdoc-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.qdoc-toolbar button,
+.qdoc-toolbar a {
+  background: #c41e3a;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.qdoc-toolbar a.secondary {
+  background: #444;
+}

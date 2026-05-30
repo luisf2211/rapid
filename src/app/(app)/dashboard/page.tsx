@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  ClipboardList,
-  CheckCircle2,
-  Boxes,
-  Wrench,
-  ArrowRight,
-  Activity,
-  TimerReset,
-} from "lucide-react";
+import { ClipboardList, Boxes, Wrench, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SummaryCard } from "@/components/ui/SummaryCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -26,21 +18,18 @@ export default async function DashboardPage() {
     error = e instanceof Error ? e.message : "Error desconocido";
   }
 
+  const totalGeneral =
+    (stats?.totalMaterials ?? 0) + (stats?.totalLabor ?? 0);
+
   return (
     <>
       <PageHeader
         title="Dashboard"
-        subtitle="Estado general del taller. Datos en tiempo real desde SQL Server."
-        badge={
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-rapid-green/30 bg-rapid-green-soft/60 text-rapid-green-dark text-xs font-semibold">
-            <span className="dot-live" />
-            Live
-          </span>
-        }
+        subtitle="Resumen de actividad del taller."
         actions={
           <Link href="/work-orders/new" className="btn-primary">
             <ClipboardList className="w-4 h-4" />
-            Nueva orden de recepción
+            Nueva orden
           </Link>
         }
       />
@@ -50,102 +39,68 @@ export default async function DashboardPage() {
           <p className="text-sm font-semibold text-amber-800">
             No se pudo conectar a la base de datos
           </p>
-          <p className="text-xs text-amber-700 mt-1">
-            Verifica que SQL Server esté disponible en{" "}
-            <code className="font-mono">localhost:1433</code> y que la base de
-            datos <code className="font-mono">Rapid</code> exista. Detalle:{" "}
-            <span className="font-mono break-all">{error}</span>
+          <p className="text-xs text-amber-700 mt-1 font-mono break-all">
+            {error}
           </p>
         </div>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
         <SummaryCard
           label="Total de órdenes"
           value={stats?.totalOrders ?? 0}
           hint="Histórico"
-          icon={<ClipboardList className="w-5 h-5" />}
-          accent="dark"
         />
         <SummaryCard
-          label="Órdenes recibidas"
+          label="Recibidas"
           value={stats?.receivedOrders ?? 0}
           hint="Pendientes de iniciar"
-          icon={<TimerReset className="w-5 h-5" />}
-          accent="green"
         />
         <SummaryCard
-          label="Total materiales"
-          value={formatMoney(stats?.totalMaterials ?? 0)}
-          hint="Acumulado"
-          icon={<Boxes className="w-5 h-5" />}
+          label="En proceso"
+          value={stats?.inProgressOrders ?? 0}
+          hint="En el taller"
         />
         <SummaryCard
-          label="Total mano de obra"
-          value={formatMoney(stats?.totalLabor ?? 0)}
-          hint="Acumulado"
-          icon={<Wrench className="w-5 h-5" />}
+          label="Completadas"
+          value={stats?.completedOrders ?? 0}
+          hint="Listas para entrega"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <div className="card p-5">
-          <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
-            En proceso
-          </p>
-          <div className="flex items-end justify-between mt-2">
-            <p className="text-3xl font-bold">{stats?.inProgressOrders ?? 0}</p>
-            <Activity className="w-5 h-5 text-amber-500" />
-          </div>
-          <p className="text-xs text-rapid-text-muted mt-1.5">
-            Vehículos actualmente en el taller
-          </p>
-        </div>
-        <div className="card p-5">
-          <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
-            Completadas
-          </p>
-          <div className="flex items-end justify-between mt-2">
-            <p className="text-3xl font-bold">{stats?.completedOrders ?? 0}</p>
-            <CheckCircle2 className="w-5 h-5 text-blue-500" />
-          </div>
-          <p className="text-xs text-rapid-text-muted mt-1.5">
-            Listas para entrega
-          </p>
-        </div>
-        <div className="card p-5 bg-gradient-to-br from-rapid-black to-[#1a201e] text-white border-rapid-black">
-          <p className="text-xs uppercase tracking-wider font-semibold text-white/60">
-            Total general
-          </p>
-          <p className="text-3xl font-bold mt-2 text-rapid-green">
-            {formatMoney(
-              (stats?.totalMaterials ?? 0) + (stats?.totalLabor ?? 0),
-            )}
-          </p>
-          <p className="text-xs text-white/50 mt-1.5">
-            Materiales + Mano de obra
-          </p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <SummaryCard
+          label="Materiales"
+          value={formatMoney(stats?.totalMaterials ?? 0)}
+          hint="Acumulado"
+          icon={<Boxes className="w-4 h-4" />}
+        />
+        <SummaryCard
+          label="Mano de obra"
+          value={formatMoney(stats?.totalLabor ?? 0)}
+          hint="Acumulado"
+          icon={<Wrench className="w-4 h-4" />}
+        />
+        <SummaryCard
+          label="Total general"
+          value={formatMoney(totalGeneral)}
+          hint="Materiales + mano de obra"
+        />
       </div>
 
       <div className="card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-rapid-border">
-          <div>
-            <h2 className="font-bold text-lg">Últimas órdenes</h2>
-            <p className="text-xs text-rapid-text-muted">
-              Las {stats?.recentOrders?.length ?? 0} más recientes
-            </p>
-          </div>
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-rapid-border">
+          <h2 className="font-semibold text-rapid-text">Últimas órdenes</h2>
           <Link
             href="/work-orders"
-            className="text-xs font-semibold text-rapid-green-dark hover:underline inline-flex items-center gap-1"
+            className="text-sm text-rapid-text-muted hover:text-rapid-text transition"
           >
-            Ver todas <ArrowRight className="w-3.5 h-3.5" />
+            Ver todas →
           </Link>
         </div>
 
         {!stats?.recentOrders?.length ? (
-          <div className="p-10 text-center">
+          <div className="p-12 text-center">
             <p className="text-sm text-rapid-text-muted">
               No hay órdenes registradas todavía.
             </p>
@@ -159,14 +114,14 @@ export default async function DashboardPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-rapid-bg/60 text-xs uppercase tracking-wider text-rapid-text-muted">
+              <thead className="bg-rapid-bg/60 text-xs text-rapid-text-muted">
                 <tr>
-                  <th className="text-left font-semibold px-5 py-3">Orden</th>
-                  <th className="text-left font-semibold px-5 py-3">Cliente</th>
-                  <th className="text-left font-semibold px-5 py-3">Vehículo</th>
-                  <th className="text-left font-semibold px-5 py-3">Placa</th>
-                  <th className="text-left font-semibold px-5 py-3">Estado</th>
-                  <th className="text-left font-semibold px-5 py-3">Fecha</th>
+                  <th className="text-left font-medium px-5 py-3">Orden</th>
+                  <th className="text-left font-medium px-5 py-3">Cliente</th>
+                  <th className="text-left font-medium px-5 py-3">Vehículo</th>
+                  <th className="text-left font-medium px-5 py-3">Placa</th>
+                  <th className="text-left font-medium px-5 py-3">Estado</th>
+                  <th className="text-left font-medium px-5 py-3">Fecha</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
@@ -198,9 +153,9 @@ export default async function DashboardPage() {
                     <td className="px-5 py-3 text-right">
                       <Link
                         href={`/work-orders/${o.id}`}
-                        className="text-xs font-semibold text-rapid-green-dark hover:underline inline-flex items-center gap-1"
+                        className="text-xs font-semibold text-rapid-green-dark hover:underline"
                       >
-                        Detalle <ArrowRight className="w-3 h-3" />
+                        Ver detalle →
                       </Link>
                     </td>
                   </tr>
