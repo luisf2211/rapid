@@ -209,6 +209,34 @@ export const QUOTATION_LABOR_AREAS = [
   { value: "ASSEMBLY", label: "Armado" },
 ] as const;
 
+export const INVOICE_STATUSES = {
+  PENDING: "PENDING",
+  INVOICED: "INVOICED",
+  PAID: "PAID",
+  VOID: "VOID",
+} as const;
+
+export const INVOICE_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendiente",
+  INVOICED: "Facturada",
+  PAID: "Pagada",
+  VOID: "Anulada",
+};
+
+export const INVOICE_LINE_TYPES = {
+  LABOR: "LABOR",
+  MATERIAL: "MATERIAL",
+  PART: "PART",
+  OTHER: "OTHER",
+} as const;
+
+export const INVOICE_LINE_TYPE_LABELS: Record<string, string> = {
+  LABOR: "Mano de obra",
+  MATERIAL: "Material",
+  PART: "Repuesto",
+  OTHER: "Otro",
+};
+
 export const SUGGESTED_PARTS = [
   "Bomper delantero",
   "Bomper trasero",

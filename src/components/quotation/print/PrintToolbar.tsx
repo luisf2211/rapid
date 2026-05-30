@@ -5,9 +5,11 @@ import { useEffect } from "react";
 export function PrintToolbar({
   backHref,
   autoPrint,
+  backLabel = "Volver",
 }: {
   backHref: string;
   autoPrint?: boolean;
+  backLabel?: string;
 }) {
   useEffect(() => {
     if (autoPrint) {
@@ -22,7 +24,7 @@ export function PrintToolbar({
         Imprimir / Guardar PDF
       </button>
       <a href={backHref} className="secondary">
-        Volver a la cotización
+        {backLabel}
       </a>
     </div>
   );

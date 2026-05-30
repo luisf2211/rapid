@@ -3,14 +3,22 @@ import { cn } from "@/lib/utils";
 interface LogoProps {
   className?: string;
   variant?: "light" | "dark";
+  /** Solo ícono (sidebar contraído) */
+  compact?: boolean;
 }
 
-export function Logo({ className, variant = "dark" }: LogoProps) {
+export function Logo({ className, variant = "dark", compact = false }: LogoProps) {
   const textColor = variant === "dark" ? "text-white" : "text-rapid-text";
   return (
-    <div className={cn("flex items-center gap-2.5", className)}>
+    <div
+      className={cn(
+        "flex items-center gap-2.5",
+        compact && "justify-center",
+        className,
+      )}
+    >
       <div className="relative">
-        <div className="w-9 h-9 rounded-xl bg-rapid-green flex items-center justify-center shadow-[0_0_18px_rgba(0,200,83,0.45)]">
+        <div className="w-9 h-9 rounded-xl bg-rapid-green flex items-center justify-center shadow-[0_2px_12px_rgba(0,200,83,0.35)]">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -27,9 +35,11 @@ export function Logo({ className, variant = "dark" }: LogoProps) {
           </svg>
         </div>
       </div>
-      <span className={cn("font-bold tracking-tight text-lg", textColor)}>
-        Rapid
-      </span>
+      {!compact && (
+        <span className={cn("font-bold tracking-tight text-lg", textColor)}>
+          Rapid
+        </span>
+      )}
     </div>
   );
 }

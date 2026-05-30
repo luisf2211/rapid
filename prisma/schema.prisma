@@ -38,6 +38,7 @@ model WorkOrder {
   inventoryMovements   InventoryMovement[]
   quotation            Quotation?            @relation("WorkOrderFromQuotation", fields: [quotationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   convertedFrom        Quotation?            @relation("QuotationConvertedWorkOrder")
+  invoices             Invoice[]
 
   @@map("WorkOrder")
 }
@@ -265,6 +266,7 @@ model Quotation {
 
   workOrder     WorkOrder?              @relation("QuotationConvertedWorkOrder", fields: [workOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   sourceOrders  WorkOrder[]             @relation("WorkOrderFromQuotation")
+  invoices      Invoice[]
   laborLines    QuotationLaborLine[]
   materialLines QuotationMaterialLine[]
   partLines     QuotationPartLine[]
@@ -348,4 +350,66 @@ model QuotationPhoto {
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("QuotationPhoto")
+}
+
+model Invoice {
+  id               Int       @id(map: "PK_Invoice") @default(autoincrement()) @map("Id")
+  invoiceNumber    Int       @unique(map: "UQ_Invoice_Number") @map("InvoiceNumber")
+  invoiceDate      DateTime  @default(dbgenerated("CAST(SYSDATETIME() AS DATE)"), map: "DF_Invoice_Date") @map("InvoiceDate") @db.Date
+  workOrderId      Int       @map("WorkOrderId")
+  quotationId      Int?      @map("QuotationId")
+  customerName     String    @map("CustomerName") @db.NVarChar(150)
+  nationalId       String?   @map("NationalId") @db.NVarChar(30)
+  phone            String?   @map("Phone") @db.NVarChar(50)
+  email            String?   @map("Email") @db.NVarChar(150)
+  address          String?   @map("Address") @db.NVarChar(250)
+  brand            String?   @map("Brand") @db.NVarChar(80)
+  model            String?   @map("Model") @db.NVarChar(80)
+  vehicleYear      Int?      @map("VehicleYear")
+  plate            String?   @map("Plate") @db.NVarChar(30)
+  vin              String?   @map("Vin") @db.NVarChar(30)
+  billingType      String    @default("PRIVATE", map: "DF_Invoice_BillingType") @map("BillingType") @db.NVarChar(20)
+  status           String    @default("PENDING", map: "DF_Invoice_Status") @map("Status") @db.NVarChar(30)
+  laborSubtotal    Decimal   @default(0, map: "DF_Invoice_Labor") @map("LaborSubtotal") @db.Decimal(18, 2)
+  materialSubtotal Decimal   @default(0, map: "DF_Invoice_Material") @map("MaterialSubtotal") @db.Decimal(18, 2)
+  partsSubtotal    Decimal   @default(0, map: "DF_Invoice_Parts") @map("PartsSubtotal") @db.Decimal(18, 2)
+  subtotal         Decimal   @default(0, map: "DF_Invoice_Subtotal") @map("Subtotal") @db.Decimal(18, 2)
+  discountAmount   Decimal   @default(0, map: "DF_Invoice_Discount") @map("DiscountAmount") @db.Decimal(18, 2)
+  taxRate          Decimal   @default(0.18, map: "DF_Invoice_TaxRate") @map("TaxRate") @db.Decimal(5, 4)
+  taxAmount        Decimal   @default(0, map: "DF_Invoice_Tax") @map("TaxAmount") @db.Decimal(18, 2)
+  grandTotal       Decimal   @default(0, map: "DF_Invoice_Total") @map("GrandTotal") @db.Decimal(18, 2)
+  paidAt           DateTime? @map("PaidAt")
+  paidBy           String?   @map("PaidBy") @db.NVarChar(150)
+  paymentReference String?   @map("PaymentReference") @db.NVarChar(100)
+  voidedAt         DateTime? @map("VoidedAt")
+  voidedBy         String?   @map("VoidedBy") @db.NVarChar(150)
+  voidReason       String?   @map("VoidReason") @db.NVarChar(500)
+  notes            String?   @map("Notes") @db.NVarChar(Max)
+  createdAt        DateTime  @default(dbgenerated("sysdatetime()"), map: "DF_Invoice_CreatedAt") @map("CreatedAt")
+  createdBy        String?   @map("CreatedBy") @db.NVarChar(150)
+  updatedAt        DateTime? @map("UpdatedAt")
+  updatedBy        String?   @map("UpdatedBy") @db.NVarChar(150)
+
+  workOrder  WorkOrder     @relation(fields: [workOrderId], references: [id], onUpdate: NoAction)
+  quotation  Quotation?    @relation(fields: [quotationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  lines      InvoiceLine[]
+
+  @@map("Invoice")
+}
+
+model InvoiceLine {
+  id          Int     @id(map: "PK_InvoiceLine") @default(autoincrement()) @map("Id")
+  invoiceId   Int     @map("InvoiceId")
+  lineType    String  @map("LineType") @db.NVarChar(20)
+  sourceType  String? @map("SourceType") @db.NVarChar(30)
+  sourceId    Int?    @map("SourceId")
+  description String  @map("Description") @db.NVarChar(250)
+  quantity    Decimal @default(1, map: "DF_InvoiceLine_Qty") @map("Quantity") @db.Decimal(18, 2)
+  unitPrice   Decimal @default(0, map: "DF_InvoiceLine_Price") @map("UnitPrice") @db.Decimal(18, 2)
+  lineTotal   Decimal @default(0, map: "DF_InvoiceLine_Total") @map("LineTotal") @db.Decimal(18, 2)
+  sortOrder   Int     @default(0, map: "DF_InvoiceLine_Sort") @map("SortOrder")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("InvoiceLine")
 }

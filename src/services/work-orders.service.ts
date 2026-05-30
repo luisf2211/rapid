@@ -82,6 +82,24 @@ export async function getWorkOrderById(id: number) {
   return order;
 }
 
+/** Orden con datos necesarios para imprimir la hoja de recepción */
+export async function getWorkOrderForReceptionPrint(id: number) {
+  return prisma.workOrder.findUnique({
+    where: { id },
+    include: {
+      receptions: {
+        orderBy: { id: "asc" },
+        include: { checklist: true },
+      },
+      damages: { orderBy: { id: "asc" } },
+      photos: { orderBy: { id: "asc" } },
+      quotation: {
+        select: { quotationNumber: true, quotationType: true },
+      },
+    },
+  });
+}
+
 export async function createWorkOrder(input: WorkOrderInput) {
   const orderNumber = await generateOrderNumber();
   const deliveryDate = new Date(`${input.deliveryDate}T00:00:00.000Z`);
@@ -154,6 +172,7 @@ export async function getDashboardStats() {
     receivedOrders,
     inProgressOrders,
     completedOrders,
+    deliveredOrders,
     materialAgg,
     laborAgg,
     recentOrders,
@@ -162,6 +181,7 @@ export async function getDashboardStats() {
     prisma.workOrder.count({ where: { status: "RECEIVED" } }),
     prisma.workOrder.count({ where: { status: "IN_PROGRESS" } }),
     prisma.workOrder.count({ where: { status: "COMPLETED" } }),
+    prisma.workOrder.count({ where: { status: "DELIVERED" } }),
     prisma.materialRequisition.aggregate({ _sum: { total: true } }),
     prisma.laborOrder.aggregate({ _sum: { total: true } }),
     prisma.workOrder.findMany({
@@ -171,11 +191,15 @@ export async function getDashboardStats() {
     }),
   ]);
 
+  const activeInShop = receivedOrders + inProgressOrders;
+
   return {
     totalOrders,
     receivedOrders,
     inProgressOrders,
     completedOrders,
+    deliveredOrders,
+    activeInShop,
     totalMaterials: Number(materialAgg._sum.total ?? 0),
     totalLabor: Number(laborAgg._sum.total ?? 0),
     recentOrders,

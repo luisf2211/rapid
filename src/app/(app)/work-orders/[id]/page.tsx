@@ -12,6 +12,8 @@ import {
   User,
   Plus,
   Check,
+  Receipt,
+  Printer,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -19,6 +21,11 @@ import {
   getWorkOrderById,
   getWorkOrderFinancialSummary,
 } from "@/services/work-orders.service";
+import {
+  getActiveInvoiceForWorkOrder,
+  getLatestInvoiceForWorkOrder,
+} from "@/services/invoices.service";
+import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
 import { checklistRowsToDetails } from "@/lib/checklist";
 import { formatMoney } from "@/lib/formatters/money";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
@@ -69,6 +76,9 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
   if (!order) notFound();
 
   const financial = await getWorkOrderFinancialSummary(order.id);
+  const activeInvoice = await getActiveInvoiceForWorkOrder(order.id);
+  const latestInvoice =
+    activeInvoice ?? (await getLatestInvoiceForWorkOrder(order.id));
   const reception = order.receptions[0] ?? null;
 
   return (
@@ -87,6 +97,13 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
               <ArrowLeft className="w-4 h-4" /> Volver
             </Link>
             <Link
+              href={`/print/work-orders/${order.id}`}
+              target="_blank"
+              className="btn-secondary"
+            >
+              <Printer className="w-4 h-4" /> Imprimir recepción
+            </Link>
+            <Link
               href={`/material-requisitions/new?workOrderId=${order.id}`}
               className="btn-secondary"
             >
@@ -98,6 +115,23 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
             >
               <Wrench className="w-4 h-4" /> Mano de obra
             </Link>
+            {latestInvoice && (
+              <Link
+                href={`/invoices/${latestInvoice.id}`}
+                className="btn-secondary"
+              >
+                <Receipt className="w-4 h-4" /> Ver factura FAC-
+                {String(latestInvoice.invoiceNumber).padStart(5, "0")}
+              </Link>
+            )}
+            {!activeInvoice && (
+              <Link
+                href={`/invoices/new?workOrderId=${order.id}`}
+                className="btn-secondary"
+              >
+                <Receipt className="w-4 h-4" /> Facturar
+              </Link>
+            )}
           </>
         }
       />
@@ -224,7 +258,13 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           {
             id: "summary",
             label: "Resumen financiero",
-            content: <FinancialTab order={order} financial={financial} />,
+            content: (
+              <FinancialTab
+                order={order}
+                financial={financial}
+                latestInvoice={latestInvoice}
+              />
+            ),
           },
         ]}
       />
@@ -709,15 +749,56 @@ function LaborTab({ order }: { order: WorkOrder }) {
   );
 }
 
+type LatestInvoice = Awaited<
+  ReturnType<typeof getLatestInvoiceForWorkOrder>
+>;
+
 function FinancialTab({
   order,
   financial,
+  latestInvoice,
 }: {
   order: WorkOrder;
   financial: Financial;
+  latestInvoice: LatestInvoice;
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="space-y-4">
+      {latestInvoice && (
+        <div className="card p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+              Facturación
+            </p>
+            <p className="text-lg font-bold mt-1">
+              FAC-{String(latestInvoice.invoiceNumber).padStart(5, "0")}
+            </p>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <InvoiceStatusBadge status={latestInvoice.status} />
+              <span className="text-sm text-rapid-text-muted">
+                {formatDate(latestInvoice.invoiceDate)}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={`/invoices/${latestInvoice.id}`}
+              className="btn-primary"
+            >
+              Ver factura
+            </Link>
+            <Link
+              href={`/print/invoices/${latestInvoice.id}`}
+              target="_blank"
+              className="btn-secondary"
+            >
+              Imprimir
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div className="card p-5">
         <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
           Total materiales
@@ -750,6 +831,7 @@ function FinancialTab({
         <p className="text-xs text-white/50 mt-1.5">
           Materiales + Mano de obra
         </p>
+      </div>
       </div>
     </div>
   );

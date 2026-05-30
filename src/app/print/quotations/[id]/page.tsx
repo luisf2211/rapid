@@ -30,7 +30,11 @@ export default async function QuotationPrintPage({
 
   return (
     <>
-      <PrintToolbar backHref={backHref} autoPrint={autoPrint} />
+      <PrintToolbar
+        backHref={backHref}
+        backLabel="Volver a la cotización"
+        autoPrint={autoPrint}
+      />
       <div style={{ padding: "16px" }}>
         {data.quotationType === "INSURANCE" ? (
           <InsuranceQuotationDocument data={data} workshop={workshop} />
