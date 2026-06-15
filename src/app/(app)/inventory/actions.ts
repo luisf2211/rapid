@@ -7,6 +7,7 @@ import {
   type InventoryMovementInput,
   type InventoryPartInput,
 } from "@/lib/validations/inventory";
+import { INVENTORY_PART_TYPES } from "@/lib/constants";
 import {
   createInventoryMovement,
   createInventoryPart,
@@ -15,7 +16,7 @@ import {
 } from "@/services/inventory.service";
 
 export type ActionState =
-  | { ok: true; id: number; mode?: "deleted" | "deactivated" }
+  | { ok: true; id: number; mode?: "deleted" | "deactivated"; partType?: string }
   | { ok: false; error: string };
 
 export async function createInventoryPartAction(
@@ -31,7 +32,8 @@ export async function createInventoryPartAction(
   try {
     const part = await createInventoryPart(parsed.data);
     revalidatePath("/inventory");
-    return { ok: true, id: part.id };
+    revalidatePath("/inventory/paint");
+    return { ok: true, id: part.id, partType: parsed.data.partType };
   } catch (e) {
     return {
       ok: false,
@@ -54,6 +56,7 @@ export async function updateInventoryPartAction(
   try {
     await updateInventoryPart(id, parsed.data);
     revalidatePath("/inventory");
+    revalidatePath("/inventory/paint");
     revalidatePath(`/inventory/${id}`);
     return { ok: true, id };
   } catch (e) {
@@ -73,6 +76,7 @@ export async function deleteInventoryPartAction(
   try {
     const result = await deleteInventoryPart(id);
     revalidatePath("/inventory");
+    revalidatePath("/inventory/paint");
     revalidatePath(`/inventory/${id}`);
     revalidatePath("/material-requisitions/new");
     return { ok: true, id, mode: result.mode };
@@ -97,6 +101,7 @@ export async function createInventoryMovementAction(
   try {
     const movement = await createInventoryMovement(parsed.data);
     revalidatePath("/inventory");
+    revalidatePath("/inventory/paint");
     revalidatePath(`/inventory/${parsed.data.inventoryPartId}`);
     if (parsed.data.workOrderId) {
       revalidatePath(`/work-orders/${parsed.data.workOrderId}`);

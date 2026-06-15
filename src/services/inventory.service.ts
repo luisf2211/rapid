@@ -7,6 +7,12 @@ import type {
   InventoryMovementInput,
   InventoryPartInput,
 } from "@/lib/validations/inventory";
+import {
+  INVENTORY_PART_TYPES,
+  type InventoryPartType,
+} from "@/lib/constants";
+import { inferPartTypeFromCategory } from "@/lib/inventory/part-type";
+import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
 
 const STOCK_ALERTS_PREVIEW = 6;
 
@@ -19,9 +25,16 @@ export function availableQuantity(
   return (toPlainNumber(onHand) ?? 0) - (toPlainNumber(reserved) ?? 0);
 }
 
-export async function listActiveInventoryPartsForPicker() {
+export async function listActiveInventoryPartsForPicker(params?: {
+  partType?: InventoryPartType;
+}) {
+  const companyId = await requireCompanyIdFromSession();
   return prisma.inventoryPart.findMany({
-    where: { isActive: true },
+    where: {
+      ...companyWhere(companyId),
+      isActive: true,
+      ...(params?.partType ? { PartType: params.partType } : {}),
+    },
     orderBy: { name: "asc" },
   });
 }
@@ -29,12 +42,16 @@ export async function listActiveInventoryPartsForPicker() {
 export async function listInventoryParts(params?: {
   search?: string;
   filter?: "all" | "low" | "inactive";
+  partType?: InventoryPartType;
 }) {
+  const companyId = await requireCompanyIdFromSession();
   const search = params?.search?.trim();
   const filter = params?.filter ?? "all";
 
   const parts = await prisma.inventoryPart.findMany({
     where: {
+      ...companyWhere(companyId),
+      ...(params?.partType ? { PartType: params.partType } : {}),
       ...(filter === "inactive" ? { isActive: false } : {}),
       ...(filter === "all" || filter === "inactive"
         ? {}
@@ -74,12 +91,19 @@ function isPartLowOrOutOfStock(part: {
   return available <= Number(part.minQuantity);
 }
 
-export async function getInventoryStockAlerts(): Promise<{
+export async function getInventoryStockAlerts(params?: {
+  partType?: InventoryPartType;
+}): Promise<{
   alerts: InventoryStockAlert[];
   total: number;
 }> {
+  const companyId = await requireCompanyIdFromSession();
   const parts = await prisma.inventoryPart.findMany({
-    where: { isActive: true },
+    where: {
+      ...companyWhere(companyId),
+      isActive: true,
+      ...(params?.partType ? { PartType: params.partType } : {}),
+    },
     orderBy: { name: "asc" },
     select: {
       id: true,
@@ -136,8 +160,9 @@ export async function getInventoryStockAlerts(): Promise<{
 }
 
 export async function getInventoryPartById(id: number) {
-  return prisma.inventoryPart.findUnique({
-    where: { id },
+  const companyId = await requireCompanyIdFromSession();
+  return prisma.inventoryPart.findFirst({
+    where: { id, ...companyWhere(companyId) },
     include: {
       movements: {
         include: { workOrder: true },
@@ -150,12 +175,20 @@ export async function getInventoryPartById(id: number) {
 }
 
 export async function createInventoryPart(input: InventoryPartInput) {
+  const companyId = await requireCompanyIdFromSession();
+  const partType =
+    input.partType ??
+    inferPartTypeFromCategory(input.category) ??
+    INVENTORY_PART_TYPES.MATERIAL;
+
   return prisma.inventoryPart.create({
     data: {
+      CompanyId: companyId,
       sku: input.sku.trim(),
       name: input.name,
       description: input.description || null,
       category: input.category || null,
+      PartType: partType,
       unit: input.unit || "PZ",
       quantityOnHand: input.quantityOnHand,
       reservedQuantity: 0,
@@ -172,6 +205,11 @@ export async function updateInventoryPart(
   id: number,
   input: InventoryPartInput,
 ) {
+  const partType =
+    input.partType ??
+    inferPartTypeFromCategory(input.category) ??
+    INVENTORY_PART_TYPES.MATERIAL;
+
   return prisma.inventoryPart.update({
     where: { id },
     data: {
@@ -179,6 +217,7 @@ export async function updateInventoryPart(
       name: input.name,
       description: input.description || null,
       category: input.category || null,
+      PartType: partType,
       unit: input.unit || "PZ",
       minQuantity: input.minQuantity ?? null,
       unitCost: input.unitCost ?? null,
@@ -321,12 +360,16 @@ export async function deleteInventoryPart(
   return { mode: "deleted" };
 }
 
-export async function getInventoryStats() {
+export async function getInventoryStats(params?: {
+  partType?: InventoryPartType;
+}) {
+  const companyId = await requireCompanyIdFromSession();
+  const where = { ...companyWhere(companyId), ...(params?.partType ? { PartType: params.partType } : {}) };
   const [totalParts, activeParts, activePartsRows] = await Promise.all([
-    prisma.inventoryPart.count(),
-    prisma.inventoryPart.count({ where: { isActive: true } }),
+    prisma.inventoryPart.count({ where }),
+    prisma.inventoryPart.count({ where: { ...where, isActive: true } }),
     prisma.inventoryPart.findMany({
-      where: { isActive: true },
+      where: { ...where, isActive: true },
       select: {
         quantityOnHand: true,
         reservedQuantity: true,

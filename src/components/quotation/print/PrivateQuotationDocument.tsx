@@ -3,8 +3,8 @@ import type { QuotationPrintData } from "@/lib/quotation/print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { PrintDocumentHeader } from "./PrintDocumentHeader";
 import { PrintFooter } from "./PrintFooter";
-import { PrintPhotos } from "./PrintPhotos";
 import { PrintAcceptanceSignatures } from "./PrintAcceptanceSignatures";
+import { PrintQuotationDetailSections } from "./PrintQuotationDetailSections";
 
 function field(label: string, value: string | null | undefined) {
   if (!value) return null;
@@ -22,8 +22,7 @@ export function PrivateQuotationDocument({
   data: QuotationPrintData;
   workshop: WorkshopPrintInfo;
 }) {
-  const subtotal =
-    data.laborSubtotal + data.materialSubtotal + data.partsSubtotal;
+  const subtotal = data.laborSubtotal + data.partsSubtotal;
   const afterDiscount = Math.max(0, subtotal - data.discountAmount);
 
   return (
@@ -56,35 +55,7 @@ export function PrivateQuotationDocument({
         </div>
       </div>
 
-      <h3 className="qdoc-section-title">Detalle de trabajos</h3>
-      <table className="qdoc-table">
-        <thead>
-          <tr>
-            <th style={{ width: "50%" }}>Concepto</th>
-            <th className="num">Cant.</th>
-            <th className="num">Precio unit.</th>
-            <th className="num">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.workLines.length === 0 ? (
-            <tr>
-              <td colSpan={4} style={{ textAlign: "center", color: "#888" }}>
-                Sin líneas de detalle
-              </td>
-            </tr>
-          ) : (
-            data.workLines.map((row, i) => (
-              <tr key={i}>
-                <td>{row.concept}</td>
-                <td className="num">{row.quantity}</td>
-                <td className="num">{formatMoney(row.unitPrice)}</td>
-                <td className="num">{formatMoney(row.total)}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+      <PrintQuotationDetailSections data={data} />
 
       <h3 className="qdoc-section-title">Condiciones</h3>
       <ul className="qdoc-conditions">
@@ -118,9 +89,10 @@ export function PrivateQuotationDocument({
         </tbody>
       </table>
 
-      <PrintPhotos photos={data.photos} title="Fotografías del vehículo" />
-
-      <PrintAcceptanceSignatures customerName={data.customerName} />
+      <PrintAcceptanceSignatures
+        customerName={data.customerName}
+        workshop={workshop}
+      />
 
       <PrintFooter workshop={workshop} />
     </article>

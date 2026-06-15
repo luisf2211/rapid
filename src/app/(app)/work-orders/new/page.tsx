@@ -2,8 +2,11 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { NewWorkOrderForm } from "./NewWorkOrderForm";
+import { makeDefaultWorkOrderFormValues } from "@/lib/work-order/form-mapper";
 
 export default function NewWorkOrderPage() {
+  const defaultValues = makeDefaultWorkOrderFormValues();
+
   return (
     <>
       <div className="card border-rapid-green/30 bg-rapid-green-soft/40 p-4 mb-4 text-sm">
@@ -26,7 +29,7 @@ export default function NewWorkOrderPage() {
           </Link>
         }
       />
-      <NewWorkOrderForm />
+      <NewWorkOrderForm defaultValues={defaultValues} />
     </>
   );
 }

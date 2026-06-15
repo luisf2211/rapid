@@ -36,3 +36,31 @@ export async function saveUploadedImage(
     fileName,
   };
 }
+
+const MAX_SIGNATURE_BYTES = 2 * 1024 * 1024;
+
+/** Guarda firma PNG en base64 (canvas) bajo uploads/signatures/. */
+export async function saveSignaturePng(
+  dataUrl: string,
+): Promise<{ photoUrl: string; fileName: string }> {
+  const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl.trim());
+  if (!match) {
+    throw new Error("Formato de firma inválido");
+  }
+
+  const buffer = Buffer.from(match[1], "base64");
+  if (buffer.length > MAX_SIGNATURE_BYTES) {
+    throw new Error("La firma es demasiado grande");
+  }
+
+  const fileName = `${randomUUID()}.png`;
+  const subfolder = "signatures";
+  const dir = join(getUploadsRoot(), subfolder);
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, fileName), buffer);
+
+  return {
+    photoUrl: `/uploads/${subfolder}/${fileName}`,
+    fileName,
+  };
+}

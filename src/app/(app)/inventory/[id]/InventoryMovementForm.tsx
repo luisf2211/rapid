@@ -13,6 +13,8 @@ import {
   INVENTORY_MOVEMENT_TYPES,
 } from "@/lib/constants";
 import { TextInput } from "@/components/forms/TextInput";
+import { FractionQuantityInput } from "@/components/forms/FractionQuantityInput";
+import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { createInventoryMovementAction } from "../actions";
 
 interface WorkOrderOption {
@@ -94,19 +96,23 @@ export function InventoryMovementForm({
         <h3 className="font-semibold text-rapid-text">Registrar movimiento</h3>
         <p className="text-sm text-rapid-text-muted mt-0.5">
           Existencia:{" "}
-          <span className="font-semibold tabular-nums">{currentStock}</span>
+          <span className="font-semibold tabular-nums">
+            {formatFractionQuantity(currentStock)}
+          </span>
           {reservedQuantity > 0 && (
             <>
               {" "}
               · Reservado:{" "}
               <span className="font-semibold tabular-nums">
-                {reservedQuantity}
+                {formatFractionQuantity(reservedQuantity)}
               </span>
             </>
           )}
           {" "}
           · Disponible:{" "}
-          <span className="font-semibold tabular-nums">{available}</span>
+          <span className="font-semibold tabular-nums">
+            {formatFractionQuantity(available)}
+          </span>
         </p>
       </div>
 
@@ -126,15 +132,12 @@ export function InventoryMovementForm({
             </option>
           </select>
         </div>
-        <TextInput
+        <FractionQuantityInput
           label={
             movementType === INVENTORY_MOVEMENT_TYPES.ADJUST
               ? "Nuevo stock *"
               : "Cantidad *"
           }
-          type="number"
-          step="0.01"
-          min="0.01"
           {...register("quantity")}
           error={errors.quantity?.message}
         />

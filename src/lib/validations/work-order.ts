@@ -81,6 +81,7 @@ export const workOrderSchema = z.object({
   requestedDamages: z.string().max(4000).optional().or(z.literal("")),
   observations: z.string().max(4000).optional().or(z.literal("")),
   receivedBy: z.string().min(1, "Recibido por es requerido").max(150),
+  customerReceivedSignature: z.string().max(500).optional().or(z.literal("")),
   notes: z.string().max(4000).optional().or(z.literal("")),
 
   // Detalles
@@ -91,3 +92,12 @@ export const workOrderSchema = z.object({
 
 export type WorkOrderInput = z.output<typeof workOrderSchema>;
 export type WorkOrderFormValues = z.input<typeof workOrderSchema>;
+
+/** Requiere firma del cliente al crear recepción. */
+export const workOrderCreateSchema = workOrderSchema.refine(
+  (data) => Boolean(data.customerReceivedSignature?.trim()),
+  {
+    message: "Confirme la firma del cliente antes de guardar",
+    path: ["customerReceivedSignature"],
+  },
+);

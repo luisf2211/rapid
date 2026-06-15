@@ -6,7 +6,11 @@ import {
   Receipt,
   Boxes,
   Wrench,
+  Droplets,
   Package,
+  Settings,
+  Users,
+  Wallet,
 } from "lucide-react";
 
 export type NavItem = {
@@ -41,12 +45,16 @@ export const sidebarNavGroups: NavGroup[] = [
     label: "Gestión",
     items: [
       { href: "/invoices", label: "Facturación", icon: Receipt },
+      { href: "/employees", label: "Empleados", icon: Users },
+      { href: "/payments", label: "Pagos", icon: Wallet },
       {
         href: "/inventory",
         label: "Inventario",
         icon: Package,
         stockAlerts: true,
       },
+      { href: "/inventory/paint", label: "Pintura", icon: Droplets },
+      { href: "/settings", label: "Configuración", icon: Settings },
     ],
   },
 ];
@@ -54,5 +62,11 @@ export const sidebarNavGroups: NavGroup[] = [
 export function isNavActive(pathname: string, href: string): boolean {
   if (pathname === href) return true;
   if (href === "/dashboard") return pathname === "/dashboard";
+  if (href === "/inventory") {
+    return (
+      pathname.startsWith("/inventory/") &&
+      !pathname.startsWith("/inventory/paint")
+    );
+  }
   return pathname.startsWith(`${href}/`);
 }

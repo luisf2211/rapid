@@ -23,7 +23,7 @@ export default async function QuotationPrintPage({
   const quotation = await getQuotationById(id);
   if (!quotation) notFound();
 
-  const workshop = getWorkshopPrintInfo();
+  const workshop = await getWorkshopPrintInfo();
   const data = buildQuotationPrintData(quotation, workshop);
   const backHref = `/quotations/${id}`;
   const autoPrint = auto === "1";

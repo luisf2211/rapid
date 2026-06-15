@@ -5,8 +5,10 @@ import {
   FileText,
   ClipboardList,
   Wrench,
+  Boxes,
   Receipt,
   Package,
+  Settings,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -32,14 +34,20 @@ const steps: Step[] = [
     icon: ClipboardList,
   },
   {
-    title: "Trabajo en taller",
-    description: "Registra materiales y mano de obra en la orden.",
-    href: "/work-orders",
+    title: "Materiales",
+    description: "Requisiciones de piezas e insumos; descuentan del inventario.",
+    href: "/material-requisitions",
+    icon: Boxes,
+  },
+  {
+    title: "Mano de obra",
+    description: "Registra trabajo por empleado o externo en cada orden.",
+    href: "/labor-orders",
     icon: Wrench,
   },
   {
     title: "Facturación",
-    description: "Genera la factura, imprime y marca el pago.",
+    description: "Genera la factura desde la orden, imprime y marca el pago.",
     href: "/invoices",
     icon: Receipt,
   },
@@ -116,20 +124,38 @@ export default function GuiaPage() {
         </ol>
       </div>
 
-      <div className="rounded-xl border border-rapid-border bg-rapid-surface px-5 py-4 flex gap-4 items-start">
-        <Package className="h-5 w-5 shrink-0 text-rapid-text-muted mt-0.5" />
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-rapid-text">Inventario</p>
-          <p className="text-sm text-rapid-text-muted mt-0.5">
-            Catálogo y stock. Las requisiciones descuentan piezas solas.
-          </p>
-          <Link
-            href="/inventory"
-            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-rapid-text hover:text-rapid-green-dark transition"
-          >
-            Ver inventario
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+      <div className="grid gap-4 sm:grid-cols-2 mb-6">
+        <div className="rounded-xl border border-rapid-border bg-rapid-surface px-5 py-4 flex gap-4 items-start">
+          <Package className="h-5 w-5 shrink-0 text-rapid-text-muted mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-rapid-text">Inventario</p>
+            <p className="text-sm text-rapid-text-muted mt-0.5">
+              Catálogo y stock. Las requisiciones descuentan piezas solas.
+            </p>
+            <Link
+              href="/inventory"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-rapid-text hover:text-rapid-green-dark transition"
+            >
+              Ver inventario
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+        <div className="rounded-xl border border-rapid-border bg-rapid-surface px-5 py-4 flex gap-4 items-start">
+          <Settings className="h-5 w-5 shrink-0 text-rapid-text-muted mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-rapid-text">Configuración</p>
+            <p className="text-sm text-rapid-text-muted mt-0.5">
+              Logo, RNC y pies de página para cotizaciones y facturas.
+            </p>
+            <Link
+              href="/settings"
+              className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-rapid-text hover:text-rapid-green-dark transition"
+            >
+              Ajustes del taller
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
       </div>
 

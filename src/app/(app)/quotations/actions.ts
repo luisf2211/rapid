@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/prisma";
 import {
   quotationSchema,
   quotationPhotoSchema,
@@ -98,6 +99,20 @@ export async function updateQuotationAction(
     revalidatePath(`/quotations/${id}`);
     revalidatePath(`/quotations/${id}/edit`);
     revalidatePath(`/print/quotations/${id}`);
+    const linked = await prisma.quotation.findUnique({
+      where: { id },
+      select: { workOrderId: true },
+    });
+    if (linked?.workOrderId) {
+      revalidatePath(`/work-orders/${linked.workOrderId}`);
+    }
+    const orderWithQuotation = await prisma.workOrder.findFirst({
+      where: { quotationId: id },
+      select: { id: true },
+    });
+    if (orderWithQuotation) {
+      revalidatePath(`/work-orders/${orderWithQuotation.id}`);
+    }
     return { ok: true, id };
   } catch (e) {
     return {

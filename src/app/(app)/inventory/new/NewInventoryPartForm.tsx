@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useTransition, useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,10 +12,17 @@ import {
   type InventoryPartFormValues,
 } from "@/lib/validations/inventory";
 import { TextInput } from "@/components/forms/TextInput";
-import { INVENTORY_CATEGORIES, INVENTORY_UNITS, SUGGESTED_PARTS } from "@/lib/constants";
+import { FractionQuantityInput } from "@/components/forms/FractionQuantityInput";
+import { INVENTORY_CATEGORIES, INVENTORY_GALLON_CATEGORIES, INVENTORY_PART_TYPES, INVENTORY_UNITS, SUGGESTED_PARTS } from "@/lib/constants";
+import { defaultUnitForPartType } from "@/lib/inventory/part-type";
+import type { InventoryPartType } from "@/lib/constants";
 import { createInventoryPartAction } from "../actions";
 
-export function NewInventoryPartForm() {
+export function NewInventoryPartForm({
+  partType = INVENTORY_PART_TYPES.MATERIAL,
+}: {
+  partType?: InventoryPartType;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -23,6 +30,8 @@ export function NewInventoryPartForm() {
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors },
   } = useForm<InventoryPartFormValues, unknown, InventoryPartInput>({
     resolver: zodResolver(inventoryPartSchema),
@@ -30,8 +39,9 @@ export function NewInventoryPartForm() {
       sku: "",
       name: "",
       description: "",
-      category: "",
-      unit: "PZ",
+      category: partType === INVENTORY_PART_TYPES.PAINT ? "Pintura" : "",
+      partType,
+      unit: defaultUnitForPartType(partType),
       quantityOnHand: 0,
       minQuantity: "",
       unitCost: "",
@@ -41,12 +51,31 @@ export function NewInventoryPartForm() {
     },
   });
 
+  const category = useWatch({ control, name: "category" });
+
+  useEffect(() => {
+    const cat = category?.trim();
+    if (
+      partType === INVENTORY_PART_TYPES.MATERIAL &&
+      cat &&
+      INVENTORY_GALLON_CATEGORIES.some(
+        (c) => c.toLowerCase() === cat.toLowerCase(),
+      )
+    ) {
+      setValue("unit", "GL");
+    }
+  }, [category, partType, setValue]);
+
   const onSubmit = handleSubmit((data) => {
     setSubmitError(null);
     startTransition(async () => {
       const result = await createInventoryPartAction(data);
       if (result.ok) {
-        router.push(`/inventory/${result.id}`);
+        const base =
+          result.partType === INVENTORY_PART_TYPES.PAINT
+            ? "/inventory/paint"
+            : "/inventory";
+        router.push(`${base}/${result.id}`);
       } else {
         setSubmitError(result.error);
       }
@@ -62,6 +91,7 @@ export function NewInventoryPartForm() {
         </div>
       )}
 
+      <input type="hidden" {...register("partType")} />
       <section className="card p-5 space-y-4">
         <datalist id="part-suggestions">
           {SUGGESTED_PARTS.map((p) => (
@@ -101,19 +131,15 @@ export function NewInventoryPartForm() {
               ))}
             </select>
           </div>
-          <TextInput
+          <FractionQuantityInput
             label="Stock inicial"
-            type="number"
-            step="0.01"
-            min="0"
             {...register("quantityOnHand")}
+            error={errors.quantityOnHand?.message}
           />
-          <TextInput
+          <FractionQuantityInput
             label="Stock mínimo"
-            type="number"
-            step="0.01"
-            min="0"
             {...register("minQuantity")}
+            error={errors.minQuantity?.message}
           />
           <TextInput
             label="Costo unitario"

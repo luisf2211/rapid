@@ -109,10 +109,10 @@ export default async function MaterialRequisitionsPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       <Link
-                        href={`/work-orders/${it.workOrderId}`}
+                        href={`/material-requisitions/${it.id}`}
                         className="text-xs font-semibold text-rapid-green-dark hover:underline"
                       >
-                        Ver orden →
+                        Ver detalle →
                       </Link>
                     </td>
                   </tr>

@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { Plus, Wrench } from "lucide-react";
+import { Eye, Pencil, Plus, Wrench } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { listLaborOrders } from "@/services/labor-orders.service";
-import { formatMoney } from "@/lib/formatters/money";
 import { formatDateTime } from "@/lib/formatters/date";
+import { formatPieceCount, sumLaborOrderAmount, sumLaborOrderPieces } from "@/lib/labor-order/piece-count";
+import { formatMoney } from "@/lib/formatters/money";
+import { laborOrderWorkerName } from "@/lib/labor-order/worker-name";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +22,7 @@ export default async function LaborOrdersPage() {
     <>
       <PageHeader
         title="Mano de obra"
-        subtitle="Órdenes de mano de obra registradas, agrupadas por orden de trabajo."
+        subtitle="Producción por técnico: piezas trabajadas en cada orden de recepción."
         actions={
           <Link href="/work-orders" className="btn-primary">
             <Plus className="w-4 h-4" /> Nueva mano de obra
@@ -66,8 +68,13 @@ export default async function LaborOrdersPage() {
                   <th className="text-left font-semibold px-5 py-3">
                     Vehículo
                   </th>
+                  <th className="text-left font-semibold px-5 py-3">
+                    Técnico
+                  </th>
                   <th className="text-center font-semibold px-5 py-3">Piezas</th>
-                  <th className="text-right font-semibold px-5 py-3">Total</th>
+                  <th className="text-right font-semibold px-5 py-3">
+                    Total $
+                  </th>
                   <th className="text-left font-semibold px-5 py-3">Fecha</th>
                   <th className="px-5 py-3" />
                 </tr>
@@ -95,24 +102,37 @@ export default async function LaborOrdersPage() {
                         · {it.workOrder.plate ?? "—"}
                       </span>
                     </td>
+                    <td className="px-5 py-3">{laborOrderWorkerName(it)}</td>
                     <td className="px-5 py-3 text-center">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rapid-bg text-rapid-text font-mono text-xs">
                         {it.items.length}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-right tabular-nums font-bold text-rapid-green-dark">
-                      {formatMoney(Number(it.total ?? 0))}
+                      {formatMoney(sumLaborOrderAmount(it.items))}
                     </td>
                     <td className="px-5 py-3 text-xs text-rapid-text-muted">
                       {formatDateTime(it.createdAt)}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <Link
-                        href={`/work-orders/${it.workOrderId}`}
-                        className="text-xs font-semibold text-rapid-green-dark hover:underline"
-                      >
-                        Ver orden →
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/labor-orders/${it.id}`}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-rapid-text-muted hover:text-rapid-text"
+                          title="Ver"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Ver
+                        </Link>
+                        <Link
+                          href={`/labor-orders/${it.id}/edit`}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-rapid-green-dark hover:underline"
+                          title="Editar"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          Editar
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

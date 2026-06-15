@@ -4,12 +4,14 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { StockAlertsBanner } from "@/components/layout/StockAlertsBanner";
 import { SidebarProvider } from "@/components/layout/SidebarContext";
 import { getInventoryStockAlerts } from "@/services/inventory.service";
+import { requireCompanySession } from "@/lib/auth/guards";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await requireCompanySession();
   let stockAlerts: Awaited<ReturnType<typeof getInventoryStockAlerts>> = {
     alerts: [],
     total: 0,
@@ -23,7 +25,15 @@ export default async function AppLayout({
   return (
     <SidebarProvider>
       <div className="min-h-screen flex bg-rapid-bg">
-        <AppSidebar alerts={stockAlerts.alerts} total={stockAlerts.total} />
+        <AppSidebar
+          alerts={stockAlerts.alerts}
+          total={stockAlerts.total}
+          session={{
+            email: session.email,
+            fullName: session.fullName,
+            companyName: session.companyName,
+          }}
+        />
         <div className="flex-1 flex flex-col min-w-0">
           <MobileTopBar stockAlertCount={stockAlerts.total} />
           <StockAlertsBanner

@@ -5,6 +5,7 @@ import { serializeInventoryPartOption } from "@/lib/inventory/client";
 import { listActiveInventoryPartsForPicker } from "@/services/inventory.service";
 import { listWorkOrders } from "@/services/work-orders.service";
 import { NewMaterialRequisitionForm } from "./NewMaterialRequisitionForm";
+import { INVENTORY_PART_TYPES } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -19,18 +20,27 @@ export default async function NewMaterialRequisitionPage({
   const initialId = workOrderId ? Number(workOrderId) : undefined;
 
   let workOrders: Awaited<ReturnType<typeof listWorkOrders>> = [];
-  let inventoryParts: Awaited<
+  let materialPartsRaw: Awaited<
+    ReturnType<typeof listActiveInventoryPartsForPicker>
+  > = [];
+  let paintPartsRaw: Awaited<
     ReturnType<typeof listActiveInventoryPartsForPicker>
   > = [];
 
   try {
-    [workOrders, inventoryParts] = await Promise.all([
+    [workOrders, materialPartsRaw, paintPartsRaw] = await Promise.all([
       listWorkOrders({ take: 100 }),
-      listActiveInventoryPartsForPicker(),
+      listActiveInventoryPartsForPicker({
+        partType: INVENTORY_PART_TYPES.MATERIAL,
+      }),
+      listActiveInventoryPartsForPicker({
+        partType: INVENTORY_PART_TYPES.PAINT,
+      }),
     ]);
   } catch {
     workOrders = [];
-    inventoryParts = [];
+    materialPartsRaw = [];
+    paintPartsRaw = [];
   }
 
   const woOptions = workOrders.map((wo) => ({
@@ -42,13 +52,11 @@ export default async function NewMaterialRequisitionPage({
     plate: wo.plate ?? "",
   }));
 
-  const partOptions = inventoryParts.map(serializeInventoryPartOption);
-
   return (
     <>
       <PageHeader
         title="Nueva requisición de materiales"
-        subtitle="Los materiales se toman del inventario y descuentan stock al guardar."
+        subtitle="Materiales y pintura se registran por separado y descuentan su propio inventario."
         actions={
           <Link href="/material-requisitions" className="btn-secondary">
             <ArrowLeft className="w-4 h-4" /> Volver
@@ -57,7 +65,8 @@ export default async function NewMaterialRequisitionPage({
       />
       <NewMaterialRequisitionForm
         workOrders={woOptions}
-        inventoryParts={partOptions}
+        materialParts={materialPartsRaw.map(serializeInventoryPartOption)}
+        paintParts={paintPartsRaw.map(serializeInventoryPartOption)}
         initialWorkOrderId={
           initialId && Number.isFinite(initialId) ? initialId : undefined
         }

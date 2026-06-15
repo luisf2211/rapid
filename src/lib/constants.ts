@@ -132,11 +132,33 @@ export const SUGGESTED_MATERIALS = [
 
 export const INVENTORY_UNITS = [
   { value: "PZ", label: "Pieza" },
+  { value: "GL", label: "Galón" },
   { value: "LT", label: "Litro" },
   { value: "KG", label: "Kilogramo" },
   { value: "ML", label: "Mililitro" },
   { value: "SET", label: "Juego" },
 ] as const;
+
+/** Categorías que usan galón por defecto al registrar inventario. */
+export const INVENTORY_GALLON_CATEGORIES = ["Pintura", "Consumibles"] as const;
+
+export const INVENTORY_PART_TYPES = {
+  MATERIAL: "MATERIAL",
+  PAINT: "PAINT",
+} as const;
+
+export type InventoryPartType =
+  (typeof INVENTORY_PART_TYPES)[keyof typeof INVENTORY_PART_TYPES];
+
+export const INVENTORY_PART_TYPE_LABELS: Record<InventoryPartType, string> = {
+  MATERIAL: "Material",
+  PAINT: "Pintura",
+};
+
+export const MATERIAL_REQUISITION_LINE_TYPES = {
+  MATERIAL: "MATERIAL",
+  PAINT: "PAINT",
+} as const;
 
 export const INVENTORY_CATEGORIES = [
   "Carrocería",
@@ -201,13 +223,47 @@ export const QUOTATION_PHOTO_CATEGORY_LABELS: Record<string, string> =
     QUOTATION_PHOTO_CATEGORIES.map((c) => [c.value, c.label]),
   );
 
+/** Tareas de mano de obra en cotización (solo monto totalizado, sin horas). */
 export const QUOTATION_LABOR_AREAS = [
-  { value: "DESAB", label: "Desabollado" },
-  { value: "PREP", label: "Preparación" },
-  { value: "PAINT", label: "Pintura" },
-  { value: "POLISH", label: "Pulido" },
-  { value: "ASSEMBLY", label: "Armado" },
+  { value: "REPAIR_PAINT", label: "Reparar y pintar" },
+  { value: "CHANGE_PAINT", label: "Cambiar y pintar" },
+  { value: "SAVE_PAINT", label: "Salvar y pintar" },
+  { value: "BRILLO", label: "Brillo" },
 ] as const;
+
+/** Valores antiguos (cotizaciones ya guardadas). */
+export const QUOTATION_LABOR_AREAS_LEGACY: Record<string, string> = {
+  DESAB: "Desabollado",
+  PREP: "Preparación",
+  PAINT: "Pintura",
+  POLISH: "Pulido",
+  ASSEMBLY: "Armado",
+};
+
+export const QUOTATION_LABOR_AREA_VALUES = [
+  ...QUOTATION_LABOR_AREAS.map((a) => a.value),
+  ...Object.keys(QUOTATION_LABOR_AREAS_LEGACY),
+] as [string, ...string[]];
+
+export function quotationLaborAreaLabel(value: string): string {
+  const match = QUOTATION_LABOR_AREAS.find((a) => a.value === value);
+  if (match) return match.label;
+  return QUOTATION_LABOR_AREAS_LEGACY[value] ?? value;
+}
+
+/** Opciones del select; incluye valor legacy si la línea ya lo tenía. */
+export function quotationLaborAreaOptions(currentValue?: string) {
+  const options: { value: string; label: string }[] = [
+    ...QUOTATION_LABOR_AREAS,
+  ];
+  if (currentValue && !options.some((o) => o.value === currentValue)) {
+    options.push({
+      value: currentValue,
+      label: quotationLaborAreaLabel(currentValue),
+    });
+  }
+  return options;
+}
 
 export const INVOICE_STATUSES = {
   PENDING: "PENDING",
@@ -236,6 +292,49 @@ export const INVOICE_LINE_TYPE_LABELS: Record<string, string> = {
   PART: "Repuesto",
   OTHER: "Otro",
 };
+
+/** Roles / técnicos frecuentes en mano de obra (producción por pieza). */
+export const LABOR_TECHNICIAN_ROLES = [
+  "Desabollador",
+  "Preparador",
+  "Pintor",
+  "Brillo",
+  "Desarmador",
+  "Externo",
+] as const;
+
+export const EMPLOYEE_PAYMENT_TYPES = {
+  ADVANCE: "ADVANCE",
+  PAYROLL: "PAYROLL",
+} as const;
+
+export const EMPLOYEE_PAYMENT_TYPE_LABELS: Record<string, string> = {
+  ADVANCE: "Anticipo",
+  PAYROLL: "Pago quincenal",
+};
+
+export const PAYROLL_PERIOD_STATUS = {
+  OPEN: "OPEN",
+  CLOSED: "CLOSED",
+  PAID: "PAID",
+} as const;
+
+export const PAYROLL_PERIOD_STATUS_LABELS: Record<string, string> = {
+  OPEN: "Abierto",
+  CLOSED: "Cerrado",
+  PAID: "Pagado",
+};
+
+export const PAYROLL_SETTLEMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendiente",
+  PAID: "Pagado",
+};
+
+export const PAYMENT_METHODS = [
+  "EFECTIVO",
+  "TRANSFERENCIA",
+  "CHEQUE",
+] as const;
 
 export const SUGGESTED_PARTS = [
   "Bomper delantero",

@@ -164,3 +164,19 @@ button:focus-visible {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
+.surface-dark {
+  background: linear-gradient(to bottom right, var(--rapid-black), #1a201e);
+  border: 1px solid var(--rapid-black);
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  color: #ffffff;
+}
+
+.surface-dark .on-dark-muted {
+  color: #cbd5e1;
+}
+
+.surface-dark .on-dark-label {
+  color: #94a3b8;
+}
+

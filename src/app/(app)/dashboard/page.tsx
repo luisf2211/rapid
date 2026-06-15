@@ -43,7 +43,8 @@ export default async function DashboardPage() {
         <aside className="space-y-6">
           <DashboardFinance
             totalMaterials={stats?.totalMaterials ?? 0}
-            totalLabor={stats?.totalLabor ?? 0}
+            totalLaborAmount={stats?.totalLaborAmount ?? 0}
+            totalLaborPieces={stats?.totalLaborPieces ?? 0}
           />
           <div className="card p-4">
             <DashboardQuickLinks />

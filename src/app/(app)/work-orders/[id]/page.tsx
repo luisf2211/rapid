@@ -14,6 +14,9 @@ import {
   Check,
   Receipt,
   Printer,
+  Eye,
+  Pencil,
+  FileText,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -26,9 +29,24 @@ import {
   getLatestInvoiceForWorkOrder,
 } from "@/services/invoices.service";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
-import { checklistRowsToDetails } from "@/lib/checklist";
+import { checklistRowsToDetails, isChecklistIncomplete } from "@/lib/checklist";
 import { formatMoney } from "@/lib/formatters/money";
+import { laborOrderWorkerName } from "@/lib/labor-order/worker-name";
+import {
+  formatPieceCount,
+  laborItemLineAmount,
+  laborItemQuantity,
+  laborItemUnitPrice,
+  sumLaborOrderAmount,
+  sumLaborOrderPieces,
+} from "@/lib/labor-order/piece-count";
+import { canEditLaborOrder } from "@/lib/labor-order/can-edit";
+import { canEditWorkOrderReception } from "@/lib/work-order/can-edit";
+import { canEditQuotation } from "@/lib/quotation/form-mapper";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
+import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
+import { splitRequisitionItems } from "@/lib/material-requisition/line-type";
+import { formatDocNumber } from "@/lib/quotation/print-data";
 import {
   CHECKLIST_ITEMS,
   FUEL_LEVELS,
@@ -80,6 +98,11 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
   const latestInvoice =
     activeInvoice ?? (await getLatestInvoiceForWorkOrder(order.id));
   const reception = order.receptions[0] ?? null;
+  const receptionEditable = canEditWorkOrderReception(order.status);
+  const checklistPending = isChecklistIncomplete(reception?.checklist);
+  const linkedQuotation = getLinkedQuotation(order);
+  const quotationEditable =
+    linkedQuotation != null && canEditQuotation(linkedQuotation.status);
 
   return (
     <>
@@ -103,6 +126,36 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
             >
               <Printer className="w-4 h-4" /> Imprimir recepción
             </Link>
+            {linkedQuotation && (
+              <>
+                <Link
+                  href={`/quotations/${linkedQuotation.id}`}
+                  className="btn-secondary"
+                >
+                  <FileText className="w-4 h-4" />{" "}
+                  {formatDocNumber(
+                    linkedQuotation.quotationType,
+                    linkedQuotation.quotationNumber,
+                  )}
+                </Link>
+                {quotationEditable && (
+                  <Link
+                    href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
+                    className="btn-secondary"
+                  >
+                    <Pencil className="w-4 h-4" /> Editar cotización
+                  </Link>
+                )}
+              </>
+            )}
+            {receptionEditable && (
+              <Link
+                href={`/work-orders/${order.id}/edit`}
+                className="btn-primary"
+              >
+                <Pencil className="w-4 h-4" /> Editar recepción
+              </Link>
+            )}
             <Link
               href={`/material-requisitions/new?workOrderId=${order.id}`}
               className="btn-secondary"
@@ -136,6 +189,24 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         }
       />
 
+      {receptionEditable && checklistPending && (
+        <div className="card border-amber-200 bg-amber-50 p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="text-sm text-amber-900">
+            <p className="font-semibold">Checklist de recepción pendiente</p>
+            <p className="mt-0.5 text-amber-800">
+              Completa la inspección del vehículo antes de continuar con el
+              trabajo en taller.
+            </p>
+          </div>
+          <Link
+            href={`/work-orders/${order.id}/edit#checklist`}
+            className="btn-primary shrink-0"
+          >
+            Completar checklist
+          </Link>
+        </div>
+      )}
+
       {/* Top summary panels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <div className="card p-5 lg:col-span-2">
@@ -161,9 +232,9 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="card p-5 bg-gradient-to-br from-rapid-black to-[#1a201e] text-white border-rapid-black">
+        <div className="surface-dark p-5">
           <p className="text-xs uppercase tracking-wider font-semibold text-white/60">
-            Total general
+            Costos internos
           </p>
           <p className="text-3xl font-bold mt-2 text-rapid-green">
             {formatMoney(financial.grandTotal)}
@@ -176,9 +247,21 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
               </span>
             </div>
             <div className="flex justify-between">
+              <span>Pintura</span>
+              <span className="font-mono text-white">
+                {formatMoney(financial.totalPaint)}
+              </span>
+            </div>
+            <div className="flex justify-between">
               <span>Mano de obra</span>
               <span className="font-mono text-white">
-                {formatMoney(financial.totalLabor)}
+                {formatMoney(financial.totalLaborAmount)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Piezas MO</span>
+              <span className="font-mono text-white">
+                {formatPieceCount(financial.totalLaborPieces)}
               </span>
             </div>
           </div>
@@ -220,7 +303,14 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           {
             id: "recepcion",
             label: "Recepción",
-            content: <ReceptionTab order={order} reception={reception} />,
+            content: (
+              <ReceptionTab
+                order={order}
+                reception={reception}
+                linkedQuotation={linkedQuotation}
+                quotationEditable={quotationEditable}
+              />
+            ),
           },
           {
             id: "checklist",
@@ -253,7 +343,12 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
             id: "labor",
             label: "Mano de obra",
             count: order.laborOrders.length,
-            content: <LaborTab order={order} />,
+            content: (
+              <LaborTab
+                order={order}
+                invoiceStatus={latestInvoice?.status}
+              />
+            ),
           },
           {
             id: "summary",
@@ -275,6 +370,18 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
 type WorkOrder = NonNullable<Awaited<ReturnType<typeof getWorkOrderById>>>;
 type Reception = WorkOrder["receptions"][number];
 type Financial = Awaited<ReturnType<typeof getWorkOrderFinancialSummary>>;
+type LinkedQuotation = {
+  id: number;
+  quotationNumber: number;
+  quotationType: string;
+  status: string;
+};
+
+function getLinkedQuotation(order: WorkOrder): LinkedQuotation | null {
+  if (order.quotation) return order.quotation;
+  const fromConversion = order.convertedFrom[0];
+  return fromConversion ?? null;
+}
 
 function InfoMini({ label, value }: { label: string; value: string }) {
   return (
@@ -316,12 +423,56 @@ function InfoRow({
 function ReceptionTab({
   order,
   reception,
+  linkedQuotation,
+  quotationEditable,
 }: {
   order: WorkOrder;
   reception: Reception | null;
+  linkedQuotation: LinkedQuotation | null;
+  quotationEditable: boolean;
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {linkedQuotation && (
+        <div className="card p-5 lg:col-span-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="font-bold text-lg mb-1">Cotización de origen</h3>
+            <p className="text-sm text-rapid-text-muted">
+              Presupuesto vinculado a esta hoja de recepción
+            </p>
+            <p className="font-mono text-sm font-semibold mt-2">
+              {formatDocNumber(
+                linkedQuotation.quotationType,
+                linkedQuotation.quotationNumber,
+              )}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 min-w-0">
+            <Link
+              href={`/quotations/${linkedQuotation.id}`}
+              className="btn-primary"
+            >
+              <Eye className="w-4 h-4" /> Ver cotización
+            </Link>
+            {quotationEditable && (
+              <Link
+                href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
+                className="btn-secondary"
+              >
+                <Pencil className="w-4 h-4" /> Editar cotización
+              </Link>
+            )}
+            <Link
+              href={`/print/quotations/${linkedQuotation.id}?auto=1`}
+              target="_blank"
+              className="btn-secondary"
+            >
+              <Printer className="w-4 h-4" /> Imprimir
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="card p-5">
         <h3 className="font-bold text-lg mb-1">Cliente</h3>
         <p className="text-sm text-rapid-text-muted mb-3">
@@ -579,6 +730,72 @@ function PhotosTab({ order }: { order: WorkOrder }) {
   );
 }
 
+function RequisitionItemsTable({
+  title,
+  items,
+}: {
+  title: string;
+  items: WorkOrder["materialRequisitions"][number]["items"];
+}) {
+  if (items.length === 0) return null;
+  const subtotal = items.reduce((acc, it) => acc + Number(it.total ?? 0), 0);
+
+  return (
+    <>
+      <div className="px-5 py-2 bg-rapid-bg/30 border-b border-rapid-border">
+        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+          {title}
+        </p>
+      </div>
+      <table className="w-full text-sm">
+        <thead className="text-xs uppercase tracking-wider text-rapid-text-muted">
+          <tr>
+            <th className="text-left font-semibold px-5 py-2">Producto</th>
+            <th className="text-right font-semibold px-5 py-2">Cant.</th>
+            <th className="text-right font-semibold px-5 py-2">Precio</th>
+            <th className="text-right font-semibold px-5 py-2">Total</th>
+            <th className="text-left font-semibold px-5 py-2">Asignado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((it) => (
+            <tr key={it.id} className="border-t border-rapid-border">
+              <td className="px-5 py-2 font-medium">{it.productName}</td>
+              <td className="px-5 py-2 text-right tabular-nums">
+                {it.quantity != null
+                  ? formatFractionQuantity(Number(it.quantity))
+                  : "—"}
+              </td>
+              <td className="px-5 py-2 text-right tabular-nums">
+                {formatMoney(Number(it.unitPrice ?? 0))}
+              </td>
+              <td className="px-5 py-2 text-right tabular-nums font-semibold">
+                {formatMoney(Number(it.total ?? 0))}
+              </td>
+              <td className="px-5 py-2 text-rapid-text-muted">
+                {it.assignedEmployee || "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="border-t border-rapid-border bg-rapid-bg/20">
+            <td
+              colSpan={4}
+              className="px-5 py-2 text-right text-xs font-semibold text-rapid-text-muted"
+            >
+              Subtotal {title.toLowerCase()}
+            </td>
+            <td className="px-5 py-2 text-right font-bold tabular-nums">
+              {formatMoney(subtotal)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </>
+  );
+}
+
 function MaterialsTab({ order }: { order: WorkOrder }) {
   if (order.materialRequisitions.length === 0) {
     return (
@@ -606,7 +823,9 @@ function MaterialsTab({ order }: { order: WorkOrder }) {
           <Plus className="w-4 h-4" /> Nueva requisición
         </Link>
       </div>
-      {order.materialRequisitions.map((req) => (
+      {order.materialRequisitions.map((req) => {
+        const { materialItems, paintItems } = splitRequisitionItems(req.items);
+        return (
         <div key={req.id} className="card overflow-hidden">
           <div className="px-5 py-3 bg-rapid-bg/50 border-b border-rapid-border flex items-center justify-between flex-wrap gap-2">
             <div>
@@ -621,43 +840,23 @@ function MaterialsTab({ order }: { order: WorkOrder }) {
               {formatMoney(Number(req.total ?? 0))}
             </p>
           </div>
-          <table className="w-full text-sm">
-            <thead className="text-xs uppercase tracking-wider text-rapid-text-muted">
-              <tr>
-                <th className="text-left font-semibold px-5 py-2">Producto</th>
-                <th className="text-right font-semibold px-5 py-2">Cant.</th>
-                <th className="text-right font-semibold px-5 py-2">Precio</th>
-                <th className="text-right font-semibold px-5 py-2">Total</th>
-                <th className="text-left font-semibold px-5 py-2">Asignado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {req.items.map((it) => (
-                <tr key={it.id} className="border-t border-rapid-border">
-                  <td className="px-5 py-2 font-medium">{it.productName}</td>
-                  <td className="px-5 py-2 text-right tabular-nums">
-                    {it.quantity != null ? Number(it.quantity) : "—"}
-                  </td>
-                  <td className="px-5 py-2 text-right tabular-nums">
-                    {formatMoney(Number(it.unitPrice ?? 0))}
-                  </td>
-                  <td className="px-5 py-2 text-right tabular-nums font-semibold">
-                    {formatMoney(Number(it.total ?? 0))}
-                  </td>
-                  <td className="px-5 py-2 text-rapid-text-muted">
-                    {it.assignedEmployee || "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <RequisitionItemsTable title="Materiales" items={materialItems} />
+          <RequisitionItemsTable title="Pintura" items={paintItems} />
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-function LaborTab({ order }: { order: WorkOrder }) {
+function LaborTab({
+  order,
+  invoiceStatus,
+}: {
+  order: WorkOrder;
+  invoiceStatus?: string | null;
+}) {
+  const laborEditable = canEditLaborOrder(invoiceStatus);
   if (order.laborOrders.length === 0) {
     return (
       <div className="card p-10 text-center">
@@ -689,31 +888,58 @@ function LaborTab({ order }: { order: WorkOrder }) {
           <div className="px-5 py-3 bg-rapid-bg/50 border-b border-rapid-border flex items-center justify-between flex-wrap gap-2">
             <div>
               <p className="font-mono text-xs font-semibold">
-                Mano de obra #{String(lo.id).padStart(5, "0")}
+                MO-{String(lo.id).padStart(5, "0")}
+              </p>
+              <p className="text-sm font-medium mt-0.5">
+                {laborOrderWorkerName(lo)}
               </p>
               <p className="text-xs text-rapid-text-muted">
                 {formatDateTime(lo.createdAt)}
               </p>
             </div>
-            <p className="font-bold text-rapid-green-dark text-lg">
-              {formatMoney(Number(lo.total ?? 0))}
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/labor-orders/${lo.id}`}
+                  className="btn-secondary text-xs py-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" /> Ver
+                </Link>
+                {laborEditable && (
+                  <Link
+                    href={`/labor-orders/${lo.id}/edit`}
+                    className="btn-secondary text-xs py-1.5"
+                  >
+                    <Pencil className="w-3.5 h-3.5" /> Editar
+                  </Link>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-rapid-green-dark text-lg tabular-nums">
+                  {formatMoney(sumLaborOrderAmount(lo.items))}
+                </p>
+                <p className="text-xs text-rapid-text-muted">
+                  {formatPieceCount(sumLaborOrderPieces(lo.items))} pzas.
+                </p>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-xs uppercase tracking-wider text-rapid-text-muted">
                 <tr>
-                  <th className="text-left font-semibold px-5 py-2">Pieza</th>
-                  <th className="text-right font-semibold px-5 py-2">
-                    Desabolladura
+                  <th className="text-left font-semibold px-5 py-2">
+                    Pieza o encuadre
                   </th>
                   <th className="text-right font-semibold px-5 py-2">
-                    Desarme
+                    Cantidad
                   </th>
-                  <th className="text-right font-semibold px-5 py-2">Prep.</th>
-                  <th className="text-right font-semibold px-5 py-2">Pintura</th>
-                  <th className="text-right font-semibold px-5 py-2">Pulido</th>
-                  <th className="text-right font-semibold px-5 py-2">Total</th>
+                  <th className="text-right font-semibold px-5 py-2">
+                    Precio/pieza
+                  </th>
+                  <th className="text-right font-semibold px-5 py-2">
+                    Total
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -721,22 +947,13 @@ function LaborTab({ order }: { order: WorkOrder }) {
                   <tr key={it.id} className="border-t border-rapid-border">
                     <td className="px-5 py-2 font-medium">{it.partName}</td>
                     <td className="px-5 py-2 text-right tabular-nums">
-                      {formatMoney(Number(it.desabCost ?? 0))}
+                      {formatPieceCount(laborItemQuantity(it))}
                     </td>
                     <td className="px-5 py-2 text-right tabular-nums">
-                      {formatMoney(Number(it.disassemblerCost ?? 0))}
-                    </td>
-                    <td className="px-5 py-2 text-right tabular-nums">
-                      {formatMoney(Number(it.prepCost ?? 0))}
-                    </td>
-                    <td className="px-5 py-2 text-right tabular-nums">
-                      {formatMoney(Number(it.painterCost ?? 0))}
-                    </td>
-                    <td className="px-5 py-2 text-right tabular-nums">
-                      {formatMoney(Number(it.polisherCost ?? 0))}
+                      {formatMoney(laborItemUnitPrice(it))}
                     </td>
                     <td className="px-5 py-2 text-right tabular-nums font-semibold">
-                      {formatMoney(Number(it.total ?? 0))}
+                      {formatMoney(laborItemLineAmount(it))}
                     </td>
                   </tr>
                 ))}
@@ -798,10 +1015,10 @@ function FinancialTab({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
       <div className="card p-5">
         <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
-          Total materiales
+          Materiales
         </p>
         <p className="text-3xl font-bold mt-2">
           {formatMoney(financial.totalMaterials)}
@@ -812,24 +1029,36 @@ function FinancialTab({
       </div>
       <div className="card p-5">
         <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
-          Total mano de obra
+          Pintura
         </p>
         <p className="text-3xl font-bold mt-2">
-          {formatMoney(financial.totalLabor)}
+          {formatMoney(financial.totalPaint)}
         </p>
         <p className="text-xs text-rapid-text-muted mt-1.5">
-          {order.laborOrders.length} orden(es) de mano de obra
+          Inventario separado
         </p>
       </div>
-      <div className="card p-5 bg-gradient-to-br from-rapid-black to-[#1a201e] text-white border-rapid-black">
+      <div className="card p-5">
+        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+          Mano de obra
+        </p>
+        <p className="text-3xl font-bold mt-2">
+          {formatMoney(financial.totalLaborAmount)}
+        </p>
+        <p className="text-xs text-rapid-text-muted mt-1.5">
+          {formatPieceCount(financial.totalLaborPieces)} piezas ·{" "}
+          {order.laborOrders.length} técnico(s)
+        </p>
+      </div>
+      <div className="surface-dark p-5">
         <p className="text-xs uppercase tracking-wider font-semibold text-white/60">
-          Total general
+          Total interno
         </p>
         <p className="text-3xl font-bold mt-2 text-rapid-green">
           {formatMoney(financial.grandTotal)}
         </p>
         <p className="text-xs text-white/50 mt-1.5">
-          Materiales + Mano de obra
+          Materiales + mano de obra (pagos a técnicos)
         </p>
       </div>
       </div>

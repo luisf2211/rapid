@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { INVENTORY_MOVEMENT_TYPES } from "@/lib/constants";
+import { INVENTORY_MOVEMENT_TYPES, INVENTORY_PART_TYPES } from "@/lib/constants";
+import {
+  nonNegativeFractionQuantityRequiredSchema,
+  nonNegativeFractionQuantitySchema,
+  positiveFractionQuantitySchema,
+} from "@/lib/validations/fraction-quantity";
 
 const optionalNumber = z
   .union([z.coerce.number().min(0), z.literal("")])
@@ -18,9 +23,15 @@ export const inventoryPartSchema = z.object({
   name: z.string().min(1, "Nombre requerido").max(150),
   description: z.string().max(250).optional().or(z.literal("")),
   category: z.string().max(80).optional().or(z.literal("")),
+  partType: z
+    .enum([INVENTORY_PART_TYPES.MATERIAL, INVENTORY_PART_TYPES.PAINT])
+    .default(INVENTORY_PART_TYPES.MATERIAL),
   unit: z.string().max(20).default("PZ"),
-  quantityOnHand: z.coerce.number().min(0).default(0),
-  minQuantity: optionalNumber,
+  quantityOnHand: z.preprocess(
+    (v) => (v === "" || v == null ? 0 : v),
+    nonNegativeFractionQuantityRequiredSchema,
+  ),
+  minQuantity: nonNegativeFractionQuantitySchema,
   unitCost: optionalNumber,
   location: z.string().max(80).optional().or(z.literal("")),
   isActive: z.boolean().default(true),
@@ -38,7 +49,7 @@ export const inventoryMovementSchema = z.object({
     INVENTORY_MOVEMENT_TYPES.OUT,
     INVENTORY_MOVEMENT_TYPES.ADJUST,
   ]),
-  quantity: z.coerce.number().positive("Cantidad debe ser mayor a 0"),
+  quantity: positiveFractionQuantitySchema,
   unitCostAtMovement: optionalNumber,
   reason: z.string().max(50).optional().or(z.literal("")),
   workOrderId: z

@@ -7,14 +7,20 @@ import { Logo } from "./Logo";
 import { SidebarNav } from "./SidebarNav";
 import { SidebarStockAlerts } from "./SidebarStockAlerts";
 import { SidebarFooter } from "./SidebarFooter";
+import { SessionBar } from "./SessionBar";
 import { useSidebar } from "./SidebarContext";
 
 interface Props {
   alerts: InventoryStockAlert[];
   total: number;
+  session: {
+    email: string;
+    fullName: string | null;
+    companyName: string | null;
+  };
 }
 
-export function AppSidebar({ alerts, total }: Props) {
+export function AppSidebar({ alerts, total, session }: Props) {
   const { collapsed, toggle, ready } = useSidebar();
 
   return (
@@ -64,6 +70,12 @@ export function AppSidebar({ alerts, total }: Props) {
       </div>
 
       <SidebarFooter />
+      <SessionBar
+        email={session.email}
+        fullName={session.fullName}
+        companyName={session.companyName}
+        collapsed={collapsed}
+      />
     </aside>
   );
 }

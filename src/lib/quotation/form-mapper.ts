@@ -5,8 +5,8 @@ import type { getQuotationById } from "@/services/quotations.service";
 
 type QuotationDetail = NonNullable<Awaited<ReturnType<typeof getQuotationById>>>;
 
-export function canEditQuotation(status: string): boolean {
-  return status !== "CONVERTED";
+export function canEditQuotation(_status: string): boolean {
+  return true;
 }
 
 export function canDeleteQuotation(
@@ -46,19 +46,11 @@ export function quotationToFormValues(q: QuotationDetail): QuotationFormValues {
     termsNotes: q.termsNotes ?? "",
     internalNotes: q.internalNotes ?? "",
     laborLines: q.laborLines.map((l) => ({
-      area: l.area as "DESAB" | "PREP" | "PAINT" | "POLISH" | "ASSEMBLY",
+      area: l.area,
       description: l.description ?? "",
-      estimatedHours: toPlainNumber(l.estimatedHours) ?? undefined,
-      hourlyRate: toPlainNumber(l.hourlyRate) ?? undefined,
       lineTotal: toPlainNumber(l.lineTotal) ?? 0,
     })),
-    materialLines: q.materialLines.map((m) => ({
-      inventoryPartId: m.inventoryPartId ?? 0,
-      productName: m.productName,
-      quantity: toPlainNumber(m.quantity) ?? 1,
-      unit: m.unit ?? "",
-      unitPrice: toPlainNumber(m.unitPrice) ?? 0,
-    })),
+    materialLines: [],
     partLines: q.partLines.map((p) => ({
       partName: p.partName,
       description: p.description ?? "",

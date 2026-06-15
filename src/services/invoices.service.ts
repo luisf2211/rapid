@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { quotationLaborAreaLabel } from "@/lib/constants";
 import { computeInvoiceTotals, invoiceTaxRate } from "@/lib/invoice/totals";
 import { toPlainNumber } from "@/lib/serialize";
 import type {
   CreateInvoiceInput,
   UpdateInvoiceInput,
 } from "@/lib/validations/invoice";
+import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
 import { Prisma } from "@prisma/client";
 
 export type InvoiceLineDraft = {
@@ -46,8 +48,11 @@ export type InvoiceDraft = {
   hasMaterials: boolean;
 };
 
-async function generateInvoiceNumber(): Promise<number> {
-  const max = await prisma.invoice.aggregate({ _max: { invoiceNumber: true } });
+async function generateInvoiceNumber(companyId: number): Promise<number> {
+  const max = await prisma.invoice.aggregate({
+    where: companyWhere(companyId),
+    _max: { invoiceNumber: true },
+  });
   return (max._max.invoiceNumber ?? 0) + 1;
 }
 
@@ -73,7 +78,12 @@ export async function buildInvoiceDraftFromWorkOrder(
   const order = await prisma.workOrder.findUnique({
     where: { id: workOrderId },
     include: {
-      quotation: true,
+      quotation: {
+        include: {
+          laborLines: { orderBy: { sortOrder: "asc" } },
+          partLines: { orderBy: { sortOrder: "asc" } },
+        },
+      },
       laborOrders: { include: { items: true }, orderBy: { id: "asc" } },
       materialRequisitions: {
         include: { items: true },
@@ -100,65 +110,58 @@ export async function buildInvoiceDraftFromWorkOrder(
   const lines: InvoiceLineDraft[] = [];
   let sort = 0;
 
-  for (const lo of order.laborOrders) {
-    for (const item of lo.items) {
-      const total = num(item.total);
-      if (total <= 0) continue;
+  if (order.quotation) {
+    for (const l of order.quotation.laborLines) {
+      const lineTotal = num(l.lineTotal);
+      if (lineTotal <= 0) continue;
+      const label = quotationLaborAreaLabel(l.area);
+      const desc = l.description?.trim()
+        ? `${label} — ${l.description.trim()}`
+        : label;
       lines.push({
         lineType: "LABOR",
-        sourceType: "LABOR_ORDER",
-        sourceId: item.id,
-        description: `M.O. — ${item.partName}`,
+        sourceType: "QUOTATION_LABOR",
+        sourceId: l.id,
+        description: desc,
         quantity: 1,
-        unitPrice: total,
-        lineTotal: total,
+        unitPrice: lineTotal,
+        lineTotal,
         sortOrder: sort++,
       });
     }
-    const orderTotal = num(lo.total);
-    if (orderTotal > 0 && lo.items.length === 0) {
+    for (const p of order.quotation.partLines) {
+      const qty = num(p.quantity) || 1;
+      const lineTotal = num(p.lineTotal);
+      if (lineTotal <= 0) continue;
+      const unitPrice = Math.round((lineTotal / qty) * 100) / 100;
       lines.push({
-        lineType: "LABOR",
-        sourceType: "LABOR_ORDER",
-        sourceId: lo.id,
-        description: "Mano de obra",
-        quantity: 1,
-        unitPrice: orderTotal,
-        lineTotal: orderTotal,
+        lineType: "PART",
+        sourceType: "QUOTATION_PART",
+        sourceId: p.id,
+        description: p.partName,
+        quantity: qty,
+        unitPrice,
+        lineTotal,
         sortOrder: sort++,
       });
     }
   }
 
-  for (const req of order.materialRequisitions) {
-    for (const item of req.items) {
-      const qty = num(item.quantity) || 1;
-      const total = num(item.total);
-      const unit = num(item.unitPrice) || (qty > 0 ? total / qty : total);
-      lines.push({
-        lineType: "MATERIAL",
-        sourceType: "MATERIAL_REQUISITION",
-        sourceId: item.id,
-        description: item.productName,
-        quantity: qty,
-        unitPrice: unit,
-        lineTotal: total,
-        sortOrder: sort++,
-      });
-    }
-  }
+  // Materiales gastables no se facturan al cliente (requisiciones = control interno).
 
   const laborSubtotal = lines
     .filter((l) => l.lineType === "LABOR")
     .reduce((s, l) => s + l.lineTotal, 0);
-  const materialSubtotal = lines
-    .filter((l) => l.lineType === "MATERIAL")
+  const materialSubtotal = 0;
+  const partsSubtotal = lines
+    .filter((l) => l.lineType === "PART")
     .reduce((s, l) => s + l.lineTotal, 0);
-  const partsSubtotal = 0;
 
   if (lines.length === 0) {
     throw new Error(
-      "No hay mano de obra ni materiales registrados para facturar",
+      order.quotation
+        ? "La cotización no tiene montos de mano de obra ni repuestos para facturar"
+        : "Esta orden no tiene cotización vinculada. Factura desde una orden con cotización aprobada.",
     );
   }
 
@@ -203,7 +206,8 @@ export async function listInvoices(params?: {
   search?: string;
   status?: string;
 }) {
-  const where: Prisma.InvoiceWhereInput = {};
+  const companyId = await requireCompanyIdFromSession();
+  const where: Prisma.InvoiceWhereInput = { ...companyWhere(companyId) };
   if (params?.status) where.status = params.status;
   if (params?.search) {
     const s = params.search.trim();
@@ -228,8 +232,9 @@ export async function listInvoices(params?: {
 }
 
 export async function getInvoiceById(id: number) {
-  return prisma.invoice.findUnique({
-    where: { id },
+  const companyId = await requireCompanyIdFromSession();
+  return prisma.invoice.findFirst({
+    where: { id, ...companyWhere(companyId) },
     include: {
       lines: { orderBy: { sortOrder: "asc" } },
       workOrder: { select: { id: true, orderNumber: true, status: true } },
@@ -247,8 +252,10 @@ export async function getInvoiceById(id: number) {
 }
 
 export async function listWorkOrdersReadyToInvoice() {
+  const companyId = await requireCompanyIdFromSession();
   const orders = await prisma.workOrder.findMany({
     where: {
+      ...companyWhere(companyId),
       status: { in: ["RECEIVED", "IN_PROGRESS", "COMPLETED", "DELIVERED"] },
     },
     orderBy: { id: "desc" },
@@ -276,16 +283,18 @@ export async function listWorkOrdersReadyToInvoice() {
 }
 
 export async function createInvoiceFromWorkOrder(input: CreateInvoiceInput) {
+  const companyId = await requireCompanyIdFromSession();
   const draft = await buildInvoiceDraftFromWorkOrder(
     input.workOrderId,
     input.discountAmount,
   );
 
-  const invoiceNumber = await generateInvoiceNumber();
+  const invoiceNumber = await generateInvoiceNumber(companyId);
 
   return prisma.invoice.create({
     data: {
       invoiceNumber,
+      CompanyId: companyId,
       status: "INVOICED",
       workOrderId: draft.workOrderId,
       quotationId: draft.quotationId,
@@ -337,15 +346,28 @@ export async function markInvoicePaid(
   if (inv.status === "VOID") throw new Error("La factura está anulada");
   if (inv.status === "PAID") throw new Error("La factura ya está pagada");
 
-  return prisma.invoice.update({
-    where: { id },
-    data: {
-      status: "PAID",
-      paidAt: new Date(),
-      paidBy: paidBy?.trim() || "Taller",
-      paymentReference: paymentReference?.trim() || null,
-      updatedAt: new Date(),
-    },
+  return prisma.$transaction(async (tx) => {
+    const updated = await tx.invoice.update({
+      where: { id },
+      data: {
+        status: "PAID",
+        paidAt: new Date(),
+        paidBy: paidBy?.trim() || "Taller",
+        paymentReference: paymentReference?.trim() || null,
+        updatedAt: new Date(),
+      },
+    });
+    await tx.workOrder.updateMany({
+      where: {
+        id: updated.workOrderId,
+        status: { in: ["RECEIVED", "IN_PROGRESS"] },
+      },
+      data: {
+        status: "COMPLETED",
+        updatedAt: new Date(),
+      },
+    });
+    return updated;
   });
 }
 

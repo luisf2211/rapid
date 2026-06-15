@@ -3,11 +3,11 @@ import { CHECKLIST_ITEMS } from "@/lib/constants";
 import { checklistFieldToDbItemName } from "@/lib/checklist";
 import {
   computeQuotationTotals,
-  laborLineTotal,
   lineTotalFromQtyPrice,
   quotationTaxRate,
 } from "@/lib/quotation/totals";
 import type { QuotationInput, QuotationPhotoInput } from "@/lib/validations/quotation";
+import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
 import { Prisma } from "@prisma/client";
 
 const EDITABLE_PHOTO_STATUSES = new Set(["DRAFT", "PENDING", "APPROVED"]);
@@ -32,8 +32,11 @@ function mapQuotationCategoryToWorkOrderPhoto(category: string | null): string {
   }
 }
 
-async function generateQuotationNumber(): Promise<number> {
-  const max = await prisma.quotation.aggregate({ _max: { quotationNumber: true } });
+async function generateQuotationNumber(companyId: number): Promise<number> {
+  const max = await prisma.quotation.aggregate({
+    where: companyWhere(companyId),
+    _max: { quotationNumber: true },
+  });
   return (max._max.quotationNumber ?? 0) + 1;
 }
 
@@ -48,30 +51,25 @@ function parseDateOnly(value?: string | null): Date | null {
 }
 
 function buildLines(input: QuotationInput) {
-  const laborLines = input.laborLines.map((l, i) => {
-    const total = laborLineTotal(l.estimatedHours, l.hourlyRate, l.lineTotal);
-    return {
-      area: l.area,
-      description: l.description?.trim() || null,
-      estimatedHours: l.estimatedHours ?? null,
-      hourlyRate: l.hourlyRate ?? null,
-      lineTotal: total,
-      sortOrder: i,
-    };
-  });
+  const laborLines = input.laborLines.map((l, i) => ({
+    area: l.area,
+    description: l.description?.trim() || null,
+    estimatedHours: null,
+    hourlyRate: null,
+    lineTotal: Number(l.lineTotal) || 0,
+    sortOrder: i,
+  }));
 
-  const materialLines = input.materialLines.map((m, i) => {
-    const total = lineTotalFromQtyPrice(m.quantity, m.unitPrice);
-    return {
-      inventoryPartId: m.inventoryPartId && m.inventoryPartId > 0 ? m.inventoryPartId : null,
-      productName: m.productName.trim(),
-      quantity: m.quantity,
-      unit: m.unit?.trim() || null,
-      unitPrice: m.unitPrice,
-      lineTotal: total,
-      sortOrder: i,
-    };
-  });
+  // Materiales gastables no van en cotización al cliente (solo control interno vía requisiciones).
+  const materialLines: {
+    inventoryPartId: number | null;
+    productName: string;
+    quantity: number;
+    unit: string | null;
+    unitPrice: number;
+    lineTotal: number;
+    sortOrder: number;
+  }[] = [];
 
   const partLines = input.partLines.map((p, i) => {
     const total = lineTotalFromQtyPrice(p.quantity, p.unitPrice);
@@ -154,7 +152,8 @@ export async function listQuotations(params?: {
   status?: string;
   take?: number;
 }) {
-  const where: Prisma.QuotationWhereInput = {};
+  const companyId = await requireCompanyIdFromSession();
+  const where: Prisma.QuotationWhereInput = { ...companyWhere(companyId) };
   if (params?.status) where.status = params.status;
   if (params?.search) {
     const s = params.search.trim();
@@ -182,8 +181,9 @@ export async function listQuotations(params?: {
 }
 
 export async function getQuotationById(id: number) {
-  return prisma.quotation.findUnique({
-    where: { id },
+  const companyId = await requireCompanyIdFromSession();
+  return prisma.quotation.findFirst({
+    where: { id, ...companyWhere(companyId) },
     include: {
       laborLines: { orderBy: { sortOrder: "asc" } },
       materialLines: { orderBy: { sortOrder: "asc" }, include: { inventoryPart: true } },
@@ -196,7 +196,8 @@ export async function getQuotationById(id: number) {
 }
 
 export async function createQuotation(input: QuotationInput) {
-  const quotationNumber = await generateQuotationNumber();
+  const companyId = await requireCompanyIdFromSession();
+  const quotationNumber = await generateQuotationNumber(companyId);
   const status = input.submitStatus === "PENDING" ? "PENDING" : "DRAFT";
   const { laborLines, materialLines, partLines, totals, taxRate } = buildLines(input);
 
@@ -220,6 +221,7 @@ export async function createQuotation(input: QuotationInput) {
   return prisma.quotation.create({
     data: {
       quotationNumber,
+      CompanyId: companyId,
       ...quotationHeaderData(input, status, totals, taxRate),
       laborLines: { create: laborLines },
       materialLines: { create: materialLines },
@@ -230,12 +232,6 @@ export async function createQuotation(input: QuotationInput) {
   });
 }
 
-function assertQuotationEditable(status: string) {
-  if (status === "CONVERTED") {
-    throw new Error("No se puede modificar una cotización ya convertida");
-  }
-}
-
 export async function updateQuotation(
   id: number,
   input: QuotationInput,
@@ -243,7 +239,6 @@ export async function updateQuotation(
 ) {
   const existing = await prisma.quotation.findUnique({ where: { id } });
   if (!existing) throw new Error("Cotización no encontrada");
-  assertQuotationEditable(existing.status);
 
   const status = options?.preserveStatus
     ? existing.status

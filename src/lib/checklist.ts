@@ -70,6 +70,15 @@ export function checklistRowsToDetails(
   return { checked, comments } as ChecklistDetails;
 }
 
+/** True si ningún ítem del checklist fue marcado (recepción recién creada). */
+export function isChecklistIncomplete(
+  rows: ChecklistRow[] | null | undefined,
+): boolean {
+  if (!rows?.length) return true;
+  const { checked } = checklistRowsToDetails(rows);
+  return !CHECKLIST_ITEMS.some((item) => checked[item.field]);
+}
+
 export function buildDefaultChecklistFormValues(): Record<
   ChecklistField,
   { checked: boolean; comment: string }

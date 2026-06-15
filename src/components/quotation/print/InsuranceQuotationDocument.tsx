@@ -3,8 +3,8 @@ import type { QuotationPrintData } from "@/lib/quotation/print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { PrintDocumentHeader } from "./PrintDocumentHeader";
 import { PrintFooter } from "./PrintFooter";
-import { PrintPhotos } from "./PrintPhotos";
 import { PrintAcceptanceSignatures } from "./PrintAcceptanceSignatures";
+import { PrintQuotationDetailSections } from "./PrintQuotationDetailSections";
 
 function field(label: string, value: string | null | undefined) {
   if (!value) return null;
@@ -22,11 +22,6 @@ export function InsuranceQuotationDocument({
   data: QuotationPrintData;
   workshop: WorkshopPrintInfo;
 }) {
-  const hourlyLabel =
-    data.laborRows.length > 0 && data.laborRows[0].rate
-      ? formatMoney(data.laborRows[0].rate)
-      : "—";
-
   return (
     <article className="qdoc">
       <PrintDocumentHeader data={data} workshop={workshop} />
@@ -71,8 +66,6 @@ export function InsuranceQuotationDocument({
         </div>
       </div>
 
-      <PrintPhotos photos={data.photos} title="Fotografías del daño" max={3} />
-
       <h3 className="qdoc-section-title">Detalle de daños y operaciones</h3>
       <table className="qdoc-table">
         <thead>
@@ -106,119 +99,18 @@ export function InsuranceQuotationDocument({
         </tbody>
       </table>
 
-      <h3 className="qdoc-section-title">Mano de obra</h3>
-      <table className="qdoc-table">
-        <thead>
-          <tr>
-            <th>Área / descripción</th>
-            <th className="num">Horas</th>
-            <th className="num">Tarifa / HR</th>
-            <th className="num">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.laborRows.length === 0 ? (
-            <tr>
-              <td colSpan={4} style={{ textAlign: "center", color: "#888" }}>
-                —
-              </td>
-            </tr>
-          ) : (
-            data.laborRows.map((l, i) => (
-              <tr key={i}>
-                <td>
-                  {[l.area, l.description].filter(Boolean).join(" — ")}
-                </td>
-                <td className="num">{l.hours ?? "—"}</td>
-                <td className="num">
-                  {l.rate != null ? formatMoney(l.rate) : hourlyLabel}
-                </td>
-                <td className="num">{formatMoney(l.total)}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-
-      <h3 className="qdoc-section-title">Materiales de pintura y consumibles</h3>
-      <table className="qdoc-table">
-        <thead>
-          <tr>
-            <th>Material</th>
-            <th className="num">Cant.</th>
-            <th className="num">Precio</th>
-            <th className="num">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.materialRows.length === 0 ? (
-            <tr>
-              <td colSpan={4} style={{ textAlign: "center", color: "#888" }}>
-                —
-              </td>
-            </tr>
-          ) : (
-            data.materialRows.map((m, i) => (
-              <tr key={i}>
-                <td>{m.name}</td>
-                <td className="num">
-                  {m.quantity} {m.unit ?? ""}
-                </td>
-                <td className="num">{formatMoney(m.unitPrice)}</td>
-                <td className="num">{formatMoney(m.total)}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-
-      <h3 className="qdoc-section-title">Repuestos / partes</h3>
-      <table className="qdoc-table">
-        <thead>
-          <tr>
-            <th>Repuesto</th>
-            <th className="num">Cant.</th>
-            <th className="num">Precio</th>
-            <th className="num">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.partRows.length === 0 ? (
-            <tr>
-              <td colSpan={4} style={{ textAlign: "center", color: "#888" }}>
-                —
-              </td>
-            </tr>
-          ) : (
-            data.partRows.map((p, i) => (
-              <tr key={i}>
-                <td>
-                  {p.name}
-                  {p.description ? ` — ${p.description}` : ""}
-                </td>
-                <td className="num">{p.quantity}</td>
-                <td className="num">{formatMoney(p.unitPrice)}</td>
-                <td className="num">{formatMoney(p.total)}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+      <PrintQuotationDetailSections data={data} />
 
       <h3 className="qdoc-section-title">Resumen del presupuesto</h3>
       <div className="qdoc-summary-box">
         <table>
           <tbody>
             <tr>
-              <td>Mano de obra</td>
+              <td>Partes a trabajar</td>
               <td>{formatMoney(data.laborSubtotal)}</td>
             </tr>
             <tr>
-              <td>Materiales</td>
-              <td>{formatMoney(data.materialSubtotal)}</td>
-            </tr>
-            <tr>
-              <td>Repuestos</td>
+              <td>Piezas a sustituir</td>
               <td>{formatMoney(data.partsSubtotal)}</td>
             </tr>
             {data.discountAmount > 0 && (
@@ -232,7 +124,6 @@ export function InsuranceQuotationDocument({
               <td>
                 {formatMoney(
                   data.laborSubtotal +
-                    data.materialSubtotal +
                     data.partsSubtotal -
                     data.discountAmount,
                 )}
@@ -277,6 +168,7 @@ export function InsuranceQuotationDocument({
       <PrintAcceptanceSignatures
         customerName={data.customerName}
         showInsuranceApproval
+        workshop={workshop}
       />
 
       <PrintFooter workshop={workshop} />

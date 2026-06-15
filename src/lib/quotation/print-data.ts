@@ -1,10 +1,7 @@
-import {
-  DAMAGE_SIDES,
-  DAMAGE_TYPES,
-  QUOTATION_LABOR_AREAS,
-} from "@/lib/constants";
 import { formatDate } from "@/lib/formatters/date";
 import { toPlainNumber } from "@/lib/serialize";
+import { computeQuotationTotals } from "@/lib/quotation/totals";
+import { DAMAGE_SIDES, DAMAGE_TYPES, quotationLaborAreaLabel } from "@/lib/constants";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getQuotationById } from "@/services/quotations.service";
 
@@ -96,6 +93,7 @@ export type QuotationPrintData = {
     workType: string;
     hours: string;
   }>;
+  /** Fotos solo para vista digital; no se usan en impresión. */
   photos: Array<{ url: string; description: string | null }>;
   conditions: string[];
 };
@@ -107,19 +105,11 @@ export function buildQuotationPrintData(
   const isInsurance = q.quotationType === "INSURANCE";
 
   const laborRows = q.laborLines.map((l) => ({
-    area: labelFor(QUOTATION_LABOR_AREAS, l.area),
+    area: quotationLaborAreaLabel(l.area),
     description: l.description ?? "",
     hours: toPlainNumber(l.estimatedHours),
     rate: toPlainNumber(l.hourlyRate),
     total: toPlainNumber(l.lineTotal) ?? 0,
-  }));
-
-  const materialRows = q.materialLines.map((m) => ({
-    name: m.productName,
-    quantity: toPlainNumber(m.quantity) ?? 0,
-    unit: m.unit,
-    unitPrice: toPlainNumber(m.unitPrice) ?? 0,
-    total: toPlainNumber(m.lineTotal) ?? 0,
   }));
 
   const partRows = q.partLines.map((p) => ({
@@ -136,12 +126,6 @@ export function buildQuotationPrintData(
       quantity: 1,
       unitPrice: l.total,
       total: l.total,
-    })),
-    ...materialRows.map((m) => ({
-      concept: m.name,
-      quantity: m.quantity,
-      unitPrice: m.unitPrice,
-      total: m.total,
     })),
     ...partRows.map((p) => ({
       concept: p.description ? `${p.name} (${p.description})` : p.name,
@@ -164,16 +148,23 @@ export function buildQuotationPrintData(
       `Tiempo de entrega estimado: ${q.estimatedDays} días hábiles.`,
     );
   }
-  if (q.warrantyNotes?.trim()) {
-    defaultConditions.push(`Garantía: ${q.warrantyNotes.trim()}`);
-  } else {
+  const warrantyText =
+    workshop.quotationWarrantyNotes?.trim() || q.warrantyNotes?.trim() || null;
+  if (warrantyText) {
     defaultConditions.push(
-      "Garantía: 6 meses en pintura y 3 meses en carrocería (según política del taller).",
+      warrantyText.toLowerCase().startsWith("garantía")
+        ? warrantyText
+        : `Garantía: ${warrantyText}`,
     );
   }
-  defaultConditions.push(
-    "Forma de pago: 50% anticipo al aprobar; saldo contra entrega.",
-  );
+  const paymentText = workshop.quotationPaymentNotes?.trim() || null;
+  if (paymentText) {
+    defaultConditions.push(
+      paymentText.toLowerCase().startsWith("forma de pago")
+        ? paymentText
+        : `Forma de pago: ${paymentText}`,
+    );
+  }
   if (workshop.quotationFooter?.trim()) {
     defaultConditions.push(workshop.quotationFooter.trim());
   }
@@ -186,6 +177,19 @@ export function buildQuotationPrintData(
     url: p.photoUrl,
     description: p.description,
   }));
+
+  const discountAmount = toPlainNumber(q.discountAmount) ?? 0;
+  const taxRate = toPlainNumber(q.taxRate) ?? 0.18;
+  const laborSubtotal = laborRows.reduce((s, l) => s + l.total, 0);
+  const partsSubtotal = partRows.reduce((s, p) => s + p.total, 0);
+  const materialSubtotal = 0;
+  const totals = computeQuotationTotals({
+    laborLines: laborRows.map((l) => ({ lineTotal: l.total })),
+    materialLines: [],
+    partLines: partRows.map((p) => ({ lineTotal: p.total })),
+    discountAmount,
+    taxRate,
+  });
 
   return {
     id: q.id,
@@ -212,19 +216,19 @@ export function buildQuotationPrintData(
     adjusterName: q.adjusterName,
     adjusterPhone: q.adjusterPhone,
     deductibleAmount: toPlainNumber(q.deductibleAmount),
-    laborSubtotal: toPlainNumber(q.laborSubtotal) ?? 0,
-    materialSubtotal: toPlainNumber(q.materialSubtotal) ?? 0,
-    partsSubtotal: toPlainNumber(q.partsSubtotal) ?? 0,
-    discountAmount: toPlainNumber(q.discountAmount) ?? 0,
-    taxRate: toPlainNumber(q.taxRate) ?? 0.18,
-    taxAmount: toPlainNumber(q.taxAmount) ?? 0,
-    grandTotal: toPlainNumber(q.grandTotal) ?? 0,
+    laborSubtotal,
+    materialSubtotal,
+    partsSubtotal,
+    discountAmount,
+    taxRate,
+    taxAmount: totals.taxAmount,
+    grandTotal: totals.grandTotal,
     estimatedDays: q.estimatedDays,
-    warrantyNotes: q.warrantyNotes,
+    warrantyNotes: warrantyText,
     termsNotes: q.termsNotes,
     workLines,
     laborRows,
-    materialRows,
+    materialRows: [],
     partRows,
     damageRows,
     photos,

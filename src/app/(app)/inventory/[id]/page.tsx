@@ -14,6 +14,8 @@ import {
   INVENTORY_MOVEMENT_REASONS,
 } from "@/lib/constants";
 import { serializeInventoryPartForClient } from "@/lib/inventory/client";
+import { isPaintPartType, partTypeLabel } from "@/lib/inventory/part-type";
+import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { toPlainNumber } from "@/lib/serialize";
 import { DeleteInventoryPartButton } from "./DeleteInventoryPartButton";
 import { EditInventoryPartForm } from "./EditInventoryPartForm";
@@ -57,18 +59,22 @@ export default async function InventoryPartPage({ params }: PageProps) {
     INVENTORY_MOVEMENT_REASONS.map((r) => [r.value, r.label]),
   );
 
+  const isPaint = isPaintPartType(partClient.partType);
+  const inventoryBackHref = isPaint ? "/inventory/paint" : "/inventory";
+
   return (
     <>
       <PageHeader
         title={part.name}
         subtitle={
           part.sku
-            ? `SKU ${part.sku}${part.category ? ` · ${part.category}` : ""}`
-            : (part.category ?? "Inventario de piezas")
+            ? `SKU ${part.sku} · ${partTypeLabel(partClient.partType)}${part.category ? ` · ${part.category}` : ""}`
+            : partTypeLabel(partClient.partType)
         }
         actions={
-          <Link href="/inventory" className="btn-secondary">
-            <ArrowLeft className="w-4 h-4" /> Inventario
+          <Link href={inventoryBackHref} className="btn-secondary">
+            <ArrowLeft className="w-4 h-4" />{" "}
+            {isPaint ? "Inventario pintura" : "Inventario"}
           </Link>
         }
       />
@@ -79,16 +85,16 @@ export default async function InventoryPartPage({ params }: PageProps) {
           <p
             className={`text-3xl font-bold tabular-nums mt-1 ${low ? "text-amber-700" : "text-rapid-text"}`}
           >
-            {available}{" "}
+            {formatFractionQuantity(available)}{" "}
             <span className="text-lg font-medium">{part.unit}</span>
           </p>
           <p className="text-xs text-rapid-text-muted mt-1">
-            Existencia: {stock}
-            {reserved > 0 && ` · Reservado: ${reserved}`}
+            Existencia: {formatFractionQuantity(stock)}
+            {reserved > 0 && ` · Reservado: ${formatFractionQuantity(reserved)}`}
           </p>
           {partClient.minQuantity != null && (
             <p className="text-xs text-rapid-text-muted mt-1">
-              Mínimo: {partClient.minQuantity} {part.unit}
+              Mínimo: {formatFractionQuantity(partClient.minQuantity)} {part.unit}
             </p>
           )}
           {part.location && (
@@ -165,13 +171,13 @@ export default async function InventoryPartPage({ params }: PageProps) {
                         : "—"}
                     </td>
                     <td className="px-5 py-2 text-right tabular-nums font-medium">
-                      {toPlainNumber(m.quantity) ?? "—"}
+                      {formatFractionQuantity(toPlainNumber(m.quantity))}
                     </td>
                     <td className="px-5 py-2 text-right tabular-nums text-rapid-text-muted">
-                      {toPlainNumber(m.quantityBefore) ?? "—"}
+                      {formatFractionQuantity(toPlainNumber(m.quantityBefore))}
                     </td>
                     <td className="px-5 py-2 text-right tabular-nums font-semibold">
-                      {toPlainNumber(m.quantityAfter) ?? "—"}
+                      {formatFractionQuantity(toPlainNumber(m.quantityAfter))}
                     </td>
                     <td className="px-5 py-2 text-xs">
                       {m.workOrder ? (

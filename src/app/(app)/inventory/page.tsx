@@ -8,6 +8,7 @@ import {
   listInventoryParts,
 } from "@/services/inventory.service";
 import { formatMoney } from "@/lib/formatters/money";
+import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
 
   try {
     [parts, stats] = await Promise.all([
-      listInventoryParts({ search: q, filter: filterValue }),
+      listInventoryParts({ search: q, filter: filterValue, partType: "MATERIAL" }),
       getInventoryStats(),
     ]);
   } catch (e) {
@@ -37,11 +38,16 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     <>
       <PageHeader
         title="Inventario"
-        subtitle="Piezas y materiales en stock del taller."
+        subtitle="Materiales y consumibles (sin pintura)."
         actions={
-          <Link href="/inventory/new" className="btn-primary">
+          <>
+            <Link href="/inventory/paint" className="btn-secondary">
+              Inventario pintura
+            </Link>
+            <Link href="/inventory/new" className="btn-primary">
             <Plus className="w-4 h-4" /> Nueva pieza
-          </Link>
+            </Link>
+          </>
         }
       />
 
@@ -165,19 +171,19 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                           {low && (
                             <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                           )}
-                          {Number(p.quantityOnHand)} {p.unit}
+                          {formatFractionQuantity(p.quantityOnHand)} {p.unit}
                         </span>
                         {Number(p.reservedQuantity) > 0 && (
                           <p className="text-xs text-rapid-text-muted">
-                            reserv. {Number(p.reservedQuantity)}
+                            reserv. {formatFractionQuantity(p.reservedQuantity)}
                           </p>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right tabular-nums">
-                        {available} {p.unit}
+                        {formatFractionQuantity(available)} {p.unit}
                         {p.minQuantity != null && (
                           <p className="text-xs text-rapid-text-muted">
-                            mín. {Number(p.minQuantity)}
+                            mín. {formatFractionQuantity(p.minQuantity)}
                           </p>
                         )}
                       </td>

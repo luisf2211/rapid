@@ -25,8 +25,13 @@ export async function createMaterialRequisitionAction(
     const req = await createMaterialRequisition(parsed.data);
     revalidatePath("/material-requisitions");
     revalidatePath("/inventory");
-    for (const item of parsed.data.items) {
-      revalidatePath(`/inventory/${item.inventoryPartId}`);
+    revalidatePath("/inventory/paint");
+    const partIds = [
+      ...parsed.data.materialItems.map((i) => i.inventoryPartId),
+      ...parsed.data.paintItems.map((i) => i.inventoryPartId),
+    ];
+    for (const partId of partIds) {
+      revalidatePath(`/inventory/${partId}`);
     }
     revalidatePath(`/work-orders/${parsed.data.workOrderId}`);
     revalidatePath("/dashboard");

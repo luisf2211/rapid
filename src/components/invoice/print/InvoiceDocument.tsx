@@ -2,6 +2,7 @@ import { formatMoney } from "@/lib/formatters/money";
 import type { InvoicePrintData } from "@/lib/invoice/print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { InvoicePrintFooter } from "./InvoicePrintFooter";
+import { PrintWorkshopReceiverSignature } from "@/components/print/PrintWorkshopReceiverSignature";
 
 function field(label: string, value: string | null | undefined) {
   if (!value) return null;
@@ -114,10 +115,12 @@ export function InvoiceDocument({
           <span>Mano de obra</span>
           <span>{formatMoney(data.laborSubtotal)}</span>
         </div>
-        <div className="idoc-totals-row">
-          <span>Materiales</span>
-          <span>{formatMoney(data.materialSubtotal)}</span>
-        </div>
+        {data.materialSubtotal > 0 && (
+          <div className="idoc-totals-row">
+            <span>Materiales</span>
+            <span>{formatMoney(data.materialSubtotal)}</span>
+          </div>
+        )}
         {data.partsSubtotal > 0 && (
           <div className="idoc-totals-row">
             <span>Repuestos</span>
@@ -157,13 +160,13 @@ export function InvoiceDocument({
           <div className="idoc-sig-line" />
           <div className="idoc-sig-label">Cliente</div>
         </div>
-        <div className="idoc-sig-block">
-          <div className="idoc-sig-line" />
-          <div className="idoc-sig-label">Recibido conforme (taller)</div>
-        </div>
+        <PrintWorkshopReceiverSignature
+          workshop={workshop}
+          label="Recibido conforme (taller)"
+        />
       </div>
 
-      <InvoicePrintFooter workshop={workshop} />
+      <InvoicePrintFooter workshop={workshop} customFooter={workshop.invoiceFooter} />
     </article>
   );
 }

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { listInvoices } from "@/services/invoices.service";
 import { InvoicesTable } from "@/components/invoice/InvoicesTable";
 import { toPlainNumber } from "@/lib/serialize";
+import { formatDate } from "@/lib/formatters/date";
 import { INVOICE_STATUS_LABELS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
   const tableItems = invoices.map((item) => ({
     id: item.id,
     invoiceNumber: item.invoiceNumber,
-    invoiceDate: item.invoiceDate,
+    invoiceDateLabel: formatDate(item.invoiceDate),
     customerName: item.customerName,
     plate: item.plate,
     billingType: item.billingType,

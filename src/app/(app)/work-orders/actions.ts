@@ -8,6 +8,7 @@ import {
 } from "@/lib/validations/work-order";
 import {
   createWorkOrder,
+  updateWorkOrder,
   updateWorkOrderStatus,
 } from "@/services/work-orders.service";
 
@@ -34,6 +35,34 @@ export async function createWorkOrderAction(
     return {
       ok: false,
       error: e instanceof Error ? e.message : "Error al crear la orden",
+    };
+  }
+}
+
+export async function updateWorkOrderAction(
+  id: number,
+  input: WorkOrderInput,
+): Promise<ActionState> {
+  const parsed = workOrderSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues.map((i) => i.message).join(", "),
+    };
+  }
+  try {
+    await updateWorkOrder(id, parsed.data);
+    revalidatePath("/dashboard");
+    revalidatePath("/work-orders");
+    revalidatePath(`/work-orders/${id}`);
+    revalidatePath(`/work-orders/${id}/edit`);
+    revalidatePath(`/print/work-orders/${id}`);
+    return { ok: true, id };
+  } catch (e) {
+    return {
+      ok: false,
+      error:
+        e instanceof Error ? e.message : "Error al actualizar la recepción",
     };
   }
 }

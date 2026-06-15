@@ -12,16 +12,14 @@ import {
   type QuotationFormValues,
 } from "@/lib/validations/quotation";
 import {
-  QUOTATION_LABOR_AREAS,
+  quotationLaborAreaOptions,
   QUOTATION_TYPES,
   DAMAGE_SIDES,
   DAMAGE_TYPES,
   SUGGESTED_PARTS,
 } from "@/lib/constants";
-import type { InventoryPartOption } from "@/lib/inventory/client";
 import {
   computeQuotationTotals,
-  laborLineTotal,
   lineTotalFromQtyPrice,
   quotationTaxRate,
 } from "@/lib/quotation/totals";
@@ -32,19 +30,9 @@ import { QuotationPhotoUploadList } from "@/components/forms/QuotationPhotoUploa
 import { createQuotationAction, updateQuotationAction } from "../actions";
 
 const emptyLabor = () => ({
-  area: "PAINT" as const,
+  area: "REPAIR_PAINT" as const,
   description: "",
-  estimatedHours: undefined,
-  hourlyRate: undefined,
   lineTotal: 0,
-});
-
-const emptyMaterial = () => ({
-  inventoryPartId: 0,
-  productName: "",
-  quantity: 1,
-  unit: "PZ",
-  unitPrice: 0,
 });
 
 const emptyPart = () => ({
@@ -55,28 +43,23 @@ const emptyPart = () => ({
 });
 
 export function NewQuotationForm({
-  inventoryParts,
   quotationId,
   initialValues,
   currentStatus,
   cancelHref = "/quotations",
+  successHref,
 }: {
-  inventoryParts: InventoryPartOption[];
   /** Si se define, el formulario actualiza en lugar de crear. */
   quotationId?: number;
   initialValues?: QuotationFormValues;
   currentStatus?: string;
   cancelHref?: string;
+  successHref?: string;
 }) {
   const isEdit = quotationId != null;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const partById = useMemo(
-    () => new Map(inventoryParts.map((p) => [p.id, p])),
-    [inventoryParts],
-  );
 
   const form = useForm<QuotationFormValues, unknown, QuotationInput>({
     resolver: zodResolver(quotationSchema),
@@ -97,35 +80,22 @@ export function NewQuotationForm({
     register,
     handleSubmit,
     control,
-    setValue,
     watch,
     formState: { errors },
   } = form;
 
   const laborFields = useFieldArray({ control, name: "laborLines" });
-  const materialFields = useFieldArray({ control, name: "materialLines" });
   const partFields = useFieldArray({ control, name: "partLines" });
   const photoFields = useFieldArray({ control, name: "photos" });
 
   const quotationType = watch("quotationType");
   const watchedLabor = useWatch({ control, name: "laborLines" });
-  const watchedMaterial = useWatch({ control, name: "materialLines" });
   const watchedParts = useWatch({ control, name: "partLines" });
   const discountAmount = Number(watch("discountAmount")) || 0;
 
   const previewTotals = useMemo(() => {
     const labor = (watchedLabor ?? []).map((l) => ({
-      lineTotal: laborLineTotal(
-        Number(l?.estimatedHours) || undefined,
-        Number(l?.hourlyRate) || undefined,
-        Number(l?.lineTotal) || 0,
-      ),
-    }));
-    const material = (watchedMaterial ?? []).map((m) => ({
-      lineTotal: lineTotalFromQtyPrice(
-        Number(m?.quantity) || 0,
-        Number(m?.unitPrice) || 0,
-      ),
+      lineTotal: Number(l?.lineTotal) || 0,
     }));
     const parts = (watchedParts ?? []).map((p) => ({
       lineTotal: lineTotalFromQtyPrice(
@@ -135,23 +105,12 @@ export function NewQuotationForm({
     }));
     return computeQuotationTotals({
       laborLines: labor,
-      materialLines: material,
+      materialLines: [],
       partLines: parts,
       discountAmount,
       taxRate: quotationTaxRate(quotationType ?? "PRIVATE"),
     });
-  }, [watchedLabor, watchedMaterial, watchedParts, discountAmount, quotationType]);
-
-  const onMaterialPartPick = (idx: number, partId: number) => {
-    const part = partById.get(partId);
-    if (!part) return;
-    setValue(`materialLines.${idx}.inventoryPartId`, partId);
-    setValue(`materialLines.${idx}.productName`, part.name);
-    setValue(`materialLines.${idx}.unit`, part.unit);
-    if (part.unitCost != null) {
-      setValue(`materialLines.${idx}.unitPrice`, part.unitCost);
-    }
-  };
+  }, [watchedLabor, watchedParts, discountAmount, quotationType]);
 
   const save = (
     submitStatus: "DRAFT" | "PENDING",
@@ -159,7 +118,7 @@ export function NewQuotationForm({
   ) =>
     handleSubmit((data) => {
       setSubmitError(null);
-      const payload = { ...data, submitStatus };
+      const payload = { ...data, submitStatus, materialLines: [] };
       startTransition(async () => {
         if (isEdit && quotationId) {
           const res = await updateQuotationAction(quotationId, payload, {
@@ -169,7 +128,9 @@ export function NewQuotationForm({
             setSubmitError(res.error);
             return;
           }
-          router.push(`/quotations/${quotationId}`);
+          router.push(
+            successHref ?? `/quotations/${quotationId}`,
+          );
           return;
         }
         const res = await createQuotationAction(payload);
@@ -285,33 +246,33 @@ export function NewQuotationForm({
         {errors.laborLines?.message && (
           <p className="text-xs text-red-600">{String(errors.laborLines.message)}</p>
         )}
-        {laborFields.fields.map((field, idx) => (
+        {laborFields.fields.map((field, idx) => {
+          const areaValue = watchedLabor?.[idx]?.area;
+          return (
           <div
             key={field.id}
-            className="grid gap-3 sm:grid-cols-[10rem_1fr_5rem_5rem_5rem_auto] items-end border-b border-rapid-border pb-4 last:border-0"
+            className="grid gap-3 sm:grid-cols-[minmax(11rem,1fr)_1fr_7rem_auto] items-end border-b border-rapid-border pb-4 last:border-0"
           >
             <div>
-              <label className="form-label">Área</label>
+              <label className="form-label">Tarea</label>
               <select
                 {...register(`laborLines.${idx}.area`)}
                 className="form-input w-full"
               >
-                {QUOTATION_LABOR_AREAS.map((a) => (
+                {quotationLaborAreaOptions(
+                  typeof areaValue === "string" ? areaValue : undefined,
+                ).map((a) => (
                   <option key={a.value} value={a.value}>
                     {a.label}
                   </option>
                 ))}
               </select>
             </div>
-            <TextInput label="Descripción" {...register(`laborLines.${idx}.description`)} />
             <TextInput
-              label="Horas"
-              type="number"
-              step="0.5"
-              {...register(`laborLines.${idx}.estimatedHours`)}
+              label="Detalle (opcional)"
+              {...register(`laborLines.${idx}.description`)}
             />
-            <MoneyInput label="$/hora" {...register(`laborLines.${idx}.hourlyRate`)} />
-            <MoneyInput label="Total fijo" {...register(`laborLines.${idx}.lineTotal`)} />
+            <MoneyInput label="Total" {...register(`laborLines.${idx}.lineTotal`)} />
             <button
               type="button"
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
@@ -321,68 +282,8 @@ export function NewQuotationForm({
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
-        ))}
-      </section>
-
-      <section className="card p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
-            Materiales
-          </h2>
-          <button
-            type="button"
-            className="btn-secondary text-xs"
-            onClick={() => materialFields.append(emptyMaterial())}
-          >
-            <Plus className="w-3.5 h-3.5" /> Material
-          </button>
-        </div>
-        {materialFields.fields.map((field, idx) => (
-          <div
-            key={field.id}
-            className="grid gap-3 sm:grid-cols-[1fr_1fr_5rem_5rem_auto] items-end border-b border-rapid-border pb-4"
-          >
-            {inventoryParts.length > 0 && (
-              <div>
-                <label className="form-label">Del inventario</label>
-                <select
-                  className="form-input w-full"
-                  defaultValue=""
-                  onChange={(e) => {
-                    const id = Number(e.target.value);
-                    if (id) onMaterialPartPick(idx, id);
-                  }}
-                >
-                  <option value="">Manual...</option>
-                  {inventoryParts.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.sku} — {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <TextInput
-              label="Producto *"
-              error={errors.materialLines?.[idx]?.productName?.message}
-              {...register(`materialLines.${idx}.productName`)}
-            />
-            <TextInput
-              label="Cant."
-              type="number"
-              step="0.01"
-              {...register(`materialLines.${idx}.quantity`)}
-            />
-            <MoneyInput label="Precio" {...register(`materialLines.${idx}.unitPrice`)} />
-            <button
-              type="button"
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-              onClick={() => materialFields.remove(idx)}
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       <section className="card p-5 space-y-4">
@@ -473,7 +374,6 @@ export function NewQuotationForm({
           />
           <TextInput label="Días estimados" type="number" {...register("estimatedDays")} />
         </div>
-        <TextInput label="Garantía" {...register("warrantyNotes")} />
         <div>
           <label className="form-label">Condiciones al cliente</label>
           <textarea {...register("termsNotes")} className="form-input w-full min-h-[80px]" />
@@ -486,10 +386,6 @@ export function NewQuotationForm({
           <div className="flex justify-between">
             <span>Mano de obra</span>
             <span>{formatMoney(previewTotals.laborSubtotal)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Materiales</span>
-            <span>{formatMoney(previewTotals.materialSubtotal)}</span>
           </div>
           <div className="flex justify-between">
             <span>Repuestos</span>

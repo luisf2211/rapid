@@ -119,9 +119,16 @@
   letter-spacing: 0.08em;
   color: #c41e3a;
   text-transform: uppercase;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   border-bottom: 1px solid #ddd;
   padding-bottom: 3px;
+}
+
+.qdoc-section-subtitle {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 6px;
 }
 
 .qdoc-box {
@@ -264,19 +271,36 @@
 .qdoc-signatures {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-top: 8px;
+  gap: 48px;
+  max-width: 520px;
+  width: 100%;
+  margin: 8px auto 0;
+  justify-items: center;
 }
 
 .qdoc-sig-cell {
+  width: 100%;
+  max-width: 220px;
   text-align: center;
   font-size: 9pt;
 }
 
+.qdoc-sig-cell--workshop {
+  page-break-inside: avoid;
+  width: 100%;
+  max-width: 220px;
+}
+
+.qdoc-sig-cell--workshop .print-sig-watermark-block {
+  min-height: 124px;
+  width: 100%;
+}
+
 .qdoc-sig-space {
-  height: 52px;
+  height: 76px;
+  width: 100%;
   border-bottom: 1px solid #333;
-  margin-bottom: 6px;
+  margin: 0 auto 6px;
 }
 
 .qdoc-sig-space--sm {
@@ -307,7 +331,8 @@
 }
 
 .qdoc-sig-date {
-  margin: 14px 0 0;
+  margin: 14px auto 0;
+  max-width: 520px;
   text-align: center;
   font-size: 9pt;
   color: #444;

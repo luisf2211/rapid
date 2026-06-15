@@ -92,6 +92,23 @@
   page-break-inside: avoid;
 }
 
+.idoc-sig-signature-img {
+  height: 48px;
+  margin-top: 48px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 1px solid #000;
+  padding-bottom: 4px;
+}
+
+.idoc-sig-signature-img img {
+  max-height: 44px;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 @media print {
   .idoc-checklist-grid {
     page-break-inside: avoid;

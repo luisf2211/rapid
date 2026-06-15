@@ -23,7 +23,7 @@ export default async function InvoicePrintPage({
   const invoice = await getInvoiceById(id);
   if (!invoice) notFound();
 
-  const workshop = getWorkshopPrintInfo();
+  const workshop = await getWorkshopPrintInfo();
   const data = buildInvoicePrintData(invoice, workshop);
   const backHref = `/invoices/${id}`;
   const autoPrint = auto === "1";

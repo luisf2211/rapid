@@ -7,6 +7,7 @@ export type InventoryPartClient = {
   name: string;
   description: string | null;
   category: string | null;
+  partType: string;
   unit: string;
   quantityOnHand: number;
   reservedQuantity: number;
@@ -24,6 +25,7 @@ type PartSource = {
   name: string;
   description: string | null;
   category: string | null;
+  PartType?: string | null;
   unit: string;
   quantityOnHand: unknown;
   reservedQuantity: unknown;
@@ -44,6 +46,7 @@ export type InventoryPartOption = {
   unitCost: number | null;
   available: number;
   category: string | null;
+  partType: string;
 };
 
 export function serializeInventoryPartOption(
@@ -59,6 +62,7 @@ export function serializeInventoryPartOption(
     unitCost: toPlainNumber(part.unitCost),
     available: onHand - reserved,
     category: part.category,
+    partType: part.PartType ?? "MATERIAL",
   };
 }
 
@@ -71,6 +75,7 @@ export function serializeInventoryPartForClient(
     name: part.name,
     description: part.description,
     category: part.category,
+    partType: part.PartType ?? "MATERIAL",
     unit: part.unit,
     quantityOnHand: toPlainNumber(part.quantityOnHand) ?? 0,
     reservedQuantity: toPlainNumber(part.reservedQuantity) ?? 0,

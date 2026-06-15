@@ -66,6 +66,7 @@ export type ReceptionPrintData = {
   fuelLevel: string;
   receivedBy: string | null;
   deliveredBy: string | null;
+  customerReceivedSignature: string | null;
   requestedDamages: string | null;
   observations: string | null;
   notes: string | null;
@@ -138,6 +139,7 @@ export function buildReceptionPrintData(
       : "—",
     receivedBy: reception?.receivedBy ?? null,
     deliveredBy: reception?.deliveredBy ?? null,
+    customerReceivedSignature: reception?.customerReceivedSignature ?? null,
     requestedDamages: reception?.requestedDamages ?? null,
     observations: reception?.observations ?? null,
     notes: order.notes,

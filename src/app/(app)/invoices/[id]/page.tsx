@@ -121,7 +121,7 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
           )}
         </div>
 
-        <div className="card p-5 bg-gradient-to-br from-rapid-black to-[#1a201e] text-white">
+        <div className="surface-dark p-5">
           <p className="text-xs uppercase tracking-wider font-semibold text-white/60">
             Total factura
           </p>
@@ -130,7 +130,9 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
           </p>
           <div className="mt-4 space-y-1.5 text-xs text-white/70">
             <Row label="Mano de obra" value={invoice.laborSubtotal} />
-            <Row label="Materiales" value={invoice.materialSubtotal} />
+            {(toPlainNumber(invoice.materialSubtotal) ?? 0) > 0 && (
+              <Row label="Materiales" value={invoice.materialSubtotal} />
+            )}
             {(toPlainNumber(invoice.discountAmount) ?? 0) > 0 && (
               <Row label="Descuento" value={invoice.discountAmount} negative />
             )}

@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { formatMoney } from "@/lib/formatters/money";
-import { formatDate } from "@/lib/formatters/date";
 import { InvoiceStatusBadge } from "./InvoiceStatusBadge";
 
 export type InvoiceTableRow = {
   id: number;
   invoiceNumber: number;
-  invoiceDate: Date | string;
+  invoiceDateLabel: string;
   customerName: string;
   plate: string | null;
   billingType: string;
@@ -54,7 +53,7 @@ export function InvoicesTable({ items }: { items: InvoiceTableRow[] }) {
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-rapid-text-muted">
-                  {formatDate(row.invoiceDate)}
+                  {row.invoiceDateLabel}
                 </td>
                 <td className="px-4 py-3">
                   <Link href={`/invoices/${row.id}`} className="hover:underline">

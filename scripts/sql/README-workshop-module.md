@@ -10,7 +10,10 @@
 | 4 | `004-workshop-invoice-audit-settings.sql` | Factura, auditoría, datos del taller |
 | 5 | `005-quotation-deductible.sql` | Deducible en cotización aseguradora (si ya corriste 003) |
 | 6 | `006-quotation-policy-number.sql` | Número de póliza (si ya corriste 003) |
-| — | `005-006-quotation-insurance-fields.sql` | **Ambos** (deducible + póliza) en un solo script |
+| 7 | `007-labor-order-simplify.sql` | MO: empleado/externo + cantidad por línea |
+| 8 | `008-work-order-complete-on-invoice-paid.sql` | Orden COMPLETED si factura PAID. Ejecutar en **SQL Server**, base **Rapid** (el script incluye `USE [Rapid]`) |
+| 10 | `010-labor-order-unit-price.sql` | Precio por pieza en MO |
+| 11 | `011-employee-payroll-module.sql` | Empleados, pagos, quincena, FK MO→empleado |
 
 Después de migrar columnas nuevas: `npx prisma generate` y reinicia `npm run dev`.
 
@@ -46,6 +49,7 @@ npx prisma generate
 2. **Recepción** solo si `Quotation.Status = APPROVED` y se asigna `WorkOrder.QuotationId`
 3. **Requisición** `APPROVED` → salida de inventario (`InventoryMovement` OUT)
 4. **Factura** — app en `/invoices`: genera desde MO + materiales de la orden; particular sin ITBIS, aseguradora 18%
+5. **Pago de factura** (`PAID`) → la orden de recepción pasa a `COMPLETED` (si estaba `RECEIVED` o `IN_PROGRESS`)
 5. Cada acción crítica → insert en `AuditLog` (pendiente en código)
 
 ## Tablas nuevas (resumen)

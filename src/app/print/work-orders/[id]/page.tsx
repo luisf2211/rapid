@@ -24,7 +24,7 @@ export default async function WorkOrderReceptionPrintPage({
   const order = await getWorkOrderForReceptionPrint(id);
   if (!order) notFound();
 
-  const workshop = getWorkshopPrintInfo();
+  const workshop = await getWorkshopPrintInfo();
   const data = buildReceptionPrintData(order, workshop);
   const backHref = `/work-orders/${id}`;
   const autoPrint = auto === "1";

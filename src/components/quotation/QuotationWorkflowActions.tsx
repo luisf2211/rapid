@@ -38,7 +38,7 @@ export function QuotationWorkflowActions({
         return;
       }
       if (res.workOrderId) {
-        router.push(`/work-orders/${res.workOrderId}`);
+        router.push(`/work-orders/${res.workOrderId}/edit#checklist`);
         return;
       }
       router.refresh();

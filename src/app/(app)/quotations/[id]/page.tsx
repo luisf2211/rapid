@@ -5,7 +5,7 @@ import { QuotationStatusBadge } from "@/components/ui/QuotationStatusBadge";
 import { getQuotationById } from "@/services/quotations.service";
 import { formatMoney } from "@/lib/formatters/money";
 import {
-  QUOTATION_LABOR_AREAS,
+  quotationLaborAreaLabel,
   QUOTATION_TYPES,
   DAMAGE_SIDES,
   DAMAGE_TYPES,
@@ -188,23 +188,11 @@ export default async function QuotationDetailPage({
           {quotation.laborLines.length > 0 && (
             <LineTable
               title="Mano de obra"
-              headers={["Área", "Detalle", "Total"]}
+              headers={["Tarea", "Detalle", "Total"]}
               rows={quotation.laborLines.map((l) => [
-                labelFor(QUOTATION_LABOR_AREAS, l.area),
+                quotationLaborAreaLabel(l.area),
                 l.description || "—",
                 formatMoney(toPlainNumber(l.lineTotal) ?? 0),
-              ])}
-            />
-          )}
-
-          {quotation.materialLines.length > 0 && (
-            <LineTable
-              title="Materiales"
-              headers={["Producto", "Cant.", "Total"]}
-              rows={quotation.materialLines.map((m) => [
-                m.productName,
-                `${toPlainNumber(m.quantity)} ${m.unit ?? ""}`.trim(),
-                formatMoney(toPlainNumber(m.lineTotal) ?? 0),
               ])}
             />
           )}

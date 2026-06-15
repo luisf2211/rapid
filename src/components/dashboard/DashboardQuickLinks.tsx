@@ -4,6 +4,8 @@ import {
   FileText,
   Receipt,
   Package,
+  Wrench,
+  Boxes,
   ChevronRight,
 } from "lucide-react";
 
@@ -19,6 +21,18 @@ const links = [
     label: "Recepción",
     desc: "Órdenes y checklist",
     icon: ClipboardList,
+  },
+  {
+    href: "/labor-orders",
+    label: "Mano de obra",
+    desc: "Registro por orden",
+    icon: Wrench,
+  },
+  {
+    href: "/material-requisitions",
+    label: "Materiales",
+    desc: "Requisiciones de taller",
+    icon: Boxes,
   },
   {
     href: "/invoices",

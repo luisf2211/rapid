@@ -1,14 +1,16 @@
 import { z } from "zod";
-import { DAMAGE_SIDES, DAMAGE_TYPES } from "@/lib/constants";
+import {
+  DAMAGE_SIDES,
+  DAMAGE_TYPES,
+  QUOTATION_LABOR_AREA_VALUES,
+} from "@/lib/constants";
 
 const optionalStr = (max: number) =>
   z.string().max(max).optional().or(z.literal(""));
 
 export const quotationLaborLineSchema = z.object({
-  area: z.enum(["DESAB", "PREP", "PAINT", "POLISH", "ASSEMBLY"]),
+  area: z.enum(QUOTATION_LABOR_AREA_VALUES),
   description: optionalStr(250),
-  estimatedHours: z.coerce.number().min(0).optional(),
-  hourlyRate: z.coerce.number().min(0).optional(),
   lineTotal: z.coerce.number().min(0).default(0),
 });
 
@@ -92,13 +94,11 @@ export const quotationSchema = z
       });
     }
     const hasLines =
-      data.laborLines.length > 0 ||
-      data.materialLines.length > 0 ||
-      data.partLines.length > 0;
+      data.laborLines.length > 0 || data.partLines.length > 0;
     if (!hasLines) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Agrega al menos una línea de mano de obra, material o repuesto",
+        message: "Agrega al menos una línea de mano de obra o repuesto",
         path: ["laborLines"],
       });
     }

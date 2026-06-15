@@ -9,8 +9,11 @@ import {
   type InventoryPartFormValues,
 } from "@/lib/validations/inventory";
 import { TextInput } from "@/components/forms/TextInput";
-import { INVENTORY_CATEGORIES, INVENTORY_UNITS } from "@/lib/constants";
+import { FractionQuantityInput } from "@/components/forms/FractionQuantityInput";
+import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
+import { INVENTORY_CATEGORIES, INVENTORY_PART_TYPES, INVENTORY_UNITS } from "@/lib/constants";
 import type { InventoryPartClient } from "@/lib/inventory/client";
+import { partTypeLabel } from "@/lib/inventory/part-type";
 import { updateInventoryPartAction } from "../actions";
 
 interface Props {
@@ -33,9 +36,10 @@ export function EditInventoryPartForm({ part }: Props) {
       name: part.name,
       description: part.description ?? "",
       category: part.category ?? "",
+      partType: part.partType as typeof INVENTORY_PART_TYPES.MATERIAL,
       unit: part.unit,
       quantityOnHand: 0,
-      minQuantity: part.minQuantity != null ? Number(part.minQuantity) : "",
+      minQuantity: part.minQuantity != null ? formatFractionQuantity(part.minQuantity) : "",
       unitCost: part.unitCost != null ? Number(part.unitCost) : "",
       location: part.location ?? "",
       isActive: part.isActive,
@@ -55,7 +59,10 @@ export function EditInventoryPartForm({ part }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="card p-5 space-y-4">
-      <h3 className="font-semibold text-rapid-text">Datos de la pieza</h3>
+      <h3 className="font-semibold text-rapid-text">
+        Datos de la pieza · {partTypeLabel(part.partType)}
+      </h3>
+      <input type="hidden" {...register("partType")} />
       {submitError && <p className="text-sm text-red-600">{submitError}</p>}
       {saved && (
         <p className="text-sm text-rapid-green-dark">Cambios guardados.</p>
@@ -93,12 +100,10 @@ export function EditInventoryPartForm({ part }: Props) {
             ))}
           </select>
         </div>
-        <TextInput
+        <FractionQuantityInput
           label="Stock mínimo"
-          type="number"
-          step="0.01"
-          min="0"
           {...register("minQuantity")}
+          error={errors.minQuantity?.message}
         />
         <TextInput
           label="Costo unitario"
@@ -113,8 +118,8 @@ export function EditInventoryPartForm({ part }: Props) {
       <TextInput label="Descripción" {...register("description")} />
       {part.reservedQuantity > 0 && (
         <p className="text-xs text-amber-700">
-          Reservado: {part.reservedQuantity} {part.unit} (no editable desde
-          aquí)
+          Reservado: {formatFractionQuantity(part.reservedQuantity)} {part.unit}{" "}
+          (no editable desde aquí)
         </p>
       )}
       <label className="flex items-center gap-2 text-sm">

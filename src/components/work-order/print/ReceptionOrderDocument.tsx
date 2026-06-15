@@ -1,7 +1,8 @@
 import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
-import { resolvePhotoUrl } from "@/lib/photos";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { InvoicePrintFooter } from "@/components/invoice/print/InvoicePrintFooter";
+import { PrintWorkshopReceiverSignature } from "@/components/print/PrintWorkshopReceiverSignature";
+import { resolvePhotoUrl } from "@/lib/photos";
 
 function field(label: string, value: string | null | undefined) {
   if (!value) return null;
@@ -176,41 +177,34 @@ export function ReceptionOrderDocument({
         </>
       )}
 
-      {data.photos.length > 0 && (
-        <section>
-          <h3 className="idoc-section-title">Fotografías</h3>
-          <div className="idoc-photos">
-            {data.photos.slice(0, 6).map((p, i) => (
-              <div key={i} className="idoc-photo">
-                {p.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={resolvePhotoUrl(p.url)}
-                    alt={p.description ?? p.label}
-                  />
-                ) : (
-                  <div className="idoc-photo-placeholder">Sin foto</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
       <h3 className="idoc-section-title">Conformidad y firmas</h3>
       <div className="idoc-signatures-3">
         <div className="idoc-sig-block">
-          <div className="idoc-sig-line" />
+          {data.customerReceivedSignature ? (
+            <div className="idoc-sig-signature-img">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={
+                  resolvePhotoUrl(data.customerReceivedSignature) ??
+                  data.customerReceivedSignature
+                }
+                alt=""
+              />
+            </div>
+          ) : (
+            <div className="idoc-sig-line" />
+          )}
           <div className="idoc-sig-label">Cliente — entrega</div>
           <p style={{ fontSize: "9pt", marginTop: 4 }}>{data.customerName}</p>
         </div>
-        <div className="idoc-sig-block">
-          <div className="idoc-sig-line" />
-          <div className="idoc-sig-label">Recibido por (taller)</div>
-          <p style={{ fontSize: "9pt", marginTop: 4 }}>
-            {data.receivedBy ?? "________________"}
-          </p>
-        </div>
+        <PrintWorkshopReceiverSignature
+          workshop={workshop}
+          subtitle={
+            <p style={{ fontSize: "9pt", marginTop: 4 }}>
+              {data.receivedBy ?? "________________"}
+            </p>
+          }
+        />
         <div className="idoc-sig-block">
           <div className="idoc-sig-line" />
           <div className="idoc-sig-label">Cliente — retiro</div>

@@ -45,9 +45,12 @@ export async function markInvoicePaidAction(
   paymentReference?: string,
 ): Promise<InvoiceActionState> {
   try {
-    await markInvoicePaid(id, paymentReference);
+    const inv = await markInvoicePaid(id, paymentReference);
     revalidatePath("/invoices");
     revalidatePath(`/invoices/${id}`);
+    revalidatePath("/work-orders");
+    revalidatePath("/dashboard");
+    revalidatePath(`/work-orders/${inv.workOrderId}`);
     return { ok: true, id };
   } catch (e) {
     return {
