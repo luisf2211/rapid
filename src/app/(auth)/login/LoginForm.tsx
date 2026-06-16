@@ -68,12 +68,6 @@ export function LoginForm() {
         <LogIn className="w-4 h-4" />
         {isPending ? "Entrando..." : "Iniciar sesión"}
       </button>
-
-      <p className="text-xs text-rapid-text-muted text-center">
-        Admin plataforma: <span className="font-mono">admin</span> o{" "}
-        <span className="font-mono">admin@rapid.local</span> · contraseña{" "}
-        <span className="font-mono">123</span>
-      </p>
     </form>
   );
 }
