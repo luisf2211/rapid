@@ -40,8 +40,11 @@ async function generateQuotationNumber(companyId: number): Promise<number> {
   return (max._max.quotationNumber ?? 0) + 1;
 }
 
-async function generateOrderNumber(): Promise<number> {
-  const max = await prisma.workOrder.aggregate({ _max: { orderNumber: true } });
+async function generateOrderNumber(companyId: number): Promise<number> {
+  const max = await prisma.workOrder.aggregate({
+    where: companyWhere(companyId),
+    _max: { orderNumber: true },
+  });
   return (max._max.orderNumber ?? 0) + 1;
 }
 
@@ -411,7 +414,7 @@ export async function convertQuotationToWorkOrder(
     throw new Error("Esta cotización ya fue convertida a orden de recepción");
   }
 
-  const orderNumber = await generateOrderNumber();
+  const orderNumber = await generateOrderNumber(quotation.CompanyId);
   const today = new Date();
   const deliveryDate = new Date(
     `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, "0")}-${String(today.getUTCDate()).padStart(2, "0")}T00:00:00.000Z`,
@@ -431,6 +434,7 @@ export async function convertQuotationToWorkOrder(
     const workOrder = await tx.workOrder.create({
       data: {
         orderNumber,
+        CompanyId: quotation.CompanyId,
         quotationId: quotation.id,
         status: "RECEIVED",
         customerName: quotation.customerName,
