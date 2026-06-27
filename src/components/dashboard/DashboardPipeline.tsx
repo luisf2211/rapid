@@ -90,7 +90,7 @@ export function DashboardPipeline({
           <Link
             key={st.key}
             href={st.href}
-            className="group rounded-xl border border-rapid-border p-3 hover:border-rapid-text/20 hover:shadow-sm transition"
+            className="group rounded-xl border border-rapid-border p-3 hover:border-rapid-text/20 hover:shadow-float transition"
           >
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${st.color}`} />

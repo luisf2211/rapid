@@ -32,7 +32,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
           className={cn(
             "form-input pr-8 appearance-none bg-[length:14px_14px] bg-[right_0.6rem_center] bg-no-repeat",
             "bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2214%22 height=%2214%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22></polyline></svg>')]",
-            error && "border-red-300 focus:border-red-400",
+            error && "border-rapid-error focus:border-rapid-error",
             className,
           )}
           {...props}
@@ -44,7 +44,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
           ))}
         </select>
         {error ? (
-          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <p className="mt-1 text-xs text-rapid-error">{error}</p>
         ) : hint ? (
           <p className="mt-1 text-xs text-rapid-text-muted">{hint}</p>
         ) : null}

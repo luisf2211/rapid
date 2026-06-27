@@ -32,13 +32,13 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
             inputMode="decimal"
             className={cn(
               "form-input pl-7 text-right tabular-nums",
-              error && "border-red-300 focus:border-red-400",
+              error && "border-rapid-error focus:border-rapid-error",
               className,
             )}
             {...props}
           />
         </div>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-xs text-rapid-error">{error}</p>}
       </div>
     );
   },

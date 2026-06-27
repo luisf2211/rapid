@@ -1,17 +1,54 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ────────────────────────────────────────────────────────── */
 :root {
+  /* Brand */
   --rapid-black: #0b0f0e;
   --rapid-green: #00c853;
   --rapid-green-dark: #009624;
   --rapid-green-soft: #d3f7e0;
+  --rapid-green-disabled: #a8edca;
+
+  /* Canvas & surfaces */
   --rapid-bg: #f5f7f6;
   --rapid-surface: #ffffff;
+  --rapid-surface-soft: #f7f7f7;
+  --rapid-surface-strong: #f2f2f2;
+
+  /* Text scale */
   --rapid-text: #111827;
+  --rapid-text-body: #3d3d3d;
   --rapid-text-muted: #6b7280;
+  --rapid-text-muted-soft: #929292;
+
+  /* Borders & hairlines */
   --rapid-border: #e5e7eb;
+  --rapid-hairline: #dddddd;
+  --rapid-border-strong: #c1c1c1;
+
+  /* Semantic */
+  --rapid-error: #c13515;
+  --rapid-error-hover: #b32505;
+  --rapid-scrim: rgba(0, 0, 0, 0.5);
+
+  /* Spacing scale — 4 px base */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-base: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-section: 64px;
+
+  /* Single elevation tier */
+  --shadow-float: rgba(0, 0, 0, 0.02) 0 0 0 1px,
+    rgba(0, 0, 0, 0.04) 0 2px 6px 0,
+    rgba(0, 0, 0, 0.1) 0 4px 8px 0;
 }
 
+/* ─── Tailwind theme tokens ─────────────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--rapid-bg);
   --color-foreground: var(--rapid-text);
@@ -19,164 +56,225 @@
   --color-rapid-green: var(--rapid-green);
   --color-rapid-green-dark: var(--rapid-green-dark);
   --color-rapid-green-soft: var(--rapid-green-soft);
+  --color-rapid-green-disabled: var(--rapid-green-disabled);
   --color-rapid-bg: var(--rapid-bg);
   --color-rapid-surface: var(--rapid-surface);
+  --color-rapid-surface-soft: var(--rapid-surface-soft);
+  --color-rapid-surface-strong: var(--rapid-surface-strong);
   --color-rapid-text: var(--rapid-text);
+  --color-rapid-text-body: var(--rapid-text-body);
   --color-rapid-text-muted: var(--rapid-text-muted);
+  --color-rapid-text-muted-soft: var(--rapid-text-muted-soft);
   --color-rapid-border: var(--rapid-border);
+  --color-rapid-hairline: var(--rapid-hairline);
+  --color-rapid-border-strong: var(--rapid-border-strong);
+  --color-rapid-error: var(--rapid-error);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-html,
-body {
-  background: var(--rapid-bg);
-  color: var(--rapid-text);
+/* ─── Base layer ───────────────────────────────────────────────────────────── */
+@layer base {
+  html,
+  body {
+    background: var(--rapid-bg);
+    color: var(--rapid-text);
+  }
+
+  body {
+    font-family: var(--font-sans), -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbar — narrow & pill-shaped */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-300;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  /*
+   * Default focus-visible ring for ALL interactive elements.
+   * Replaces the browser's default blue outline with an on-brand ring.
+   * .btn-primary / .btn-secondary / .btn-dark override this with their
+   * own color variants in @layer components (higher specificity wins).
+   */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-rapid-text/30 ring-offset-1;
+  }
+
+  /* Form inputs use an ink border instead of a ring (per design system) */
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply ring-0 ring-offset-0;
+  }
 }
 
-body {
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ─── Components ───────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * BUTTONS
+   * All three variants share the same base anatomy:
+   *   - inline-flex with centered content and consistent gap
+   *   - 48 px minimum height (WCAG touch target)
+   *   - focus-visible ring for keyboard accessibility
+   *   - cursor-pointer + select-none for usability
+   *   - disabled: muted appearance + not-allowed cursor
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  /* Primary — green fill */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           h-12 min-h-12 px-6
+           rounded-lg bg-rapid-green text-white
+           text-base font-medium whitespace-nowrap
+           cursor-pointer select-none
+           transition-colors duration-150;
+  }
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-rapid-green-dark;
+  }
+  .btn-primary:focus-visible {
+    @apply ring-2 ring-rapid-green ring-offset-2;
+  }
+  .btn-primary:disabled {
+    @apply bg-rapid-green-disabled cursor-not-allowed opacity-80;
+  }
+
+  /* Secondary — white fill, ink outline */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           h-12 min-h-12 px-5
+           rounded-lg bg-rapid-surface text-rapid-text
+           text-base font-medium whitespace-nowrap
+           border border-rapid-border
+           cursor-pointer select-none
+           transition-colors duration-150;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    @apply bg-rapid-surface-soft;
+  }
+  .btn-secondary:focus-visible {
+    @apply ring-2 ring-rapid-text/30 ring-offset-2;
+  }
+  .btn-secondary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Dark — ink fill */
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2
+           h-12 min-h-12 px-6
+           rounded-lg bg-rapid-black text-white
+           text-base font-medium whitespace-nowrap
+           cursor-pointer select-none
+           transition-colors duration-150;
+  }
+  .btn-dark:hover:not(:disabled) {
+    background: #1f2624;
+  }
+  .btn-dark:focus-visible {
+    @apply ring-2 ring-rapid-black/50 ring-offset-2;
+  }
+  .btn-dark:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * FORM INPUTS
+   * • .form-label  — uppercase caption above a field
+   * • .form-input  — text/textarea base (10px vert padding)
+   * • input.form-input, select.form-input — taller 56 px single-line variant
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .form-label {
+    @apply block mb-1.5
+           text-[0.6875rem] font-semibold uppercase tracking-[0.05em]
+           text-rapid-text-muted;
+  }
+
+  .form-input {
+    @apply w-full px-3 py-2.5
+           rounded-lg border border-rapid-border bg-rapid-surface
+           text-[0.9375rem] text-rapid-text
+           placeholder:text-rapid-text-muted
+           transition-colors duration-150;
+  }
+  .form-input:focus {
+    /*
+     * Ink border on focus — no glow/ring per design system.
+     * Inset shadow achieves the "2px" visual weight without layout shift.
+     */
+    @apply border-rapid-text outline-none;
+    box-shadow: inset 0 0 0 1px var(--rapid-text);
+  }
+  .form-input:disabled {
+    @apply bg-rapid-surface-soft text-rapid-text-muted-soft cursor-not-allowed;
+  }
+
+  /* 56 px height for single-line inputs and selects */
+  input.form-input,
+  select.form-input {
+    @apply h-14 py-0;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * CARD
+   * Base surface. Cards that are interactive links/buttons should also
+   * add hover:shadow-float via Tailwind utility.
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .card {
+    @apply bg-rapid-surface border border-rapid-border rounded-[0.875rem]
+           shadow-[0_1px_3px_rgba(15,23,42,0.05)]
+           transition-shadow duration-150;
+  }
+
+  /* Non-interactive variant — disables hover and pointer */
+  .card-static {
+    @apply pointer-events-none;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * DARK SURFACE
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .surface-dark {
+    @apply text-white rounded-[0.875rem]
+           border border-rapid-black
+           shadow-[0_1px_2px_rgba(15,23,42,0.04)];
+    background: linear-gradient(
+      to bottom right,
+      var(--rapid-black),
+      #1a201e
+    );
+  }
+
+  .on-dark-muted {
+    @apply text-slate-300;
+  }
+
+  .on-dark-label {
+    @apply text-slate-400;
+  }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* ─── Utilities ────────────────────────────────────────────────────────────── */
+@layer utilities {
+  /* The design system's single elevation tier — used on hover for interactive cards */
+  .shadow-float {
+    box-shadow: var(--shadow-float);
+  }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 8px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* Focus rings */
-input:focus,
-select:focus,
-textarea:focus,
-button:focus-visible {
-  outline: none;
-}
-
-/* Form base */
-.form-input {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid var(--rapid-border);
-  background: var(--rapid-surface);
-  padding: 0.55rem 0.75rem;
-  font-size: 0.875rem;
-  color: var(--rapid-text);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.form-input::placeholder {
-  color: #9ca3af;
-}
-.form-input:focus {
-  border-color: #9ca3af;
-  box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.06);
-}
-.form-input:disabled {
-  background: #f3f4f6;
-  cursor: not-allowed;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--rapid-text-muted);
-  margin-bottom: 0.4rem;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.5rem;
-  background: var(--rapid-green);
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.6rem 1.1rem;
-  transition: background 0.15s ease, transform 0.05s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-.btn-primary:hover {
-  background: var(--rapid-green-dark);
-}
-.btn-primary:active {
-  transform: translateY(1px);
-}
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.5rem;
-  background: white;
-  color: var(--rapid-text);
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.55rem 1rem;
-  border: 1px solid var(--rapid-border);
-  transition: background 0.15s ease;
-}
-.btn-secondary:hover {
-  background: var(--rapid-bg);
-}
-
-.btn-dark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.5rem;
-  background: var(--rapid-black);
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.6rem 1.1rem;
-}
-.btn-dark:hover {
-  background: #1f2624;
-}
-
-.card {
-  background: var(--rapid-surface);
-  border: 1px solid var(--rapid-border);
-  border-radius: 0.875rem;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-}
-
-.surface-dark {
-  background: linear-gradient(to bottom right, var(--rapid-black), #1a201e);
-  border: 1px solid var(--rapid-black);
-  border-radius: 0.875rem;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  color: #ffffff;
-}
-
-.surface-dark .on-dark-muted {
-  color: #cbd5e1;
-}
-
-.surface-dark .on-dark-label {
-  color: #94a3b8;
-}
-

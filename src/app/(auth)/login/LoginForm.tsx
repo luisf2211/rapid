@@ -41,9 +41,9 @@ export function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="rounded-lg border border-rapid-error/20 bg-rapid-error/5 p-3 flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 text-rapid-error shrink-0" />
+          <p className="text-sm text-rapid-error">{error}</p>
         </div>
       )}
 

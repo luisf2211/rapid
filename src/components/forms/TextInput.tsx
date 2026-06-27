@@ -25,13 +25,13 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           id={props.id ?? props.name}
           className={cn(
             "form-input",
-            error && "border-red-300 focus:border-red-400",
+            error && "border-rapid-error focus:border-rapid-error",
             className,
           )}
           {...props}
         />
         {error ? (
-          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <p className="mt-1 text-xs text-rapid-error">{error}</p>
         ) : hint ? (
           <p className="mt-1 text-xs text-rapid-text-muted">{hint}</p>
         ) : null}

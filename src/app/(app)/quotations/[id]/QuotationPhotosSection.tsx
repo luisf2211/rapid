@@ -161,7 +161,7 @@ export function QuotationPhotosSection({
                   disabled={busy}
                   onClick={() => handleDelete(p.id)}
                   className="absolute top-2 right-2 w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition shadow"
-                  title="Eliminar"
+                  aria-label="Eliminar foto"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

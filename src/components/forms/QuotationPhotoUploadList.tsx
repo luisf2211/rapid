@@ -179,8 +179,8 @@ function QuotationPhotoRow({
           <button
             type="button"
             onClick={onRemove}
+            aria-label="Quitar foto"
             className="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:bg-red-50 rounded-lg shrink-0"
-            title="Quitar foto"
           >
             <Trash2 className="w-4 h-4" />
           </button>

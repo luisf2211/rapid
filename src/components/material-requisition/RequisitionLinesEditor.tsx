@@ -203,6 +203,7 @@ export function RequisitionLinesEditor({
                   <button
                     type="button"
                     onClick={() => onRemove(idx)}
+                    aria-label="Eliminar línea"
                     className="inline-flex items-center justify-center w-9 h-9 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-30"
                   >
                     <Trash2 className="w-4 h-4" />

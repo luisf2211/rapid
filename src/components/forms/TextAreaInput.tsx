@@ -27,13 +27,13 @@ export const TextAreaInput = forwardRef<HTMLTextAreaElement, TextAreaInputProps>
           rows={props.rows ?? 3}
           className={cn(
             "form-input resize-y",
-            error && "border-red-300 focus:border-red-400",
+            error && "border-rapid-error focus:border-rapid-error",
             className,
           )}
           {...props}
         />
         {error ? (
-          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <p className="mt-1 text-xs text-rapid-error">{error}</p>
         ) : hint ? (
           <p className="mt-1 text-xs text-rapid-text-muted">{hint}</p>
         ) : null}

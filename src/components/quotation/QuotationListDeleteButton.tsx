@@ -46,7 +46,7 @@ export function QuotationListDeleteButton({
           type="button"
           onClick={handleClick}
           disabled={pending}
-          title="Eliminar"
+          aria-label="Eliminar cotización"
           className="p-2 rounded-lg text-red-600/80 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
         >
           <Trash2 className="w-4 h-4" />

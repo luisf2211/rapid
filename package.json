@@ -10,7 +10,9 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
-    "db:clean": "node scripts/clean-database.mjs"
+    "db:clean": "node scripts/clean-database.mjs",
+    "supabase:migrate": "node scripts/migrate-to-supabase.mjs",
+    "supabase:seed": "node scripts/supabase-seed.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { AUTH_COOKIE_NAME, USER_ROLES } from "@/lib/auth/constants";
 
-const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+const PUBLIC_PATHS = ["/", "/login", "/api/auth/login"];
 
 function getAuthSecret(): Uint8Array {
   const secret =

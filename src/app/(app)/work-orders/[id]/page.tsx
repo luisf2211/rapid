@@ -106,89 +106,99 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
 
   return (
     <>
+      {/* ── Page header ──────────────────────────────────────────── */}
       <PageHeader
-        title={`${order.brand ?? ""} ${order.model ?? ""} ${
-          order.vehicleYear ?? ""
-        }`.trim() || "Orden de trabajo"}
-        subtitle={`Orden #${String(order.orderNumber).padStart(5, "0")} · ${
-          order.customerName ?? "Sin cliente"
-        }`}
-        badge={<StatusBadge status={order.status} />}
-        actions={
-          <>
-            <Link href="/work-orders" className="btn-secondary">
-              <ArrowLeft className="w-4 h-4" /> Volver
-            </Link>
-            <Link
-              href={`/print/work-orders/${order.id}`}
-              target="_blank"
-              className="btn-secondary"
-            >
-              <Printer className="w-4 h-4" /> Imprimir recepción
-            </Link>
-            {linkedQuotation && (
-              <>
-                <Link
-                  href={`/quotations/${linkedQuotation.id}`}
-                  className="btn-secondary"
-                >
-                  <FileText className="w-4 h-4" />{" "}
-                  {formatDocNumber(
-                    linkedQuotation.quotationType,
-                    linkedQuotation.quotationNumber,
-                  )}
-                </Link>
-                {quotationEditable && (
-                  <Link
-                    href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
-                    className="btn-secondary"
-                  >
-                    <Pencil className="w-4 h-4" /> Editar cotización
-                  </Link>
-                )}
-              </>
-            )}
-            {receptionEditable && (
-              <Link
-                href={`/work-orders/${order.id}/edit`}
-                className="btn-primary"
-              >
-                <Pencil className="w-4 h-4" /> Editar recepción
-              </Link>
-            )}
-            <Link
-              href={`/material-requisitions/new?workOrderId=${order.id}`}
-              className="btn-secondary"
-            >
-              <Boxes className="w-4 h-4" /> Materiales
-            </Link>
-            <Link
-              href={`/labor-orders/new?workOrderId=${order.id}`}
-              className="btn-primary"
-            >
-              <Wrench className="w-4 h-4" /> Mano de obra
-            </Link>
-            {latestInvoice && (
-              <Link
-                href={`/invoices/${latestInvoice.id}`}
-                className="btn-secondary"
-              >
-                <Receipt className="w-4 h-4" /> Ver factura FAC-
-                {String(latestInvoice.invoiceNumber).padStart(5, "0")}
-              </Link>
-            )}
-            {!activeInvoice && (
-              <Link
-                href={`/invoices/new?workOrderId=${order.id}`}
-                className="btn-secondary"
-              >
-                <Receipt className="w-4 h-4" /> Facturar
-              </Link>
-            )}
-          </>
+        breadcrumb={
+          <Link
+            href="/work-orders"
+            className="inline-flex items-center gap-1 hover:text-rapid-text transition"
+          >
+            <ArrowLeft className="w-3 h-3" /> Órdenes de recepción
+          </Link>
         }
+        title={
+          `${order.brand ?? ""} ${order.model ?? ""} ${order.vehicleYear ?? ""}`.trim() ||
+          "Orden de trabajo"
+        }
+        subtitle={`Orden #${String(order.orderNumber).padStart(5, "0")} · ${order.customerName ?? "Sin cliente"} · ${formatDateTime(order.createdAt)}`}
+        badge={<StatusBadge status={order.status} />}
       />
 
+      {/* ── Action bar ───────────────────────────────────────────── */}
+      {/* Two visual groups: utility (left) | workflow (right) */}
+      <div className="flex flex-wrap items-center gap-2 mb-5 pb-5 border-b border-rapid-border">
+        {/* Utility: print + quotation */}
+        <Link
+          href={`/print/work-orders/${order.id}`}
+          target="_blank"
+          className="btn-secondary text-sm px-3"
+        >
+          <Printer className="w-4 h-4" /> Imprimir
+        </Link>
+        {linkedQuotation && (
+          <Link
+            href={`/quotations/${linkedQuotation.id}`}
+            className="btn-secondary text-sm px-3"
+          >
+            <FileText className="w-4 h-4" />{" "}
+            {formatDocNumber(
+              linkedQuotation.quotationType,
+              linkedQuotation.quotationNumber,
+            )}
+          </Link>
+        )}
+        {linkedQuotation && quotationEditable && (
+          <Link
+            href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
+            className="btn-secondary text-sm px-3"
+          >
+            <Pencil className="w-4 h-4" /> Editar cotización
+          </Link>
+        )}
+
+        {/* Separator */}
+        <span className="hidden sm:block w-px h-6 bg-rapid-border mx-1" aria-hidden />
+
+        {/* Workflow: the key actions for the order */}
+        {receptionEditable && (
+          <Link
+            href={`/work-orders/${order.id}/edit`}
+            className="btn-secondary text-sm px-3"
+          >
+            <Pencil className="w-4 h-4" /> Editar recepción
+          </Link>
+        )}
+        <Link
+          href={`/material-requisitions/new?workOrderId=${order.id}`}
+          className="btn-secondary text-sm px-3"
+        >
+          <Boxes className="w-4 h-4" /> Materiales
+        </Link>
+        <Link
+          href={`/labor-orders/new?workOrderId=${order.id}`}
+          className="btn-primary text-sm px-4"
+        >
+          <Wrench className="w-4 h-4" /> Mano de obra
+        </Link>
+        {latestInvoice ? (
+          <Link
+            href={`/invoices/${latestInvoice.id}`}
+            className="btn-secondary text-sm px-3"
+          >
+            <Receipt className="w-4 h-4" /> FAC-
+            {String(latestInvoice.invoiceNumber).padStart(5, "0")}
+          </Link>
+        ) : (
+          <Link
+            href={`/invoices/new?workOrderId=${order.id}`}
+            className="btn-primary text-sm px-4"
+          >
+            <Receipt className="w-4 h-4" /> Facturar
+          </Link>
+        )}
+      </div>
+
+      {/* ── Checklist alert ──────────────────────────────────────── */}
       {receptionEditable && checklistPending && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-amber-900">
@@ -207,18 +217,19 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* Top summary panels */}
+      {/* ── Top summary panels ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        {/* Vehicle info */}
         <div className="card p-5 lg:col-span-2">
           <div className="flex items-start justify-between mb-3">
-            <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+            <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted">
               Vehículo
             </p>
-            <span className="font-mono text-xs uppercase px-2 py-0.5 rounded bg-rapid-black text-rapid-green">
+            <span className="font-mono text-xs uppercase px-2 py-1 rounded-md bg-rapid-black text-rapid-green font-bold">
               {order.plate ?? "—"}
             </span>
           </div>
-          <p className="text-2xl font-bold text-rapid-text">
+          <p className="text-[22px] font-bold text-rapid-text leading-tight">
             {order.brand ?? ""} {order.model ?? ""}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
@@ -232,70 +243,74 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="surface-dark p-5">
-          <p className="text-xs uppercase tracking-wider font-semibold text-white/60">
-            Costos internos
-          </p>
-          <p className="text-3xl font-bold mt-2 text-rapid-green">
-            {formatMoney(financial.grandTotal)}
-          </p>
-          <div className="mt-4 space-y-1.5 text-xs text-white/70">
-            <div className="flex justify-between">
-              <span>Materiales</span>
-              <span className="font-mono text-white">
-                {formatMoney(financial.totalMaterials)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Pintura</span>
-              <span className="font-mono text-white">
-                {formatMoney(financial.totalPaint)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Mano de obra</span>
-              <span className="font-mono text-white">
-                {formatMoney(financial.totalLaborAmount)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Piezas MO</span>
-              <span className="font-mono text-white">
-                {formatPieceCount(financial.totalLaborPieces)}
-              </span>
+        {/* Financial summary + status changer combined */}
+        <div className="surface-dark p-5 flex flex-col gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-white/50">
+              Costos internos
+            </p>
+            <p className="text-[28px] font-bold mt-1.5 text-rapid-green leading-none tabular-nums">
+              {formatMoney(financial.grandTotal)}
+            </p>
+            <div className="mt-3 space-y-1.5 text-xs text-white/60">
+              <div className="flex justify-between">
+                <span>Materiales</span>
+                <span className="font-mono text-white/90">
+                  {formatMoney(financial.totalMaterials)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Pintura</span>
+                <span className="font-mono text-white/90">
+                  {formatMoney(financial.totalPaint)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Mano de obra</span>
+                <span className="font-mono text-white/90">
+                  {formatMoney(financial.totalLaborAmount)}
+                </span>
+              </div>
+              <div className="flex justify-between border-t border-white/10 pt-1.5">
+                <span>Piezas MO</span>
+                <span className="font-mono text-white/90">
+                  {formatPieceCount(financial.totalLaborPieces)}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Status changer */}
-      <div className="card p-4 mb-4 flex flex-wrap items-center gap-3">
-        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
-          Estado de la orden
-        </p>
-        <form
-          action={changeWorkOrderStatusAction}
-          className="flex items-center gap-2"
-        >
-          <input type="hidden" name="id" value={order.id} />
-          <select
-            name="status"
-            defaultValue={order.status}
-            className="form-input py-1.5"
-          >
-            {Object.entries(WORK_ORDER_STATUS_LABELS).map(([k, v]) => (
-              <option key={k} value={k}>
-                {v}
-              </option>
-            ))}
-          </select>
-          <button type="submit" className="btn-dark text-xs px-3 py-1.5">
-            Actualizar
-          </button>
-        </form>
-        <span className="ml-auto text-xs text-rapid-text-muted">
-          Creada {formatDateTime(order.createdAt)}
-        </span>
+          {/* Status changer inside the dark card */}
+          <div className="border-t border-white/10 pt-3">
+            <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-white/50 mb-2">
+              Estado
+            </p>
+            <form
+              action={changeWorkOrderStatusAction}
+              className="flex items-center gap-2"
+            >
+              <input type="hidden" name="id" value={order.id} />
+              <select
+                name="status"
+                defaultValue={order.status}
+                className="flex-1 min-w-0 bg-white/10 border border-white/20 text-white text-sm font-medium rounded-lg px-3 h-9 appearance-none focus:border-rapid-green focus:outline-none transition"
+              >
+                {Object.entries(WORK_ORDER_STATUS_LABELS).map(([k, v]) => (
+                  <option key={k} value={k} className="bg-rapid-black">
+                    {v}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                aria-label="Guardar estado"
+                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-lg bg-rapid-green text-rapid-black text-xs font-bold hover:bg-rapid-green-dark hover:text-white transition focus-visible:ring-2 focus-visible:ring-rapid-green focus-visible:ring-offset-2 focus-visible:outline-none"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
 
       <Tabs
