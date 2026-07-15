@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { INVENTORY_MOVEMENT_TYPES } from "@/lib/constants";
 import { toPlainNumber } from "@/lib/serialize";
@@ -180,53 +180,110 @@ export async function createInventoryPart(input: InventoryPartInput) {
     input.partType ??
     inferPartTypeFromCategory(input.category) ??
     INVENTORY_PART_TYPES.MATERIAL;
+  const sku = input.sku.trim().toUpperCase();
 
-  return prisma.inventoryPart.create({
-    data: {
-      CompanyId: companyId,
-      sku: input.sku.trim(),
-      name: input.name,
-      description: input.description || null,
-      category: input.category || null,
-      PartType: partType,
-      unit: input.unit || "PZ",
-      quantityOnHand: input.quantityOnHand,
-      reservedQuantity: 0,
-      minQuantity: input.minQuantity ?? null,
-      unitCost: input.unitCost ?? null,
-      location: input.location || null,
-      isActive: input.isActive,
-      createdBy: input.createdBy || null,
+  const existingSku = await prisma.inventoryPart.findFirst({
+    where: {
+      ...companyWhere(companyId),
+      sku,
     },
+    select: { id: true },
   });
+
+  if (existingSku) {
+    throw new Error("Ya existe una pieza con ese SKU en esta empresa");
+  }
+
+  try {
+    return prisma.inventoryPart.create({
+      data: {
+        CompanyId: companyId,
+        sku,
+        name: input.name,
+        description: input.description || null,
+        category: input.category || null,
+        PartType: partType,
+        unit: input.unit || "PZ",
+        quantityOnHand: input.quantityOnHand,
+        reservedQuantity: 0,
+        minQuantity: input.minQuantity ?? null,
+        unitCost: input.unitCost ?? null,
+        location: input.location || null,
+        isActive: input.isActive,
+        createdBy: input.createdBy || null,
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new Error("El SKU ya existe. Usa otro valor.");
+    }
+    throw error;
+  }
 }
 
 export async function updateInventoryPart(
   id: number,
   input: InventoryPartInput,
 ) {
+  const companyId = await requireCompanyIdFromSession();
   const partType =
     input.partType ??
     inferPartTypeFromCategory(input.category) ??
     INVENTORY_PART_TYPES.MATERIAL;
+  const sku = input.sku.trim().toUpperCase();
 
-  return prisma.inventoryPart.update({
-    where: { id },
-    data: {
-      sku: input.sku.trim(),
-      name: input.name,
-      description: input.description || null,
-      category: input.category || null,
-      PartType: partType,
-      unit: input.unit || "PZ",
-      minQuantity: input.minQuantity ?? null,
-      unitCost: input.unitCost ?? null,
-      location: input.location || null,
-      isActive: input.isActive,
-      updatedAt: new Date(),
-      updatedBy: input.updatedBy || null,
+  const existingSku = await prisma.inventoryPart.findFirst({
+    where: {
+      ...companyWhere(companyId),
+      sku,
+      id: { not: id },
     },
+    select: { id: true },
   });
+
+  if (existingSku) {
+    throw new Error("Ya existe una pieza con ese SKU en esta empresa");
+  }
+
+  const part = await prisma.inventoryPart.findFirst({
+    where: { id, ...companyWhere(companyId) },
+    select: { id: true },
+  });
+
+  if (!part) {
+    throw new Error("Pieza no encontrada");
+  }
+
+  try {
+    return prisma.inventoryPart.update({
+      where: { id },
+      data: {
+        sku,
+        name: input.name,
+        description: input.description || null,
+        category: input.category || null,
+        PartType: partType,
+        unit: input.unit || "PZ",
+        minQuantity: input.minQuantity ?? null,
+        unitCost: input.unitCost ?? null,
+        location: input.location || null,
+        isActive: input.isActive,
+        updatedAt: new Date(),
+        updatedBy: input.updatedBy || null,
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new Error("El SKU ya existe. Usa otro valor.");
+    }
+    throw error;
+  }
 }
 
 function computeStock(

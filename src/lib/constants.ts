@@ -54,6 +54,8 @@ export const PHOTO_TYPES = [
 export type ChecklistField =
   | "ac"
   | "carpets"
+  | "carpetsFabric"
+  | "carpetsRubber"
   | "seats"
   | "speakers"
   | "seatBelts"
@@ -77,11 +79,16 @@ export type ChecklistField =
   | "gasCap"
   | "antennas"
   | "batteries"
-  | "windows";
+  | "windows"
+  | "radar"
+  | "parkingSensors"
+  | "rearCamera";
 
 export const CHECKLIST_ITEMS: Array<{ field: ChecklistField; label: string }> = [
   { field: "ac", label: "A/C" },
   { field: "carpets", label: "Alfombras" },
+  { field: "carpetsFabric", label: "Alfombras (Tela)" },
+  { field: "carpetsRubber", label: "Alfombras (Goma)" },
   { field: "seats", label: "Asientos" },
   { field: "speakers", label: "Bocinas" },
   { field: "seatBelts", label: "Cinturones" },
@@ -106,6 +113,9 @@ export const CHECKLIST_ITEMS: Array<{ field: ChecklistField; label: string }> = 
   { field: "antennas", label: "Antenas" },
   { field: "batteries", label: "Baterías" },
   { field: "windows", label: "Vidrios" },
+  { field: "radar", label: "Radar" },
+  { field: "parkingSensors", label: "Sensores de parqueo" },
+  { field: "rearCamera", label: "Cámara trasera" },
 ];
 
 export const CHECKLIST_LABEL_BY_FIELD: Record<ChecklistField, string> =

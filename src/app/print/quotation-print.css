@@ -276,6 +276,7 @@
   width: 100%;
   margin: 8px auto 0;
   justify-items: center;
+  align-items: end;
 }
 
 .qdoc-sig-cell {
@@ -292,12 +293,11 @@
 }
 
 .qdoc-sig-cell--workshop .print-sig-watermark-block {
-  min-height: 124px;
   width: 100%;
 }
 
 .qdoc-sig-space {
-  height: 76px;
+  height: 48px;
   width: 100%;
   border-bottom: 1px solid #333;
   margin: 0 auto 6px;

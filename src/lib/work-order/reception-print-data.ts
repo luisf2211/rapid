@@ -69,7 +69,6 @@ export type ReceptionPrintData = {
   customerReceivedSignature: string | null;
   requestedDamages: string | null;
   observations: string | null;
-  notes: string | null;
   checklist: {
     label: string;
     checked: boolean;
@@ -142,7 +141,6 @@ export function buildReceptionPrintData(
     customerReceivedSignature: reception?.customerReceivedSignature ?? null,
     requestedDamages: reception?.requestedDamages ?? null,
     observations: reception?.observations ?? null,
-    notes: order.notes,
     checklist,
     checklistSummary: `${checkedCount} de ${CHECKLIST_ITEMS.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
     damages: order.damages.map((d) => ({

@@ -47,6 +47,14 @@ const emptyLine = (unitPrice = 0) => ({
   unitPrice,
 });
 
+function appendPreservingScroll(append: () => void) {
+  const currentY = window.scrollY;
+  append();
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: currentY });
+  });
+}
+
 interface Props {
   mode: "create" | "edit";
   laborOrderId?: number;
@@ -95,7 +103,7 @@ export function LaborOrderForm({
   const defaultUnitPrice = selectedEmployee?.defaultUnitPrice ?? 0;
 
   const appendLine = useCallback(() => {
-    items.append(emptyLine(defaultUnitPrice));
+    appendPreservingScroll(() => items.append(emptyLine(defaultUnitPrice)));
   }, [items, defaultUnitPrice]);
 
   const { totalPieces, totalAmount } = useMemo(() => {
@@ -367,7 +375,7 @@ export function LaborOrderForm({
         )}
       </section>
 
-      <div className="card sticky bottom-4 lg:bottom-2 p-4 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+      <div className="card p-4 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
         <div className="flex flex-wrap gap-6">
           <div>
             <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">

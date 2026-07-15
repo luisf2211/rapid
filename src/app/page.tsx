@@ -7,11 +7,11 @@ import { USER_ROLES } from "@/lib/auth/constants";
 export const metadata: Metadata = {
   title: "Rapid · Software para talleres de pintura automotriz",
   description:
-    "Digitaliza cotizaciones, recepción de vehículos, materiales, mano de obra, inventario y facturación. SaaS multi-empresa para talleres de pintura.",
+    "Software para dueños de talleres de pintura automotriz y car detailing. Cotizaciones, recepción, materiales, mano de obra, inventario y próximamente e-CF RD.",
   openGraph: {
     title: "Rapid · Opera tu taller con claridad",
     description:
-      "El sistema operativo para talleres de pintura automotriz. Registra tu taller y empieza hoy.",
+      "El sistema operativo para talleres de pintura automotriz. Próximamente e-CF para cumplir con la DGII.",
   },
 };
 

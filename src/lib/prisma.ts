@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
  * Incrementar cuando cambie prisma/schema.prisma para que dev
  * no use un PrismaClient viejo en memoria (policyNumber, deductible, etc.).
  */
-const PRISMA_SCHEMA_VERSION = 17;
+const PRISMA_SCHEMA_VERSION = 18;
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;

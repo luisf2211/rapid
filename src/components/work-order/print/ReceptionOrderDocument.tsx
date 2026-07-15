@@ -93,7 +93,7 @@ export function ReceptionOrderDocument({
         </div>
       </div>
 
-      {(data.requestedDamages || data.observations || data.notes) && (
+      {(data.requestedDamages || data.observations) && (
         <div className="idoc-grid-2" style={{ marginBottom: 12 }}>
           {data.requestedDamages && (
             <div>
@@ -103,21 +103,11 @@ export function ReceptionOrderDocument({
               </div>
             </div>
           )}
-          {(data.observations || data.notes) && (
+          {data.observations && (
             <div>
               <h3 className="idoc-section-title">Observaciones</h3>
               <div className="idoc-box">
-                {data.observations && (
-                  <p className="idoc-text-block">{data.observations}</p>
-                )}
-                {data.notes && (
-                  <>
-                    {data.observations && <hr style={{ margin: "8px 0", borderColor: "#ccc" }} />}
-                    <p className="idoc-text-block">
-                      <strong>Notas internas:</strong> {data.notes}
-                    </p>
-                  </>
-                )}
+                <p className="idoc-text-block">{data.observations}</p>
               </div>
             </div>
           )}

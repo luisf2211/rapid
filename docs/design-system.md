@@ -1,217 +1,360 @@
-## Overview
+# Rapid Design System
 
-Airbnb is the canonical example of a generous, photography-led consumer marketplace. The base canvas is **pure white** (`{colors.canvas}` — #ffffff) with deep near-black ink (`{colors.ink}` — #222222) for headlines and body, and a single voltage of **Rausch** (`{colors.primary}` — #ff385c) carrying every primary CTA, the search-button orb, the heart save state, and inline brand links. There is no secondary brand color in mainline marketing — the **Luxe purple** (`{colors.luxe}` — #460479) and **Plus magenta** (`{colors.plus}` — #92174d) tokens are sub-brand accents that only appear inside Airbnb Luxe / Plus contexts.
+Sistema de diseño para **Rapid** — plataforma operativa para talleres de pintura automotriz. Los tokens viven en `src/app/globals.css` y se consumen vía clases Tailwind (`bg-rapid-green`, `text-rapid-text-muted`, etc.) o variables CSS (`var(--rapid-green)`).
 
-Type runs **Airbnb Cereal VF** (a custom variable font Airbnb licenses), with **Circular** as the historic in-house fallback and a system stack underneath. Cereal sits at modest weights — display headlines render at 22–28px in weight 500–600, not the heavy 700+ weights that financial or enterprise systems lean on. The hero h1 ("Inspiration for future getaways") on the homepage is just 28px / 700, which would feel small on a typical SaaS page; here it works because the layout leans on photography (city collage, property cards) for visual weight rather than typographic muscle.
+---
 
-The shape language is **soft**. Buttons are 8px radius (`{rounded.sm}`), property cards are ~14px (`{rounded.md}`), the search bar is fully pill-shaped (`{rounded.full}`), wishlist hearts and search orbs are circles (`{rounded.full}`), and category strip rounded corners run at 32px (`{rounded.xl}`). There is essentially no hard corner anywhere except the body grid itself — every interactive element is rounded.
+## Principios
 
-**Key Characteristics:**
-- Single accent color: `{colors.primary}` (#ff385c — "Rausch") carries every primary CTA, the search orb, the heart save state, and the brand wordmark. Used scarcely — most pages are 90% white + ink with one or two Rausch moments.
-- Custom variable type: `Airbnb Cereal VF`. Display weights sit at 500–700, body at 400. Modest weight is intentional — the system trusts photography for visual heft.
-- Three-product top nav: Homes, Experiences, Services — each with a hand-illustrated 32px icon and "NEW" badges (`{component.new-tag}`) on the two newer products. Active tab uses an underline rule (`{component.product-tab-active}`).
-- Pill-shaped global search bar: white surface, fully rounded (`{rounded.full}`), divided by 1px hairlines into Where / When / Who segments, terminated by a circular Rausch search orb (`{component.search-orb}`).
-- Property cards are photo-first: aspect-ratio rectangles with `{rounded.md}` corner clipping, swipeable image carousel, "Guest favorite" floating badge top-left, heart icon top-right, then 4–5 lines of meta beneath.
-- Editorial dropdowns (footer, language picker) are clean text columns over the white canvas — no card surface, no shadow.
-- The design system caps elevation at one shadow tier (`box-shadow: rgba(0,0,0,0.02) 0 0 0 1px, rgba(0,0,0,0.04) 0 2px 6px, rgba(0,0,0,0.1) 0 4px 8px`) — used on hover-floated cards and search/account dropdowns.
-- 8px base spacing system, with major sections at `{spacing.section}` (64px) — generous but not airy enough to feel editorial-magazine; the marketplace density wants more cards per scroll.
+- **Verde como acento único.** Un solo color de marca (`rapid-green`) concentra CTAs, estados positivos y acentos. El resto de la interfaz es neutra: blanco, grises y negro profundo.
+- **Densidad operativa.** La app prioriza tablas, formularios y tarjetas de resumen sobre marketing editorial. Espaciado generoso en secciones, compacto dentro de datos.
+- **Esquinas suaves.** Botones e inputs usan `rounded-lg` (8px). Tarjetas y paneles usan `rounded-[0.875rem]` (~14px) o `rounded-xl` / `rounded-2xl` en marketing.
+- **Un solo nivel de elevación.** Sombras planas por defecto; una sombra flotante (`shadow-float`) para hover en tarjetas interactivas y dropdowns.
+- **Accesibilidad base.** Botones de 48px de altura mínima, focus rings visibles, inputs con borde ink al enfocar (sin glow azul del navegador).
 
-## Colors
+---
 
-### Brand & Accent
-- **Rausch** (`{colors.primary}` — #ff385c): The single brand color. Used for primary CTA backgrounds (Reserve, Continue), the search orb, the heart save state on property cards, and inline brand links. The most recognizable color in consumer travel.
-- **Rausch Active** (`{colors.primary-active}` — #e00b41): The press / pointer-down variant — slightly more saturated. Used on `{component.button-primary-active}`.
-- **Rausch Disabled** (`{colors.primary-disabled}` — #ffd1da): A pale tint used on disabled CTAs.
-- **Luxe Purple** (`{colors.luxe}` — #460479): Sub-brand accent for Airbnb Luxe. Only appears inside Luxe-branded surfaces — never in mainline marketing.
-- **Plus Magenta** (`{colors.plus}` — #92174d): Sub-brand accent for Airbnb Plus. Same scoping as Luxe — sub-product only.
+## Colores
 
-### Surface
-- **Canvas** (`{colors.canvas}` — #ffffff): The default page floor for every public page. Airbnb does not have a dark mode on the public web.
-- **Surface Soft** (`{colors.surface-soft}` — #f7f7f7): The lightest fill — used on disabled fields, sub-nav hover backgrounds, and the inline search filter band.
-- **Surface Strong** (`{colors.surface-strong}` — #f2f2f2): Slightly heavier fill — circular icon-button surface (e.g., the breadcrumb back-arrow and listing toolbar buttons).
+### Marca
 
-### Hairlines & Borders
-- **Hairline** (`{colors.hairline}` — #dddddd): The default 1px border tone — search bar dividers, table separators, footer column splitters, card 1px borders.
-- **Hairline Soft** (`{colors.hairline-soft}` — #ebebeb): A lighter divider used on long-scrolling editorial body separators.
-- **Border Strong** (`{colors.border-strong}` — #c1c1c1): A heavier stroke used on disabled outline buttons and form input outlines after focus.
+| Token CSS | Hex | Tailwind | Uso |
+|---|---|---|---|
+| `--rapid-black` | `#0b0f0e` | `rapid-black` | Marca oscura, botones dark, textos sobre fondos claros en landing |
+| `--rapid-green` | `#00c853` | `rapid-green` | CTA primario, acentos, links de acción |
+| `--rapid-green-dark` | `#009624` | `rapid-green-dark` | Hover de botón primario, montos, estados activos |
+| `--rapid-green-soft` | `#d3f7e0` | `rapid-green-soft` | Fondos de badge positivo, highlights suaves |
+| `--rapid-green-disabled` | `#a8edca` | `rapid-green-disabled` | Botón primario deshabilitado |
 
-### Text
-- **Ink** (`{colors.ink}` — #222222): The dominant text color on light surfaces. Display headlines, body paragraphs, primary nav links, and most inline link text. Never pure black.
-- **Body** (`{colors.body}` — #3f3f3f): A secondary running-text color used inside long-form review and amenity copy where ink would feel too heavy.
-- **Muted** (`{colors.muted}` — #6a6a6a): Sub-titles inside city link blocks ("Cottage rentals", "Villa rentals"), inactive product-tab labels, footer category sub-labels, "View all" links.
-- **Muted Soft** (`{colors.muted-soft}` — #929292): Disabled link text. Used very sparingly.
-- **Star Rating** (`{colors.star-rating}` — #222222): The same ink token — Airbnb's star icon and "4.81" rating numbers all render in ink rather than a yellow/gold color, which is a deliberate brand choice (yellow stars feel cheap in travel context).
-- **On Primary** (`{colors.on-primary}` — #ffffff): White text on Rausch CTAs.
+**Sidebar (variante oscura):** el panel lateral usa `#0c100f` — un negro ligeramente más claro que `--rapid-black`, con bordes `white/6%` y texto `white/50`–`white/70` para jerarquía.
 
-### Semantic
-- **Error** (`{colors.primary-error-text}` — #c13515): Inline error text for form validation. Distinct from Rausch — slightly darker, more saturated red.
-- **Error Hover** (`{colors.primary-error-text-hover}` — #b32505): Darkens on link hover.
-- **Legal Link Blue** (`{colors.legal-link}` — #428bff): Inline links inside legal copy (Privacy, Terms). Only used inside the legal sub-band.
+**Gradiente dark:** `.surface-dark` y `.btn-dark:hover` usan `#1a201e` y `#1f2624` como tonos derivados del negro de marca.
 
-### Scrim
-- **Scrim** (`{colors.scrim}` — #000000 at 50% opacity): The global modal backdrop tone — date picker, login dialog, language picker. Stored as the base hex; opacity is applied at render time.
+### Canvas y superficies
 
-## Typography
+| Token CSS | Hex | Tailwind | Uso |
+|---|---|---|---|
+| `--rapid-bg` | `#f5f7f6` | `rapid-bg` | Fondo general de la app |
+| `--rapid-surface` | `#ffffff` | `rapid-surface` | Tarjetas, inputs, paneles blancos |
+| `--rapid-surface-soft` | `#f7f7f7` | `rapid-surface-soft` | Hover secundario, campos deshabilitados |
+| `--rapid-surface-strong` | `#f2f2f2` | `rapid-surface-strong` | Iconos en tarjetas, contadores, chips neutros |
 
-### Font Family
-The system runs **Airbnb Cereal VF** for everything — display, body, navigation, captions, microcopy. Fallbacks walk `Circular, -apple-system, system-ui, Roboto, "Helvetica Neue", sans-serif`. **Circular** is the historic in-house typeface still kept as the first non-variable fallback; system stacks back it up.
+### Texto
 
-There is no separate display family. The variable font carries the entire scale.
+| Token CSS | Hex | Tailwind | Uso |
+|---|---|---|---|
+| `--rapid-text` | `#111827` | `rapid-text` | Títulos, texto principal, focus de inputs |
+| `--rapid-text-body` | `#3d3d3d` | `rapid-text-body` | Cuerpo en bloques largos |
+| `--rapid-text-muted` | `#6b7280` | `rapid-text-muted` | Subtítulos, labels, hints |
+| `--rapid-text-muted-soft` | `#929292` | `rapid-text-muted-soft` | Placeholders deshabilitados, texto inactivo |
 
-### Hierarchy
+**Sobre fondos oscuros:** usar `text-white`, `text-white/70`, `.on-dark-muted` (`slate-300`) y `.on-dark-label` (`slate-400`).
 
-| Token | Size | Weight | Line Height | Letter Spacing | Use |
-|---|---|---|---|---|---|
-| `{typography.rating-display}` | 64px | 700 | 1.1 | -1px | Listing detail rating display ("4.81") |
-| `{typography.display-xl}` | 28px | 700 | 1.43 | 0 | Homepage h1 ("Inspiration for future getaways") |
-| `{typography.display-lg}` | 22px | 500 | 1.18 | -0.44px | Listing detail h1 ("Close to Fethiye Aliyah Bali Beach…") |
-| `{typography.display-md}` | 21px | 700 | 1.43 | 0 | Section heads inside listing detail ("What this place offers") |
-| `{typography.display-sm}` | 20px | 600 | 1.20 | -0.18px | Sub-section titles ("Things to know") |
-| `{typography.title-md}` | 16px | 600 | 1.25 | 0 | City link block titles ("Wilmington", "Athens") |
-| `{typography.title-sm}` | 16px | 500 | 1.25 | 0 | Footer column heads ("Support", "Hosting", "Airbnb") |
-| `{typography.body-md}` | 16px | 400 | 1.5 | 0 | Default running-text inside listing copy |
-| `{typography.body-sm}` | 14px | 400 | 1.43 | 0 | Card meta lines, dates, prices, distance text |
-| `{typography.caption}` | 14px | 500 | 1.29 | 0 | Search field segment labels ("Where", "When", "Who") |
-| `{typography.caption-sm}` | 13px | 400 | 1.23 | 0 | Footer legal line ("© 2026 Airbnb, Inc.") |
-| `{typography.badge}` | 11px | 600 | 1.18 | 0 | "Guest favorite" floating badge text |
-| `{typography.micro-label}` | 12px | 700 | 1.33 | 0 | Card amenity micro-labels ("Inline 6") |
-| `{typography.uppercase-tag}` | 8px | 700 | 1.25 | 0.32px (uppercase) | "NEW" badge on product nav tabs |
-| `{typography.button-md}` | 16px | 500 | 1.25 | 0 | Primary CTA button labels |
-| `{typography.button-sm}` | 14px | 500 | 1.29 | 0 | Pill button labels (category strip) |
-| `{typography.link}` | 14px | 400 | 1.43 | 0 | Inline body links |
-| `{typography.nav-link}` | 16px | 600 | 1.25 | 0 | Top product-nav labels (Homes, Experiences, Services) |
+### Bordes
 
-### Principles
-Display weights stay modest. The homepage h1 at 28px / 700 is deliberately small — it tucks under the search bar so photography and the city-link grid carry visual hierarchy. The listing-detail h1 at 22px / 500 is even quieter; the listing photo banner does the work above it.
+| Token CSS | Hex | Tailwind | Uso |
+|---|---|---|---|
+| `--rapid-border` | `#e5e7eb` | `rapid-border` | Borde estándar de cards e inputs |
+| `--rapid-hairline` | `#dddddd` | `rapid-hairline` | Divisores finos |
+| `--rapid-border-strong` | `#c1c1c1` | `rapid-border-strong` | Bordes más marcados, inputs deshabilitados |
 
-The single typographically loud moment in the entire system is the **rating display** (`{typography.rating-display}` — 64px / 700) on listing pages. That is the only place the system trusts type alone to carry hierarchy — rating numbers are a peak trust signal, so they get the loudest treatment.
+### Semánticos
 
-### Note on Font Substitutes
-If Airbnb Cereal VF and Circular are unavailable, **Inter** is the closest open-source substitute. Adjust display headlines down by ~2% in line-height to match Cereal's slightly tighter cap height; otherwise the proportions transfer cleanly.
+| Token CSS | Valor | Tailwind | Uso |
+|---|---|---|---|
+| `--rapid-error` | `#c13515` | `rapid-error` | Texto de error, alertas destructivas |
+| `--rapid-error-hover` | `#b32505` | — | Hover en links de error |
+| `--rapid-scrim` | `rgba(0,0,0,0.5)` | — | Backdrop de modales |
+
+**Alertas y estados (Tailwind estándar, no tokenizados):**
+
+| Contexto | Fondo | Texto | Borde |
+|---|---|---|---|
+| Error / destructivo | `red-50` | `red-600`–`red-900` | `red-200` |
+| Advertencia | `amber-50` | `amber-700`–`amber-900` | `amber-200` |
+| Info / completado | `blue-50` | `blue-700` | `blue-200` |
+| Éxito secundario | `emerald-50` | `emerald-700` | `emerald-200` |
+| Neutro | `gray-50` | `gray-700` | `gray-200` |
+
+Los badges de estado (`StatusBadge`, `QuotationStatusBadge`) mapean cada status a una de estas combinaciones. Estados positivos/aprobados usan tokens de marca (`rapid-green-soft` / `rapid-green-dark`).
+
+---
+
+## Tipografía
+
+### Familias
+
+| Rol | Fuente | Variable CSS | Tailwind |
+|---|---|---|---|
+| Sans (UI) | **Geist Sans** | `--font-geist-sans` | `font-sans` |
+| Mono (códigos, montos) | **Geist Mono** | `--font-geist-mono` | `font-mono` |
+
+Fallback: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`.
+
+Configuradas en `src/app/layout.tsx`. Antialiasing activo en `html` y `body`.
+
+### Escala tipográfica
+
+| Token | Tamaño | Peso | Tracking | Uso |
+|---|---|---|---|---|
+| `display-xl` | 28px (`text-[28px]`) | 700 | tight | Título de página en desktop (`PageHeader`) |
+| `display-lg` | 22px | 700 | tight | Título de página en mobile, valores en `SummaryCard` |
+| `display-marketing` | 36–52px (`text-4xl`–`text-5xl`) | 700 | tight | Hero de landing |
+| `section-title` | 30–36px (`text-3xl`–`text-4xl`) | 700 | tight | Secciones de landing |
+| `body-md` | 16px (`text-base`) | 400–500 | normal | Texto por defecto, botones |
+| `body-sm` | 14px (`text-sm`) | 400 | normal | Subtítulos, descripciones, tablas |
+| `caption` | 11px (`text-[11px]`) | 600 | 0.05em uppercase | Labels de tarjeta, breadcrumb de página |
+| `form-label` | 11px (`0.6875rem`) | 600 | 0.05em uppercase | `.form-label` sobre inputs |
+| `form-input` | 15px (`0.9375rem`) | 400 | normal | Texto dentro de `.form-input` |
+| `badge` | 12px (`text-xs`) | 600 | normal | Badges de estado |
+| `micro` | 10px (`text-[10px]`) | 700 | normal | Contadores en tabs |
+
+### Convenciones
+
+- **Montos y números alineados:** usar `tabular-nums` en totales, precios y columnas numéricas.
+- **Códigos de orden / slug:** usar `font-mono text-xs` (ej. `#WO-0042`).
+- **Montos positivos / totales:** `text-rapid-green-dark font-bold tabular-nums`.
+- **Títulos de página:** `PageHeader` — `text-[22px] sm:text-[28px] font-bold tracking-tight`.
+
+---
+
+## Espaciado
+
+Base de **4px**. Tokens en `:root`:
+
+| Token | Valor | Uso típico |
+|---|---|---|
+| `--space-xxs` | 2px | Micro-ajustes |
+| `--space-xs` | 4px | Gaps mínimos |
+| `--space-sm` | 8px | Padding interno compacto |
+| `--space-md` | 12px | Gaps entre elementos relacionados |
+| `--space-base` | 16px | Padding de card meta, gutters |
+| `--space-lg` | 24px | Padding interno de cards, secciones |
+| `--space-xl` | 32px | Separación entre bloques |
+| `--space-xxl` | 48px | Bandas de sección |
+| `--space-section` | 64px | Secciones de landing (`py-20 sm:py-24`) |
+
+---
+
+## Border radius
+
+| Token | Valor | Uso |
+|---|---|---|
+| `rounded-lg` | 8px | Botones, inputs, tabs, chips pequeños |
+| `rounded-xl` | 12px | Iconos en tarjetas, nav items, alertas |
+| `rounded-[0.875rem]` | 14px | `.card`, `.surface-dark` |
+| `rounded-2xl` | 16px | Paneles de marketing, bottom nav mobile |
+| `rounded-full` | 9999px | Badges de estado, avatares, scrollbar |
+
+---
+
+## Elevación
+
+### Sombra base de card
+
+```css
+box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+```
+
+Aplicada en `.card`.
+
+### Sombra flotante (`shadow-float`)
+
+```css
+--shadow-float:
+  rgba(0, 0, 0, 0.02) 0 0 0 1px,
+  rgba(0, 0, 0, 0.04) 0 2px 6px 0,
+  rgba(0, 0, 0, 0.1) 0 4px 8px 0;
+```
+
+Usar en tarjetas interactivas al hover (`hover:shadow-float`) y paneles destacados en landing.
+
+### Sin sombra
+
+Fondo de app, tablas planas, sidebar — superficies definidas por color y borde, no por profundidad.
+
+---
+
+## Componentes
+
+### Botones
+
+Clases globales en `globals.css`. Altura mínima **48px** (`h-12`), `rounded-lg`, `font-medium`, `text-base`.
+
+| Clase | Fondo | Texto | Hover | Focus ring |
+|---|---|---|---|---|
+| `.btn-primary` | `rapid-green` | blanco | `rapid-green-dark` | `ring-rapid-green` |
+| `.btn-secondary` | `rapid-surface` | `rapid-text` | `rapid-surface-soft` | `ring-rapid-text/30` |
+| `.btn-dark` | `rapid-black` | blanco | `#1f2624` | `ring-rapid-black/50` |
+
+Estados deshabilitados: primario → `rapid-green-disabled`; secundario/dark → `opacity-50`.
+
+### Formularios
+
+| Clase | Descripción |
+|---|---|
+| `.form-label` | Caption uppercase sobre el campo |
+| `.form-input` | Input base — borde `rapid-border`, radius 8px |
+| `input.form-input`, `select.form-input` | Variante alta de **56px** (`h-14`) |
+
+**Focus:** borde `rapid-text` + `box-shadow: inset 0 0 0 1px var(--rapid-text)` — sin ring externo.
+
+**Disabled:** fondo `rapid-surface-soft`, texto `rapid-text-muted-soft`.
+
+**Errores inline:** contenedor `border-rapid-error/25 bg-rapid-error/[0.06]` o combinación `red-50` / `red-600`.
+
+### Tarjetas
+
+| Clase | Descripción |
+|---|---|
+| `.card` | Superficie blanca, borde, radius 14px, sombra sutil |
+| `.card-static` | Variante no interactiva (`pointer-events-none`) |
+
+Padding habitual: `p-4`–`p-6`. Tarjetas de resumen: `card p-5`.
+
+### Superficie oscura
+
+| Clase | Descripción |
+|---|---|
+| `.surface-dark` | Gradiente `#0b0f0e` → `#1a201e`, texto blanco, radius 14px |
+| `.on-dark-muted` | Texto secundario sobre dark (`slate-300`) |
+| `.on-dark-label` | Labels sobre dark (`slate-400`) |
+
+Usado en login (panel izquierdo), dashboard finance, landing header.
+
+### Badges de estado
+
+Patrón compartido:
+
+```
+inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold
+```
+
+Incluye un punto indicador (`w-1.5 h-1.5 rounded-full bg-current opacity-70`).
+
+Componentes: `StatusBadge` (órdenes de trabajo), `QuotationStatusBadge` (cotizaciones).
+
+### PageHeader
+
+Encabezado estándar de páginas internas:
+
+- Breadcrumb opcional: 11px uppercase muted
+- Título: 22px mobile → 28px desktop, bold
+- Subtítulo: 14px muted
+- Acciones alineadas a la derecha
+
+### SummaryCard
+
+Tarjeta KPI con label uppercase, valor grande (`22px`–`26px` bold tabular), hint opcional e icono en contenedor `rounded-xl bg-rapid-surface-strong`.
+
+---
 
 ## Layout
 
-### Spacing System
-- **Base unit:** 4px (with 2px micro-step).
-- **Tokens:** `{spacing.xxs}` 2px · `{spacing.xs}` 4px · `{spacing.sm}` 8px · `{spacing.md}` 12px · `{spacing.base}` 16px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 64px.
-- **Section padding (vertical):** `{spacing.section}` (64px) for major page bands; tighter than typical SaaS marketing (80–96px) because marketplace pages need higher card density per scroll.
-- **Card internal padding:** `{spacing.lg}` (24px) for `{component.host-card}` and `{component.reservation-card}`; `{spacing.base}` (16px) for property-card meta block; `{spacing.sm}` (8px) for caption / date-row gutters.
-- **Gutters:** `{spacing.base}` (16px) between cards in the homepage city grid; `{spacing.lg}` (24px) inside footer column gutters; `{spacing.xs}` (4px) on dense category-strip dividers.
+### App interna
 
-### Grid & Container
-- **Max content width:** ~1280px centered on the homepage and editorial pages. Listing detail pages cap closer to 1080px to keep the photo banner and reservation rail readable.
-- **City link grid (homepage footer):** 6-column grid at desktop with each cell housing a city name in `{typography.title-md}` and a category sub-label in `{typography.body-sm}` muted.
-- **Listing detail:** 2-column with photo / amenity body on the left (~64% width) and a sticky reservation card (`{component.reservation-card}`) on the right (~32%).
-- **Footer:** 3-column link list (Support / Hosting / Airbnb) at desktop, collapsing to 1-column on mobile.
+- **Sidebar desktop:** 260px expandido / 76px contraído. Visible desde `lg` (1024px).
+- **Mobile:** `MobileTopBar` + `MobileBottomNav`. Bottom nav con `rounded-2xl`, blur y sombra superior.
+- **Contenedor de página:** padding horizontal `px-4 sm:px-6`, contenido fluido dentro del área principal.
+- **Ancho máximo landing:** `max-w-6xl` (~1152px) centrado.
 
-### Whitespace Philosophy
-The system gives editorial bands 64px of vertical breathing room but compresses card grids — property and city-link cards sit just 16px apart. The contrast is intentional: the page reads as "open hero, dense marketplace below," reinforcing the marketplace nature without overwhelming the visitor at the fold.
+### Tablas
 
-## Elevation
+Patrón estándar dentro de `.card`:
 
-The system has essentially **one shadow tier** plus the flat baseline.
+- Header: `px-5 py-3 text-xs font-semibold uppercase text-rapid-text-muted`
+- Celda: `px-5 py-3 text-sm`
+- IDs / códigos: `font-mono text-xs`
+- Montos: `text-right tabular-nums font-bold text-rapid-green-dark`
 
-- **Flat (no shadow):** Body, hero, footer, all editorial bands — 95% of surfaces.
-- **Card hover float:** `box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0` — applied to property cards on pointer hover, the search bar at rest, and the dropdown menus (account menu, language picker, date picker). This is the single shadow definition in the entire system.
-- **Modal scrim:** `{colors.scrim}` rendered at 50% opacity — the global modal backdrop. Used on date pickers, login dialogs, language picker.
+### Grids de dashboard
 
-There are no progressive elevation tiers — the system either has the one shadow or none. Depth comes from photography, the white-on-white surface separation, and rounded-corner clipping rather than from layered shadows.
+- KPIs: grid responsive `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4`
+- Módulos landing: `sm:grid-cols-2 lg:grid-cols-4`
 
-## Components
+---
 
-### Buttons
+## Responsive
 
-**`button-primary`** — Rausch fill, white text, 8px radius, 14×24px padding, 48px height, weight 500. The most common CTA across the system: "Reserve", "Continue", "Search", account-flow primaries.
+Breakpoints Tailwind estándar:
 
-**`button-primary-active`** — The press state. Background flips to `{colors.primary-active}`. No transform, no shadow change.
-
-**`button-primary-disabled`** — Pale Rausch tint at #ffd1da with white text. Cursor not-allowed.
-
-**`button-secondary`** — White fill with ink text and a 1px ink outline. 8px radius. Used for "Save", "Cancel", and inverse CTAs over Rausch surfaces.
-
-**`button-tertiary-text`** — Plain ink text, no surface, no border. Underlined on hover. Used for "Show more" type links and modal close labels.
-
-**`button-pill-rausch`** — A pill-shaped Rausch CTA used on featured cells (e.g., "Become a host" sub-CTA) — 9999px radius, 10×20px padding, 14px label.
-
-### Search Surface
-
-**`search-bar-pill`** — The signature global search bar. White fill, 9999px radius, 64px height, 1px hairline 1px-shadow border. Internally divided by vertical hairline rules into `{component.search-field-segment}` cells (Where / When / Who). Each segment holds an uppercase caption label above a placeholder line in `{typography.caption}`.
-
-**`search-orb`** — The circular Rausch orb terminating the right edge of the search bar. 48×48px, fully rounded, white magnifying-glass icon centered. The hottest single color moment on the homepage.
-
-### Top Navigation
-
-**`top-nav`** — White surface, 80px height, 1px bottom hairline. The Airbnb wordmark sits flush left, the three product tabs (Homes / Experiences / Services) sit in the dead center, and account utilities (host link, language globe, account menu) sit flush right.
-
-**`product-tab-active`** — Ink label in `{typography.nav-link}`, 32px hand-illustrated icon, 2px ink underline rule beneath the icon-label pair.
-
-**`product-tab-inactive`** — Muted label, illustrated icon, no underline. Becomes active on click.
-
-**`new-tag`** — A tiny rounded-pill badge (`{rounded.full}`) anchored top-right of an icon, carrying the uppercase "NEW" label in `{typography.uppercase-tag}` (8px / 700 with 0.32px tracking, uppercase). Used on Experiences and Services to signal recency.
-
-### Listing Cards
-
-**`property-card`** — A photo-first card. 1:1 aspect-ratio image with `{rounded.md}` corner clipping, image carousel dots overlay, "Guest favorite" floating badge top-left (`{component.guest-favorite-badge}`), and a heart icon top-right (`{component.icon-button-circle}` in default outlined state, Rausch-filled when saved). Beneath the image: 4–5 lines of meta — title (`{typography.title-md}`), distance / dates (`{typography.body-sm}` muted), and price ("$X night") right-aligned.
-
-**`property-card-photo`** — The photo plate itself, separated as a token because some surfaces (wishlist, search results) reuse just the photo without the meta block.
-
-**`experience-card`** — A taller-aspect card (4:5) for experience listings. Same `{rounded.md}` clipping, floating "NEW" badge top-left, heart top-right, and a single-line title beneath.
-
-**`guest-favorite-badge`** — White rounded pill (`{rounded.full}`) at 11px / 600 weight. Sits over the photo with the system's only shadow tier applied for elevation.
-
-### Listing Detail
-
-**`rating-display-card`** — The signature listing-detail moment. A 64px / 700 rating number ("4.81") flanked left and right by tiny laurel-wreath SVG ornaments. Beneath the rating: "Guest favorite" tagline and a row of ink stat columns. The largest typographic weight in the whole system.
-
-**`amenity-row`** — A 1-column list of amenity icons + ink labels in `{typography.body-md}`. 12px row padding, no border between rows; section is closed by a 1px hairline divider above and below.
-
-**`reviews-card`** — A 2-column grid of review excerpts. Each column holds an author row (avatar, name, date) above a 3-line excerpt with "Show more" tertiary link.
-
-**`host-card`** — A white card with `{rounded.md}` rounding and 24px padding holding a host avatar, name, "Superhost" badge, response-rate stat, and a "Contact host" `{component.button-secondary}`.
-
-**`reservation-card`** — The sticky right-rail card on listing detail pages. White surface, `{rounded.md}` rounding, 1px hairline border, 1px shadow tier elevation, 24px padding. Contains: nightly price (`{typography.display-md}` ink), date-range selector, guest-count stepper, "Reserve" primary CTA full-width, and a fee breakdown stack beneath in `{typography.body-sm}`.
-
-### Date Picker
-
-**`date-picker-day`** — A 40×40px circular cell carrying the day number in `{typography.body-sm}`. Default state is transparent fill, ink text.
-
-**`date-picker-day-selected`** — Ink fill, white text, full circle (`{rounded.full}`). Range states between two selected days carry a `{colors.surface-soft}` lozenge background that connects them.
-
-### Forms
-
-**`text-input`** — White surface, 1px hairline outline, `{rounded.sm}` 8px radius, 56px height, 14×12px padding. Stacked label above (in `{typography.caption}` muted), placeholder text in `{typography.body-md}` muted. On focus, the border thickens to 2px ink and the border color flips to `{colors.ink}` — no glow, no ring.
-
-### Footer
-
-**`footer-light`** — White surface (matches the page canvas — Airbnb has no contrast footer), 48×80px padding. Three columns of link blocks (Support / Hosting / Airbnb), separated by generous 24px gutters. Each column heads with a `{typography.title-sm}` ink label and stacks `{component.footer-link}` rows in `{typography.body-sm}` ink.
-
-**`legal-band`** — A bottom strip beneath the footer columns carrying the copyright line, language picker (globe icon + "English (US)" link), currency picker, and social icons (Facebook, X, Instagram). All text in muted `{colors.muted}` at `{typography.caption-sm}`.
-
-## Responsive Behavior
-
-| Name | Width | Key Changes |
+| Nombre | Ancho | Cambios clave |
 |---|---|---|
-| Mobile | < 744px | Top nav collapses to logo + hamburger; product tabs hide behind a sheet; search bar collapses to a single tappable pill; property cards stack 1-up; city grid 1-column; listing detail collapses reservation card to a sticky bottom bar. |
-| Tablet | 744–1128px | Top nav keeps product tabs but search bar narrows; property cards 2-up; city grid 2–3 column; reservation card stays sticky right-rail at narrower width. |
-| Desktop | 1128–1440px | Full top nav with three product tabs centered; search bar at full pill width with all 3 segments visible; property cards 4-up; city grid 6-column; listing detail 2-column with reservation rail. |
-| Wide | > 1440px | Content width caps at 1440px on listing/search pages and ~1280px on editorial; gutters absorb the rest. |
+| Mobile | < 640px (`default`) | Nav inferior, sidebar oculto, títulos 22px |
+| Tablet | ≥ 640px (`sm`) | Grids 2 columnas, padding mayor |
+| Desktop | ≥ 1024px (`lg`) | Sidebar visible, grids 4 columnas, título 28px |
+| Wide | ≥ 1280px (`xl`) | Contenido con más aire lateral |
 
-### Touch Targets
-- Primary CTAs at minimum 48×48px (above WCAG AAA).
-- Search orb is 48×48px circular — the most-tapped element on the page.
-- Heart save button is 32×32px circular — borderline for AAA but compensated by a generous 12px padding inside the photo card.
-- Date-picker day cells are 40×40px circular.
+### Touch targets
 
-### Collapsing Strategy
-- Top product tabs collapse into a hamburger sheet below 744px.
-- Search bar's 3 segments collapse into a single-tap entry that opens a full-screen search overlay on mobile.
-- Property and city-link grids drop column counts cleanly at each breakpoint — never reflow rows; always reduce columns.
-- Reservation card on listing detail switches from sticky right-rail to a sticky bottom bar on mobile, carrying just the "Reserve" CTA + nightly price summary.
+- Botones: mínimo 48×48px
+- Icon buttons en sidebar/mobile: 36–40px con área de click generosa
+- Bottom nav items: `py-2` con columna icono + label
 
-## Known Gaps
+---
 
-- **Hover state colors:** intentionally not documented per the global no-hover policy — Airbnb's actual `:hover` styling for property cards is a subtle elevation lift, but precise extraction is unreliable.
-- **Loading states / skeleton screens:** not visible on the extracted surfaces.
-- **Map view styling:** the search-results map uses Mapbox-tinted tiles with custom Rausch markers; not captured here.
-- **Form input error states:** error text color (`{colors.primary-error-text}`) is documented, but the full input outline + helper-text combination on validation failure was not visible in the captured surfaces.
-- **Sub-brand palettes:** Luxe (`{colors.luxe}`) and Plus (`{colors.plus}`) are documented as tokens, but their full sub-system (typography overrides, surface treatment) lives on separate sub-domains and is not captured here.
+## Focus y accesibilidad
+
+- **Global:** `*:focus-visible` → `ring-2 ring-rapid-text/30 ring-offset-1`
+- **Inputs:** sin ring; borde ink al focus (ver Formularios)
+- **Botones:** ring específico por variante (verde, texto, negro)
+- **Contraste:** texto principal `#111827` sobre `#ffffff` y `#f5f7f6` cumple WCAG AA
+- **Scrollbar:** 6px, thumb `gray-300`, hover `gray-400`, `rounded-full`
+
+---
+
+## Iconografía
+
+**Lucide React** para toda la UI. Tamaños habituales:
+
+| Contexto | Tamaño |
+|---|---|
+| Sidebar / nav | `h-5 w-5` (20px), `strokeWidth={2}` |
+| Tarjetas / KPI | `h-5 w-5` dentro de contenedor 40×40px |
+| Botones inline | `h-4 w-4` |
+
+---
+
+## Referencia de implementación
+
+| Recurso | Ubicación |
+|---|---|
+| Tokens CSS | `src/app/globals.css` |
+| Fuentes | `src/app/layout.tsx` |
+| Logo | `src/components/layout/Logo.tsx` |
+| PageHeader | `src/components/ui/PageHeader.tsx` |
+| SummaryCard | `src/components/ui/SummaryCard.tsx` |
+| StatusBadge | `src/components/ui/StatusBadge.tsx` |
+| QuotationStatusBadge | `src/components/ui/QuotationStatusBadge.tsx` |
+| Sidebar | `src/components/layout/AppSidebar.tsx` |
+| Landing | `src/components/landing/LandingPage.tsx` |
+
+### Uso en código
+
+```tsx
+// Botón primario
+<button type="button" className="btn-primary">Guardar</button>
+
+// Input con label
+<label className="form-label" htmlFor="name">Nombre</label>
+<input id="name" className="form-input" />
+
+// Tarjeta interactiva
+<Link href="/orders" className="card p-5 hover:shadow-float transition-shadow">
+  ...
+</Link>
+
+// Monto
+<span className="text-2xl font-bold text-rapid-green-dark tabular-nums">
+  RD$ 12,450.00
+</span>
+```
+
+---
+
+## Pendientes / gaps conocidos
+
+- **Dark mode:** no implementado; la app es light-only en surfaces internas.
+- **Tokens de alerta:** amber/red/blue usan paleta Tailwind directa; no están tokenizados en `:root`.
+- **Sidebar bg:** `#0c100f` no está en tokens CSS — candidato a unificar como `--rapid-sidebar`.
+- **Animaciones:** transiciones puntuales (`duration-150`, `duration-200`); sin sistema de motion documentado.

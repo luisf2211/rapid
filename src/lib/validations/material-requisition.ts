@@ -51,6 +51,14 @@ export const materialRequisitionFormSchema = z
       return;
     }
 
+    if (allItems.length > 500) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Máximo 500 líneas por requisición",
+        path: ["materialItems"],
+      });
+    }
+
     for (const [section, items, source] of [
       ["materialItems", materialItems, data.materialItems] as const,
       ["paintItems", paintItems, data.paintItems] as const,

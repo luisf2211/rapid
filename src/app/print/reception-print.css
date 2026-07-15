@@ -33,6 +33,8 @@
 .idoc-check-box.on {
   background: #000;
   color: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .idoc-check-label {
@@ -90,11 +92,11 @@
   gap: 20px;
   margin-top: 24px;
   page-break-inside: avoid;
+  align-items: end;
 }
 
 .idoc-sig-signature-img {
   height: 48px;
-  margin-top: 48px;
   display: flex;
   align-items: flex-end;
   justify-content: center;

@@ -4,12 +4,30 @@ import { Logo } from "./Logo";
 
 interface Props {
   stockAlertCount?: number;
+  workshop?: {
+    businessName: string | null;
+    logoUrl: string | null;
+  };
 }
 
-export function MobileTopBar({ stockAlertCount = 0 }: Props) {
+export function MobileTopBar({ stockAlertCount = 0, workshop }: Props) {
   return (
     <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0c100f] px-4 py-3.5 text-white">
-      <Logo variant="dark" />
+      <div className="flex items-center gap-2.5 min-w-0">
+        {workshop?.logoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={workshop.logoUrl}
+            alt={workshop.businessName ?? "Logo"}
+            className="w-8 h-8 rounded-lg object-contain shrink-0"
+          />
+        ) : (
+          <Logo variant="dark" compact />
+        )}
+        <span className="font-bold text-sm text-white truncate">
+          {workshop?.businessName || "Rapid"}
+        </span>
+      </div>
       <div className="flex items-center gap-1.5">
         <Link
           href="/guia"

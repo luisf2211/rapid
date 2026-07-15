@@ -179,10 +179,16 @@ function workOrderCoreData(input: WorkOrderInput) {
 function receptionData(input: WorkOrderInput) {
   const deliveryDate = new Date(`${input.deliveryDate}T00:00:00.000Z`);
   const deliveryTime = buildTimeDate(input.deliveryTime);
+  const exitDate = input.exitDate
+    ? new Date(`${input.exitDate}T00:00:00.000Z`)
+    : null;
+  const exitTime = input.exitTime ? buildTimeDate(input.exitTime) : null;
   const checklistRows = buildChecklistRows(input);
   return {
     deliveryDate,
     deliveryTime,
+    exitDate,
+    exitTime,
     fuelLevel: input.fuelLevel,
     requestedDamages: input.requestedDamages || null,
     observations: input.observations || null,

@@ -49,6 +49,14 @@ const emptyLine = () => ({
   assignedEmployee: "",
 });
 
+function appendPreservingScroll(append: () => void) {
+  const currentY = window.scrollY;
+  append();
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: currentY });
+  });
+}
+
 export function NewMaterialRequisitionForm({
   workOrders,
   materialParts,
@@ -226,7 +234,7 @@ export function NewMaterialRequisitionForm({
         register={register}
         errors={errors}
         partById={materialById}
-        onAppend={() => materialFields.append(emptyLine())}
+        onAppend={() => appendPreservingScroll(() => materialFields.append(emptyLine()))}
         onRemove={(idx) => materialFields.remove(idx)}
         onPartChange={onMaterialPartChange}
       />
@@ -242,7 +250,7 @@ export function NewMaterialRequisitionForm({
         register={register}
         errors={errors}
         partById={paintById}
-        onAppend={() => paintFields.append(emptyLine())}
+        onAppend={() => appendPreservingScroll(() => paintFields.append(emptyLine()))}
         onRemove={(idx) => paintFields.remove(idx)}
         onPartChange={onPaintPartChange}
         paintPricing
@@ -254,7 +262,7 @@ export function NewMaterialRequisitionForm({
         </p>
       )}
 
-      <div className="card sticky bottom-4 lg:bottom-2 p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+      <div className="card p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
         <div>
           <p className="text-xs text-rapid-text-muted">Total de la requisición</p>
           <p className="text-3xl font-bold text-rapid-green-dark">

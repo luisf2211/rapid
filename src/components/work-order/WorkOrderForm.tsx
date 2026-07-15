@@ -231,6 +231,18 @@ export function WorkOrderForm({
             error={errors.fuelLevel?.message}
           />
           <TextInput
+            label="Fecha estimada de entrega"
+            type="date"
+            {...register("exitDate")}
+            error={errors.exitDate?.message}
+          />
+          <TextInput
+            label="Hora estimada de entrega"
+            type="time"
+            {...register("exitTime")}
+            error={errors.exitTime?.message}
+          />
+          <TextInput
             label="Recibido por *"
             placeholder="Nombre del empleado"
             {...register("receivedBy")}

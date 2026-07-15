@@ -24,6 +24,14 @@ const defaultLine = {
   unitPrice: 0,
 };
 
+function appendPreservingScroll(append: () => void) {
+  const currentY = window.scrollY;
+  append();
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: currentY });
+  });
+}
+
 export function EditInvoiceForm({
   initialValues,
   orderNumber,
@@ -212,7 +220,9 @@ export function EditInvoiceForm({
             <button
               type="button"
               className="btn-secondary text-sm"
-              onClick={() => append({ ...defaultLine })}
+              onClick={() =>
+                appendPreservingScroll(() => append({ ...defaultLine }))
+              }
             >
               <Plus className="w-4 h-4" />
               Línea

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { AUTH_COOKIE_NAME, USER_ROLES } from "@/lib/auth/constants";
+import { updateSession } from "@/lib/supabase/middleware";
 
 const PUBLIC_PATHS = ["/", "/login", "/api/auth/login"];
 
@@ -26,7 +27,18 @@ async function readSession(request: NextRequest) {
   }
 }
 
+function withSupabaseCookies(
+  response: NextResponse,
+  supabaseResponse: NextResponse,
+) {
+  supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+    response.cookies.set(name, value, options);
+  });
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
+  const supabaseResponse = await updateSession(request);
   const { pathname } = request.nextUrl;
 
   if (
@@ -34,11 +46,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname.endsWith(".svg")
   ) {
-    return NextResponse.next();
+    return supabaseResponse;
   }
 
   if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    return NextResponse.next();
+    return supabaseResponse;
   }
 
   const session = await readSession(request);
@@ -46,25 +58,37 @@ export async function middleware(request: NextRequest) {
   if (!session) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    return withSupabaseCookies(
+      NextResponse.redirect(loginUrl),
+      supabaseResponse,
+    );
   }
 
   if (pathname.startsWith("/admin")) {
     if (session.role !== USER_ROLES.PLATFORM_ADMIN) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return withSupabaseCookies(
+        NextResponse.redirect(new URL("/dashboard", request.url)),
+        supabaseResponse,
+      );
     }
-    return NextResponse.next();
+    return supabaseResponse;
   }
 
   if (session.role === USER_ROLES.PLATFORM_ADMIN) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return withSupabaseCookies(
+      NextResponse.redirect(new URL("/admin", request.url)),
+      supabaseResponse,
+    );
   }
 
   if (session.companyId == null) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return withSupabaseCookies(
+      NextResponse.redirect(new URL("/login", request.url)),
+      supabaseResponse,
+    );
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {

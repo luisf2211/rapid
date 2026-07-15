@@ -75,6 +75,8 @@ export const workOrderSchema = z.object({
   // Recepción
   deliveryDate: z.string().min(1, "Fecha requerida"),
   deliveryTime: z.string().min(1, "Hora requerida"),
+  exitDate: z.string().optional().or(z.literal("")),
+  exitTime: z.string().optional().or(z.literal("")),
   fuelLevel: z
     .enum(["EMPTY", "QUARTER", "HALF", "THREE_QUARTERS", "FULL"])
     .default("HALF"),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   workshopSettingsSchema,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/validations/workshop-settings";
 import { TextInput } from "@/components/forms/TextInput";
 import { TextAreaInput } from "@/components/forms/TextAreaInput";
+import { ImageUploadInput } from "@/components/forms/ImageUploadInput";
 import { updateWorkshopSettingsAction } from "./actions";
 
 export type SettingsFormDefaults = {
@@ -41,6 +42,7 @@ export function WorkshopSettingsForm({ defaults, fromDatabase }: Props) {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<WorkshopSettingsFormValues>({
     resolver: zodResolver(workshopSettingsSchema),
@@ -110,17 +112,35 @@ export function WorkshopSettingsForm({ defaults, fromDatabase }: Props) {
             {...register("email")}
             error={errors.email?.message}
           />
-          <TextInput
-            label="URL del logo"
-            placeholder="/uploads/logo.png"
-            {...register("logoUrl")}
-            error={errors.logoUrl?.message}
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Controller
+            control={control}
+            name="logoUrl"
+            render={({ field }) => (
+              <ImageUploadInput
+                label="Logo del taller"
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                subfolder="workshop"
+                error={errors.logoUrl?.message}
+                hint="PNG o JPG. Aparece en encabezados de documentos."
+              />
+            )}
           />
-          <TextInput
-            label="URL del sello digital"
-            placeholder="/uploads/sello.png"
-            {...register("stampUrl")}
-            error={errors.stampUrl?.message}
+          <Controller
+            control={control}
+            name="stampUrl"
+            render={({ field }) => (
+              <ImageUploadInput
+                label="Sello digital"
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                subfolder="workshop"
+                error={errors.stampUrl?.message}
+                hint="Aparece como marca de agua en las firmas del taller."
+              />
+            )}
           />
         </div>
         <TextAreaInput

@@ -7,6 +7,7 @@ import { Logo } from "@/components/layout/Logo";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
+  { href: "#para-quien", label: "Para quién" },
   { href: "#funcionalidades", label: "Funcionalidades" },
   { href: "#flujo", label: "Cómo funciona" },
   { href: "#beneficios", label: "Beneficios" },

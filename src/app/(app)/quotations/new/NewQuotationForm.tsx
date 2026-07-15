@@ -42,6 +42,14 @@ const emptyPart = () => ({
   unitPrice: 0,
 });
 
+function appendPreservingScroll(append: () => void) {
+  const currentY = window.scrollY;
+  append();
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: currentY });
+  });
+}
+
 export function NewQuotationForm({
   quotationId,
   initialValues,
@@ -238,7 +246,7 @@ export function NewQuotationForm({
           <button
             type="button"
             className="btn-secondary text-xs"
-            onClick={() => laborFields.append(emptyLabor())}
+            onClick={() => appendPreservingScroll(() => laborFields.append(emptyLabor()))}
           >
             <Plus className="w-3.5 h-3.5" /> Línea
           </button>
@@ -294,7 +302,7 @@ export function NewQuotationForm({
           <button
             type="button"
             className="btn-secondary text-xs"
-            onClick={() => partFields.append(emptyPart())}
+            onClick={() => appendPreservingScroll(() => partFields.append(emptyPart()))}
           >
             <Plus className="w-3.5 h-3.5" /> Repuesto
           </button>
@@ -404,7 +412,7 @@ export function NewQuotationForm({
         </div>
       </section>
 
-      <div className="sticky bottom-0 -mx-4 px-4 sm:mx-0 sm:px-0 py-4 bg-rapid-bg/95 backdrop-blur-sm border-t border-rapid-border sm:border-0 sm:static sm:bg-transparent sm:backdrop-blur-none sm:pt-2">
+      <div className="-mx-4 px-4 sm:mx-0 sm:px-0 py-4 bg-rapid-bg/95 border-t border-rapid-border sm:border-0 sm:pt-2">
         <div className="flex flex-wrap items-center justify-between gap-3 max-w-4xl">
           <Link
             href={cancelHref}

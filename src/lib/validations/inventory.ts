@@ -19,7 +19,12 @@ const optionalString = z
   .transform((v) => (v === "" ? undefined : v));
 
 export const inventoryPartSchema = z.object({
-  sku: z.string().trim().min(1, "SKU requerido").max(50),
+  sku: z
+    .string()
+    .trim()
+    .min(1, "SKU requerido")
+    .max(50)
+    .transform((value) => value.toUpperCase()),
   name: z.string().min(1, "Nombre requerido").max(150),
   description: z.string().max(250).optional().or(z.literal("")),
   category: z.string().max(80).optional().or(z.literal("")),

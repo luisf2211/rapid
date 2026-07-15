@@ -4,6 +4,7 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { StockAlertsBanner } from "@/components/layout/StockAlertsBanner";
 import { SidebarProvider } from "@/components/layout/SidebarContext";
 import { getInventoryStockAlerts } from "@/services/inventory.service";
+import { getWorkshopSettings } from "@/services/workshop-settings.service";
 import { requireCompanySession } from "@/lib/auth/guards";
 
 export default async function AppLayout({
@@ -22,6 +23,22 @@ export default async function AppLayout({
     /* sin tablas de inventario */
   }
 
+  let workshop: { businessName: string | null; logoUrl: string | null } = {
+    businessName: null,
+    logoUrl: null,
+  };
+  try {
+    const settings = await getWorkshopSettings();
+    if (settings) {
+      workshop = {
+        businessName: settings.businessName,
+        logoUrl: settings.logoUrl,
+      };
+    }
+  } catch {
+    /* sin settings */
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex bg-rapid-bg">
@@ -33,9 +50,13 @@ export default async function AppLayout({
             fullName: session.fullName,
             companyName: session.companyName,
           }}
+          workshop={workshop}
         />
         <div className="flex-1 flex flex-col min-w-0">
-          <MobileTopBar stockAlertCount={stockAlerts.total} />
+          <MobileTopBar
+            stockAlertCount={stockAlerts.total}
+            workshop={workshop}
+          />
           <StockAlertsBanner
             alerts={stockAlerts.alerts}
             total={stockAlerts.total}

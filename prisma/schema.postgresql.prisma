@@ -42,7 +42,7 @@ model User {
 
 model WorkOrder {
   id                   Int                   @id(map: "PK__WorkOrde__3214EC07B767C033") @default(autoincrement()) @map("Id")
-  orderNumber          Int                   @unique(map: "UQ__WorkOrde__CAC5E7431FE44356") @map("OrderNumber")
+  orderNumber          Int                   @map("OrderNumber")
   CompanyId            Int                   @default(1) @map("CompanyId")
   customerName         String?               @map("CustomerName") @db.VarChar(150)
   phone                String?               @map("Phone") @db.VarChar(50)
@@ -78,6 +78,7 @@ model WorkOrder {
   receptions           WorkOrderReception[]
   company              Company               @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_WorkOrder_Company")
 
+  @@unique([CompanyId, orderNumber], map: "UQ_WorkOrder_Company_OrderNumber")
   @@index([CompanyId], map: "IX_WorkOrder_CompanyId")
   @@map("WorkOrder")
 }
@@ -85,7 +86,7 @@ model WorkOrder {
 model InventoryPart {
   id                      Int                       @id(map: "PK_InventoryPart") @default(autoincrement()) @map("Id")
   CompanyId               Int                       @default(1) @map("CompanyId")
-  sku                     String                    @unique(map: "UX_InventoryPart_Sku") @map("Sku") @db.VarChar(50)
+  sku                     String                    @map("Sku") @db.VarChar(50)
   name                    String                    @map("Name") @db.VarChar(150)
   description             String?                   @map("Description") @db.VarChar(250)
   category                String?                   @map("Category") @db.VarChar(80)
@@ -106,6 +107,7 @@ model InventoryPart {
   quotationMaterialLines  QuotationMaterialLine[]
   company                 Company                   @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_InventoryPart_Company")
 
+  @@unique([CompanyId, sku], map: "UQ_InventoryPart_Company_Sku")
   @@index([CompanyId, isActive], map: "IX_InventoryPart_CompanyId")
   @@index([name], map: "IX_InventoryPart_Name")
   @@index([PartType, isActive], map: "IX_InventoryPart_PartType")
@@ -286,7 +288,7 @@ model LaborOrderItem {
 model Quotation {
   id               Int                     @id(map: "PK_Quotation") @default(autoincrement()) @map("Id")
   CompanyId        Int                     @default(1) @map("CompanyId")
-  quotationNumber  Int                     @unique(map: "UQ_Quotation_Number") @map("QuotationNumber")
+  quotationNumber  Int                     @map("QuotationNumber")
   quotationDate    DateTime                @default(dbgenerated("CURRENT_DATE")) @map("QuotationDate") @db.Date
   validUntil       DateTime?               @map("ValidUntil") @db.Date
   quotationType    String                  @default("PRIVATE") @map("QuotationType") @db.VarChar(20)
@@ -342,6 +344,7 @@ model Quotation {
   sourceOrders     WorkOrder[]             @relation("WorkOrderFromQuotation")
   company          Company                 @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_Quotation_Company")
 
+  @@unique([CompanyId, quotationNumber], map: "UQ_Quotation_Company_Number")
   @@index([customerName], map: "IX_Quotation_Customer")
   @@index([plate], map: "IX_Quotation_Plate")
   @@index([status, quotationDate(sort: Desc)], map: "IX_Quotation_Status")
@@ -422,7 +425,7 @@ model QuotationPhoto {
 model Invoice {
   id               Int           @id(map: "PK_Invoice") @default(autoincrement()) @map("Id")
   CompanyId        Int           @default(1) @map("CompanyId")
-  invoiceNumber    Int           @unique(map: "UQ_Invoice_Number") @map("InvoiceNumber")
+  invoiceNumber    Int           @map("InvoiceNumber")
   invoiceDate      DateTime      @default(dbgenerated("CURRENT_DATE")) @map("InvoiceDate") @db.Date
   workOrderId      Int           @map("WorkOrderId")
   quotationId      Int?          @map("QuotationId")
@@ -462,6 +465,7 @@ model Invoice {
   company          Company       @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_Invoice_Company")
   lines            InvoiceLine[]
 
+  @@unique([CompanyId, invoiceNumber], map: "UQ_Invoice_Company_Number")
   @@index([status, invoiceDate(sort: Desc)], map: "IX_Invoice_Status")
   @@map("Invoice")
 }

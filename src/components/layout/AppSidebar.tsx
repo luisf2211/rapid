@@ -18,9 +18,13 @@ interface Props {
     fullName: string | null;
     companyName: string | null;
   };
+  workshop?: {
+    businessName: string | null;
+    logoUrl: string | null;
+  };
 }
 
-export function AppSidebar({ alerts, total, session }: Props) {
+export function AppSidebar({ alerts, total, session, workshop }: Props) {
   const { collapsed, toggle, ready } = useSidebar();
 
   return (
@@ -33,7 +37,16 @@ export function AppSidebar({ alerts, total, session }: Props) {
     >
       {collapsed ? (
         <div className="shrink-0 flex flex-col items-center gap-3 px-2 py-5">
-          <Logo variant="dark" compact />
+          {workshop?.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={workshop.logoUrl}
+              alt={workshop.businessName ?? "Logo"}
+              className="w-9 h-9 rounded-xl object-contain"
+            />
+          ) : (
+            <Logo variant="dark" compact />
+          )}
           <button
             type="button"
             onClick={toggle}
@@ -46,11 +59,25 @@ export function AppSidebar({ alerts, total, session }: Props) {
         </div>
       ) : (
         <div className="shrink-0 flex items-start justify-between gap-2 px-4 py-5">
-          <div className="min-w-0">
-            <Logo variant="dark" />
-            <p className="mt-2 pl-[46px] text-[11px] text-white/40 font-medium whitespace-nowrap">
-              Gestión de taller
-            </p>
+          <div className="min-w-0 flex items-center gap-2.5">
+            {workshop?.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={workshop.logoUrl}
+                alt={workshop.businessName ?? "Logo"}
+                className="w-9 h-9 rounded-xl object-contain shrink-0"
+              />
+            ) : (
+              <Logo variant="dark" compact />
+            )}
+            <div className="min-w-0">
+              <span className="block font-bold tracking-tight text-base text-white truncate">
+                {workshop?.businessName || "Rapid"}
+              </span>
+              <span className="block text-[11px] text-white/40 font-medium truncate">
+                Gestión de taller
+              </span>
+            </div>
           </div>
           <button
             type="button"

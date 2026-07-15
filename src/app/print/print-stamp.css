@@ -3,7 +3,6 @@
 .print-sig-watermark-block {
   position: relative;
   text-align: center;
-  min-height: 120px;
   padding: 4px 8px 0;
   page-break-inside: avoid;
 }
@@ -20,8 +19,8 @@
 .print-stamp--watermark {
   position: absolute;
   left: 50%;
-  top: 54%;
-  transform: translate(-50%, -50%);
+  bottom: 12px;
+  transform: translateX(-50%);
   z-index: 0;
   width: 112px;
   height: 112px;
