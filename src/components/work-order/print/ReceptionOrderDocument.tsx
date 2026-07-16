@@ -2,6 +2,7 @@ import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { InvoicePrintFooter } from "@/components/invoice/print/InvoicePrintFooter";
 import { PrintWorkshopReceiverSignature } from "@/components/print/PrintWorkshopReceiverSignature";
+import { DamageDiagramFigure } from "@/components/work-order/print/DamageDiagramFigure";
 import { resolvePhotoUrl } from "@/lib/photos";
 
 function field(label: string, value: string | null | undefined) {
@@ -141,29 +142,35 @@ export function ReceptionOrderDocument({
 
       {data.damages.length > 0 && (
         <>
-          <h3 className="idoc-section-title">Daños registrados</h3>
+          <div className="idoc-damage-section">
+            <h3 className="idoc-section-title">Daños señalizados</h3>
+            <DamageDiagramFigure damages={data.damages} />
+          </div>
           <table className="idoc-table">
             <thead>
               <tr>
-                <th>Lado</th>
+                <th className="num">Zona</th>
+                <th>Parte</th>
                 <th>Tipo</th>
                 <th>Descripción</th>
-                <th className="num">X</th>
-                <th className="num">Y</th>
               </tr>
             </thead>
             <tbody>
               {data.damages.map((d, i) => (
                 <tr key={i}>
-                  <td>{d.side}</td>
+                  <td className="num">{d.hasMarker && d.zone != null ? d.zone : "—"}</td>
+                  <td>{d.zoneName ?? d.side}</td>
                   <td>{d.type}</td>
                   <td>{d.description}</td>
-                  <td className="num">{d.positionX}</td>
-                  <td className="num">{d.positionY}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {data.damages.some((d) => !d.hasMarker) && (
+            <p className="idoc-damage-footnote">
+              — Daño sin zona señalizada en el diagrama.
+            </p>
+          )}
         </>
       )}
 

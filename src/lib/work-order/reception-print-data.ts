@@ -8,7 +8,7 @@ import {
   WORK_ORDER_STATUS_LABELS,
 } from "@/lib/constants";
 import { formatDate } from "@/lib/formatters/date";
-import { toPlainNumber } from "@/lib/serialize";
+import { VEHICLE_ZONE_MAP } from "@/lib/vehicle-zones";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
 
@@ -76,11 +76,12 @@ export type ReceptionPrintData = {
   }[];
   checklistSummary: string;
   damages: {
+    zone: number | null;
+    zoneName: string | null;
     side: string;
     type: string;
     description: string;
-    positionX: string;
-    positionY: string;
+    hasMarker: boolean;
   }[];
   photos: { url: string; label: string; description: string | null }[];
 };
@@ -143,15 +144,18 @@ export function buildReceptionPrintData(
     observations: reception?.observations ?? null,
     checklist,
     checklistSummary: `${checkedCount} de ${CHECKLIST_ITEMS.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
-    damages: order.damages.map((d) => ({
-      side: d.vehicleSide ? sideMap[d.vehicleSide] ?? d.vehicleSide : "—",
-      type: d.damageType ? damageTypeMap[d.damageType] ?? d.damageType : "—",
-      description: d.description ?? "—",
-      positionX:
-        d.positionX != null ? String(toPlainNumber(d.positionX) ?? d.positionX) : "—",
-      positionY:
-        d.positionY != null ? String(toPlainNumber(d.positionY) ?? d.positionY) : "—",
-    })),
+    damages: order.damages.map((d) => {
+      const zone = d.zoneNumber ?? null;
+      const zoneDef = zone != null ? VEHICLE_ZONE_MAP[zone] : null;
+      return {
+        zone,
+        zoneName: zoneDef?.name ?? d.PartName ?? null,
+        side: d.vehicleSide ? sideMap[d.vehicleSide] ?? d.vehicleSide : "—",
+        type: d.damageType ? damageTypeMap[d.damageType] ?? d.damageType : "—",
+        description: d.description ?? "—",
+        hasMarker: zoneDef != null,
+      };
+    }),
     photos: order.photos.map((p) => ({
       url: p.photoUrl,
       label: p.photoType ? photoTypeMap[p.photoType] ?? p.photoType : "Foto",

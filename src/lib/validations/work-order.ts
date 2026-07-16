@@ -20,8 +20,11 @@ export const damageSchema = z.object({
   vehicleSide: z.enum(["FRONT", "BACK", "LEFT", "RIGHT", "TOP"]),
   damageType: z.enum(["SCRATCH", "DENT", "PAINT_DAMAGE", "BROKEN", "OTHER"]),
   description: z.string().max(250).optional().or(z.literal("")),
-  positionX: z.coerce.number().optional(),
-  positionY: z.coerce.number().optional(),
+  /** Zona numerada del vehículo señalada en el diagrama. */
+  zoneNumber: z.number().int().positive().optional(),
+  // Legacy: coordenadas libres de daños antiguos (solo lectura, ya no se editan).
+  positionX: z.number().optional(),
+  positionY: z.number().optional(),
 });
 
 export type DamageInput = z.infer<typeof damageSchema>;
