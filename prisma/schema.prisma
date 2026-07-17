@@ -193,6 +193,7 @@ model WorkOrderDamage {
   damageType  String?   @map("DamageType") @db.VarChar(50)
   positionX   Decimal?  @map("PositionX") @db.Decimal(10, 4)
   positionY   Decimal?  @map("PositionY") @db.Decimal(10, 4)
+  zoneNumber  Int?      @map("ZoneNumber")
   description String?   @map("Description") @db.VarChar(250)
   PartName    String?   @db.VarChar(150)
   workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderDamage_WorkOrder")

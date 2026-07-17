@@ -115,6 +115,7 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
         | "BROKEN"
         | "OTHER",
       description: d.description ?? "",
+      zoneNumber: d.zoneNumber ?? undefined,
       positionX: toPlainNumber(d.positionX) ?? undefined,
       positionY: toPlainNumber(d.positionY) ?? undefined,
     })),

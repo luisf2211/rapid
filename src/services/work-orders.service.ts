@@ -9,6 +9,7 @@ const WORK_ORDER_STATUSES_COMPLETE_ON_PAID = [
 ] as const;
 import { checklistFieldToDbItemName } from "@/lib/checklist";
 import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
+import { zoneName } from "@/lib/vehicle-zones";
 import type { WorkOrderInput } from "@/lib/validations/work-order";
 
 async function generateOrderNumber(companyId: number): Promise<number> {
@@ -145,8 +146,13 @@ function mapDamages(input: WorkOrderInput) {
     vehicleSide: d.vehicleSide,
     damageType: d.damageType,
     description: d.description || null,
-    positionX: d.positionX ?? null,
-    positionY: d.positionY ?? null,
+    zoneNumber: d.zoneNumber ?? null,
+    // Nombre de la zona congelado al guardar (desnormalizado): resiliente a
+    // futuros cambios del catálogo de zonas. Derivado en el servidor, no del cliente.
+    PartName: d.zoneNumber != null ? zoneName(d.zoneNumber) : null,
+    // positionX/Y quedan solo como legacy: no se escriben para daños con zona.
+    positionX: d.zoneNumber != null ? null : d.positionX ?? null,
+    positionY: d.zoneNumber != null ? null : d.positionY ?? null,
   }));
 }
 
