@@ -118,13 +118,21 @@
   page-break-inside: avoid;
 }
 
-/* Daños señalizados — figura con las 5 vistas del vehículo */
+/* Daños señalizados — figura con las 5 vistas del vehículo, agrupadas
+   como en la hoja tradicional del taller: frente/atrás arriba, laterales
+   apilados debajo y el techo como columna vertical al lado. */
 .idoc-damage-figure {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px 10px;
-  margin: 6px 0 10px;
+  grid-template-columns: 36mm 36mm 24mm;
+  grid-template-areas:
+    "front back top"
+    "left  left top"
+    "right right top";
+  column-gap: 5mm;
+  row-gap: 1mm;
+  justify-content: center;
   align-items: end;
+  margin: 6px 0 10px;
   break-inside: avoid;
   page-break-inside: avoid;
 }
@@ -135,33 +143,37 @@
   align-items: center;
 }
 
-.idoc-damage-view--front,
-.idoc-damage-view--back,
-.idoc-damage-view--top {
-  grid-column: span 2;
+.idoc-damage-view--front {
+  grid-area: front;
 }
 
-.idoc-damage-view--left,
+.idoc-damage-view--back {
+  grid-area: back;
+}
+
+.idoc-damage-view--left {
+  grid-area: left;
+}
+
 .idoc-damage-view--right {
-  grid-column: span 3;
+  grid-area: right;
 }
 
 .idoc-damage-view--top {
-  grid-column: span 2;
-  grid-row: span 1;
+  grid-area: top;
+  align-self: center;
 }
 
 .idoc-damage-view svg {
   width: 100%;
   height: auto;
-  max-height: 90px;
   display: block;
   color: #333;
 }
 
 .idoc-damage-view--left svg,
 .idoc-damage-view--right svg {
-  max-height: 70px;
+  max-width: 66mm;
 }
 
 .idoc-damage-view-label {
