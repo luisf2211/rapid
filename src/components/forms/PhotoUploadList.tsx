@@ -15,6 +15,11 @@ import { TextInput } from "@/components/forms/TextInput";
 import { PHOTO_TYPES } from "@/lib/constants";
 import type { WorkOrderFormValues } from "@/lib/validations/work-order";
 
+/** Mismos límites que valida el servidor en saveUploadedImage. */
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_UPLOAD_EXT = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
+const UPLOAD_CONCURRENCY = 4;
+
 interface PhotoUploadListProps {
   control: Control<WorkOrderFormValues>;
   fields: FieldArrayWithId<WorkOrderFormValues, "photos", "id">[];
@@ -31,49 +36,80 @@ export function PhotoUploadList({
   errors,
 }: PhotoUploadListProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(
+    null,
+  );
+  const [fileErrors, setFileErrors] = useState<
+    { name: string; message: string }[]
+  >([]);
+
+  async function uploadOne(file: File): Promise<string> {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      throw new Error("Supera los 10 MB");
+    }
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!ALLOWED_UPLOAD_EXT.has(ext)) {
+      throw new Error("Formato no permitido. Usa JPG, PNG, WEBP o GIF.");
+    }
+
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body });
+    const data = (await res.json()) as { photoUrl?: string; error?: string };
+
+    if (!res.ok || !data.photoUrl) {
+      throw new Error(data.error ?? "No se pudo subir la imagen");
+    }
+    return data.photoUrl;
+  }
 
   async function handleFilesSelected(fileList: FileList | null) {
     if (!fileList?.length) return;
 
-    setUploadError(null);
-    setUploading(true);
+    const files = Array.from(fileList);
+    setFileErrors([]);
+    setProgress({ done: 0, total: files.length });
 
-    try {
-      for (const file of Array.from(fileList)) {
-        const body = new FormData();
-        body.append("file", file);
+    // En paralelo, pero acotado para no saturar la conexión en el taller.
+    const results: PromiseSettledResult<string>[] = [];
+    for (let i = 0; i < files.length; i += UPLOAD_CONCURRENCY) {
+      const chunk = files.slice(i, i + UPLOAD_CONCURRENCY);
+      const settled = await Promise.allSettled(
+        chunk.map((file) =>
+          uploadOne(file).finally(() =>
+            setProgress((p) => (p ? { ...p, done: p.done + 1 } : p)),
+          ),
+        ),
+      );
+      results.push(...settled);
+    }
 
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body,
-        });
-
-        const data = (await res.json()) as {
-          photoUrl?: string;
-          error?: string;
-        };
-
-        if (!res.ok || !data.photoUrl) {
-          throw new Error(data.error ?? "No se pudo subir la imagen");
-        }
-
+    // Se agregan al final para respetar el orden en que se seleccionaron.
+    const failed: { name: string; message: string }[] = [];
+    results.forEach((result, idx) => {
+      if (result.status === "fulfilled") {
         append({
-          photoUrl: data.photoUrl,
+          photoUrl: result.value,
           photoType: "RECEPTION",
           description: "",
         });
+      } else {
+        failed.push({
+          name: files[idx].name,
+          message:
+            result.reason instanceof Error
+              ? result.reason.message
+              : "Error al subir la imagen",
+        });
       }
-    } catch (e) {
-      setUploadError(
-        e instanceof Error ? e.message : "Error al subir la imagen",
-      );
-    } finally {
-      setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
+    });
+
+    setFileErrors(failed);
+    setProgress(null);
+    if (inputRef.current) inputRef.current.value = "";
   }
+
+  const uploading = progress !== null;
 
   return (
     <div className="space-y-4">
@@ -97,17 +133,23 @@ export function PhotoUploadList({
           ) : (
             <Upload className="w-4 h-4" />
           )}
-          {uploading ? "Subiendo..." : "Cargar imágenes"}
+          {progress
+            ? `Subiendo ${progress.done} de ${progress.total}...`
+            : "Cargar imágenes"}
         </button>
         <p className="text-xs text-rapid-text-muted">
-          JPG, PNG, WEBP o GIF · máx. 10 MB por archivo
+          Puedes seleccionar varias · JPG, PNG, WEBP o GIF · máx. 10 MB por archivo
         </p>
       </div>
 
-      {uploadError && (
-        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          {uploadError}
-        </p>
+      {fileErrors.length > 0 && (
+        <ul className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 space-y-1">
+          {fileErrors.map((f) => (
+            <li key={f.name}>
+              <span className="font-semibold">{f.name}</span>: {f.message}
+            </li>
+          ))}
+        </ul>
       )}
 
       {errors?.photos?.message && (
