@@ -144,6 +144,7 @@ export function QuotationPhotosSection({
                 src={p.photoUrl}
                 alt={p.description ?? "Foto cotización"}
                 className="absolute inset-0 w-full h-full object-cover"
+                expandable
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 pt-6">
                 <p className="text-[10px] text-white font-medium truncate">

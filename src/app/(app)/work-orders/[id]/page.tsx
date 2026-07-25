@@ -735,6 +735,7 @@ function PhotosTab({ order }: { order: WorkOrder }) {
               src={p.photoUrl}
               alt={p.description ?? "Foto"}
               className="absolute inset-0 w-full h-full object-cover"
+              expandable
             />
           </div>
           <div className="p-3">

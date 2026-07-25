@@ -3,15 +3,24 @@
 import { useState } from "react";
 import { ExternalLink, ImageOff } from "lucide-react";
 import { resolvePhotoUrl } from "@/lib/photos";
+import { Lightbox } from "@/components/ui/Lightbox";
 
 interface PhotoPreviewProps {
   src: string;
   alt: string;
   className?: string;
+  /** Permite abrir la imagen en grande al hacer clic. */
+  expandable?: boolean;
 }
 
-export function PhotoPreview({ src, alt, className }: PhotoPreviewProps) {
+export function PhotoPreview({
+  src,
+  alt,
+  className,
+  expandable = false,
+}: PhotoPreviewProps) {
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const resolved = resolvePhotoUrl(src);
 
   if (!resolved || failed) {
@@ -36,13 +45,31 @@ export function PhotoPreview({ src, alt, className }: PhotoPreviewProps) {
     );
   }
 
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
+  // eslint-disable-next-line @next/next/no-img-element
+  const image = (
     <img
       src={resolved}
       alt={alt}
       className={className}
       onError={() => setFailed(true)}
     />
+  );
+
+  if (!expandable) return image;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        aria-label={`Ampliar ${alt}`}
+        className="absolute inset-0 cursor-zoom-in"
+      >
+        {image}
+      </button>
+      {expanded && (
+        <Lightbox src={resolved} alt={alt} onClose={() => setExpanded(false)} />
+      )}
+    </>
   );
 }
