@@ -119,6 +119,11 @@ export function Combobox({
             setOpen(true);
             setHighlight(nextEnabled(0, 1));
           }}
+          // El input conserva el foco tras elegir: sin esto, un segundo clic no reabre la lista.
+          onClick={() => {
+            setOpen(true);
+            setHighlight(nextEnabled(0, 1));
+          }}
           onChange={(e) => {
             setQuery(e.target.value);
             setOpen(true);

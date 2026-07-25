@@ -129,7 +129,7 @@ export function WorkOrderForm({
               Hay cambios sin guardar de esta orden
             </p>
             <p className="text-xs text-amber-800 mt-0.5">
-              Guardados el {formatDraftTimestamp(pendingDraft.savedAt)}. Puedes
+              Guardados el {formatDraftTimestamp(pendingDraft.savedAt)} · Puedes
               recuperarlos o seguir con los datos guardados en el sistema.
             </p>
           </div>
@@ -157,7 +157,7 @@ export function WorkOrderForm({
           <History className="w-5 h-5 text-rapid-green-dark shrink-0" />
           <p className="flex-1 min-w-[12rem] text-sm text-rapid-text">
             Se restauró lo que habías llenado el{" "}
-            {formatDraftTimestamp(restoredAt)}.
+            {formatDraftTimestamp(restoredAt)}
           </p>
           <button
             type="button"
