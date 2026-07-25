@@ -5,7 +5,7 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle, History } from "lucide-react";
 import {
   workOrderSchema,
   workOrderCreateSchema,
@@ -25,6 +25,7 @@ import {
   createWorkOrderAction,
   updateWorkOrderAction,
 } from "@/app/(app)/work-orders/actions";
+import { useWorkOrderDraft } from "@/lib/work-order/use-work-order-draft";
 
 interface Props {
   mode: "create" | "edit";
@@ -70,6 +71,9 @@ export function WorkOrderForm({
     [defaultValues],
   );
 
+  const { restoredAt, pendingDraft, applyDraft, discardDraft, clearDraft } =
+    useWorkOrderDraft({ form, mode, workOrderId, defaultValues });
+
   const onSubmit = handleSubmit((data) => {
     setSubmitError(null);
     startTransition(async () => {
@@ -78,6 +82,7 @@ export function WorkOrderForm({
           ? await updateWorkOrderAction(workOrderId, data)
           : await createWorkOrderAction(data);
       if (result.ok) {
+        clearDraft();
         router.push(`/work-orders/${result.id}`);
       } else {
         setSubmitError(result.error);
@@ -115,6 +120,54 @@ export function WorkOrderForm({
           </button>
         </div>
       </div>
+
+      {pendingDraft && (
+        <div className="card border-amber-200 bg-amber-50 p-3 flex flex-wrap items-center gap-3">
+          <History className="w-5 h-5 text-amber-700 shrink-0" />
+          <div className="flex-1 min-w-[12rem]">
+            <p className="text-sm font-semibold text-amber-900">
+              Hay cambios sin guardar de esta orden
+            </p>
+            <p className="text-xs text-amber-800 mt-0.5">
+              Guardados el {formatDraftTimestamp(pendingDraft.savedAt)}. Puedes
+              recuperarlos o seguir con los datos guardados en el sistema.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => applyDraft(pendingDraft)}
+              className="btn-dark text-sm"
+            >
+              Recuperar
+            </button>
+            <button
+              type="button"
+              onClick={discardDraft}
+              className="btn-secondary text-sm"
+            >
+              Descartar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {restoredAt && (
+        <div className="card border-rapid-green/40 bg-rapid-green-soft/40 p-3 flex flex-wrap items-center gap-3">
+          <History className="w-5 h-5 text-rapid-green-dark shrink-0" />
+          <p className="flex-1 min-w-[12rem] text-sm text-rapid-text">
+            Se restauró lo que habías llenado el{" "}
+            {formatDraftTimestamp(restoredAt)}.
+          </p>
+          <button
+            type="button"
+            onClick={discardDraft}
+            className="btn-secondary text-sm"
+          >
+            Empezar en blanco
+          </button>
+        </div>
+      )}
 
       {submitError && (
         <div className="card border-red-200 bg-red-50 p-3 flex items-start gap-3">
@@ -368,6 +421,17 @@ export function WorkOrderForm({
       </div>
     </form>
   );
+}
+
+function formatDraftTimestamp(savedAt: string): string {
+  const date = new Date(savedAt);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("es-DO", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function SectionHeader({
