@@ -29,7 +29,11 @@ import {
   getLatestInvoiceForWorkOrder,
 } from "@/services/invoices.service";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
-import { checklistRowsToDetails, isChecklistIncomplete } from "@/lib/checklist";
+import {
+  checklistDisplayItems,
+  checklistRowsToDetails,
+  isChecklistIncomplete,
+} from "@/lib/checklist";
 import { formatMoney } from "@/lib/formatters/money";
 import { laborOrderWorkerName } from "@/lib/labor-order/worker-name";
 import {
@@ -49,7 +53,6 @@ import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { splitRequisitionItems } from "@/lib/material-requisition/line-type";
 import { formatDocNumber } from "@/lib/quotation/print-data";
 import {
-  CHECKLIST_ITEMS,
   FUEL_LEVELS,
   WORK_ORDER_STATUS_LABELS,
   DAMAGE_SIDES,
@@ -594,12 +597,13 @@ function ReceptionTab({
 }
 
 function ChecklistTab({ reception }: { reception: Reception | null }) {
-  const { checked, comments } = checklistRowsToDetails(reception?.checklist);
-  const total = CHECKLIST_ITEMS.length;
-  const checkedCount = CHECKLIST_ITEMS.filter((it) => checked[it.field]).length;
-  const commentCount = CHECKLIST_ITEMS.filter(
-    (it) => comments[it.field],
-  ).length;
+  const { checked, comments, present } = checklistRowsToDetails(
+    reception?.checklist,
+  );
+  const items = checklistDisplayItems(present);
+  const total = items.length;
+  const checkedCount = items.filter((it) => checked[it.field]).length;
+  const commentCount = items.filter((it) => comments[it.field]).length;
 
   return (
     <div className="card p-5">
@@ -618,7 +622,7 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-        {CHECKLIST_ITEMS.map((item) => {
+        {items.map((item) => {
           const ok = checked[item.field];
           const comment = comments[item.field];
           return (

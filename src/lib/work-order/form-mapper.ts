@@ -1,6 +1,7 @@
 import {
   buildDefaultChecklistFormValues,
   checklistRowsToDetails,
+  legacyChecklistFieldsPresent,
 } from "@/lib/checklist";
 import { CHECKLIST_ITEMS } from "@/lib/constants";
 import { toDateInputValue, toTimeInputValue } from "@/lib/formatters/date";
@@ -66,7 +67,9 @@ export function makeDefaultWorkOrderFormValues(): WorkOrderFormValues {
 
 export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValues {
   const reception = order.receptions[0];
-  const { checked, comments } = checklistRowsToDetails(reception?.checklist);
+  const { checked, comments, present } = checklistRowsToDetails(
+    reception?.checklist,
+  );
   const checklist = buildDefaultChecklistFormValues();
   const mileage = parseMileage(order.mileage, order.mileageUnit);
 
@@ -74,6 +77,15 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
     checklist[item.field] = {
       checked: Boolean(checked[item.field]),
       comment: comments[item.field] ?? "",
+    };
+  }
+
+  // Los ítems retirados solo entran al formulario si esta orden ya los tenía,
+  // así al guardar se recrean en vez de perderse.
+  for (const field of legacyChecklistFieldsPresent(present)) {
+    checklist[field] = {
+      checked: Boolean(checked[field]),
+      comment: comments[field] ?? "",
     };
   }
 

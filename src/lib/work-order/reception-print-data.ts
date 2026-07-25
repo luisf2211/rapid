@@ -1,6 +1,5 @@
-import { checklistRowsToDetails } from "@/lib/checklist";
+import { checklistDisplayItems, checklistRowsToDetails } from "@/lib/checklist";
 import {
-  CHECKLIST_ITEMS,
   DAMAGE_SIDES,
   DAMAGE_TYPES,
   FUEL_LEVELS,
@@ -92,9 +91,11 @@ export function buildReceptionPrintData(
   _workshop: WorkshopPrintInfo,
 ): ReceptionPrintData {
   const reception = order.receptions[0] ?? null;
-  const { checked, comments } = checklistRowsToDetails(reception?.checklist);
+  const { checked, comments, present } = checklistRowsToDetails(
+    reception?.checklist,
+  );
 
-  const checklist = CHECKLIST_ITEMS.map((item) => ({
+  const checklist = checklistDisplayItems(present).map((item) => ({
     label: item.label,
     checked: checked[item.field],
     comment: comments[item.field],
@@ -144,7 +145,7 @@ export function buildReceptionPrintData(
     requestedDamages: reception?.requestedDamages ?? null,
     observations: reception?.observations ?? null,
     checklist,
-    checklistSummary: `${checkedCount} de ${CHECKLIST_ITEMS.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
+    checklistSummary: `${checkedCount} de ${checklist.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
     damages: order.damages.map((d) => {
       const zone = d.zoneNumber ?? null;
       const zoneDef = zone != null ? VEHICLE_ZONE_MAP[zone] : null;

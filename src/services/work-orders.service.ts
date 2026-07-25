@@ -1,4 +1,4 @@
-import { CHECKLIST_ITEMS, WORK_ORDER_STATUS } from "@/lib/constants";
+import { ALL_CHECKLIST_ITEMS, WORK_ORDER_STATUS } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { sumLaborOrderAmount, sumLaborOrderPieces } from "@/lib/labor-order/piece-count";
 
@@ -130,16 +130,20 @@ export async function getWorkOrderForReceptionPrint(id: number) {
 }
 
 function buildChecklistRows(input: WorkOrderInput) {
-  return CHECKLIST_ITEMS.map((it) => {
+  const rows = [];
+  for (const it of ALL_CHECKLIST_ITEMS) {
     const entry = input.checklist[it.field];
-    const comment = entry?.comment?.trim() ?? "";
-    return {
+    // Los ítems retirados solo llegan desde órdenes que ya los tenían guardados.
+    if (!entry) continue;
+    const comment = entry.comment?.trim() ?? "";
+    rows.push({
       itemName: checklistFieldToDbItemName(it.field),
-      isChecked: Boolean(entry?.checked),
+      isChecked: Boolean(entry.checked),
       comments: comment || null,
       hasComment: comment.length > 0,
-    };
-  });
+    });
+  }
+  return rows;
 }
 
 function mapDamages(input: WorkOrderInput) {

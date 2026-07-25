@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { CHECKLIST_ITEMS, type ChecklistField } from "@/lib/constants";
+import {
+  CHECKLIST_ITEMS,
+  LEGACY_CHECKLIST_ITEMS,
+  type ActiveChecklistField,
+  type LegacyChecklistField,
+} from "@/lib/constants";
 
 export const checklistItemSchema = z.object({
   checked: z.boolean().default(false),
@@ -8,9 +13,22 @@ export const checklistItemSchema = z.object({
 
 export type ChecklistItemInput = z.infer<typeof checklistItemSchema>;
 
-const checklistShape = Object.fromEntries(
-  CHECKLIST_ITEMS.map((item) => [item.field, checklistItemSchema]),
-) as Record<ChecklistField, typeof checklistItemSchema>;
+/**
+ * Los ítems vigentes siempre viajan; los retirados solo cuando la orden ya los
+ * tenía guardados, así una recepción nueva nunca los vuelve a crear.
+ */
+const checklistShape = {
+  ...Object.fromEntries(
+    CHECKLIST_ITEMS.map((item) => [item.field, checklistItemSchema]),
+  ),
+  ...Object.fromEntries(
+    LEGACY_CHECKLIST_ITEMS.map((item) => [
+      item.field,
+      checklistItemSchema.optional(),
+    ]),
+  ),
+} as Record<ActiveChecklistField, typeof checklistItemSchema> &
+  Record<LegacyChecklistField, z.ZodOptional<typeof checklistItemSchema>>;
 
 export const checklistSchema = z.object(checklistShape);
 

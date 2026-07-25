@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ import { ChecklistGrid } from "@/components/forms/ChecklistGrid";
 import { PhotoUploadList } from "@/components/forms/PhotoUploadList";
 import { SignaturePad } from "@/components/forms/SignaturePad";
 import { VehicleDamageZonePicker } from "@/components/work-order/VehicleDamageZonePicker";
-import { FUEL_LEVELS } from "@/lib/constants";
+import { FUEL_LEVELS, LEGACY_CHECKLIST_ITEMS } from "@/lib/constants";
 import {
   createWorkOrderAction,
   updateWorkOrderAction,
@@ -59,6 +59,16 @@ export function WorkOrderForm({
   } = form;
 
   const photosArray = useFieldArray({ control, name: "photos" });
+
+  // Ítems retirados del checklist que esta orden ya traía: se muestran para no
+  // perderlos al guardar, pero no se ofrecen en recepciones nuevas.
+  const legacyChecklistFields = useMemo(
+    () =>
+      LEGACY_CHECKLIST_ITEMS.filter(
+        (item) => defaultValues.checklist?.[item.field] !== undefined,
+      ).map((item) => item.field),
+    [defaultValues],
+  );
 
   const onSubmit = handleSubmit((data) => {
     setSubmitError(null);
@@ -301,7 +311,7 @@ export function WorkOrderForm({
           title="Checklist de recepción"
           subtitle="Marca los elementos verificados y agrega comentarios si aplica"
         />
-        <ChecklistGrid control={control} />
+        <ChecklistGrid control={control} legacyFields={legacyChecklistFields} />
       </section>
 
       {/* Daños */}
