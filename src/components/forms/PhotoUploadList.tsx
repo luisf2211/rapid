@@ -156,7 +156,7 @@ export function PhotoUploadList({
         <p className="text-xs text-red-600">{errors.photos.message}</p>
       )}
 
-      {fields.length === 0 ? (
+      {fields.length === 0 && !uploading ? (
         <div className="border border-dashed border-rapid-border rounded-xl py-12 flex flex-col items-center justify-center text-rapid-text-muted gap-2">
           <ImagePlus className="w-10 h-10 opacity-40" />
           <p className="text-sm">Sin fotos cargadas</p>
@@ -173,6 +173,20 @@ export function PhotoUploadList({
               error={errors?.photos?.[idx]}
             />
           ))}
+          {uploading &&
+            Array.from({ length: progress.total }).map((_, i) => (
+              <div
+                key={`uploading-${i}`}
+                aria-hidden
+                className="card overflow-hidden animate-pulse"
+              >
+                <div className="aspect-video bg-rapid-bg" />
+                <div className="p-3 space-y-2.5">
+                  <div className="h-3 w-16 rounded bg-rapid-bg" />
+                  <div className="h-10 rounded-lg bg-rapid-bg" />
+                </div>
+              </div>
+            ))}
         </div>
       )}
     </div>
@@ -222,7 +236,7 @@ function PhotoRow({
             type="button"
             onClick={onRemove}
             aria-label="Quitar foto"
-            className="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:bg-red-50 rounded-lg shrink-0"
+            className="inline-flex items-center justify-center w-11 h-11 -m-1.5 text-red-600 hover:bg-red-50 rounded-lg shrink-0"
           >
             <Trash2 className="w-4 h-4" />
           </button>
