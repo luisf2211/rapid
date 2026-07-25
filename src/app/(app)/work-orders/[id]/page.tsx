@@ -29,7 +29,11 @@ import {
   getLatestInvoiceForWorkOrder,
 } from "@/services/invoices.service";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
-import { checklistRowsToDetails, isChecklistIncomplete } from "@/lib/checklist";
+import {
+  checklistDisplayItems,
+  checklistRowsToDetails,
+  isChecklistIncomplete,
+} from "@/lib/checklist";
 import { formatMoney } from "@/lib/formatters/money";
 import { laborOrderWorkerName } from "@/lib/labor-order/worker-name";
 import {
@@ -42,13 +46,13 @@ import {
 } from "@/lib/labor-order/piece-count";
 import { canEditLaborOrder } from "@/lib/labor-order/can-edit";
 import { canEditWorkOrderReception } from "@/lib/work-order/can-edit";
+import { formatMileage } from "@/lib/work-order/mileage";
 import { canEditQuotation } from "@/lib/quotation/form-mapper";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
 import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { splitRequisitionItems } from "@/lib/material-requisition/line-type";
 import { formatDocNumber } from "@/lib/quotation/print-data";
 import {
-  CHECKLIST_ITEMS,
   FUEL_LEVELS,
   WORK_ORDER_STATUS_LABELS,
   DAMAGE_SIDES,
@@ -239,7 +243,10 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
             />
             <InfoMini label="Color" value={order.color ?? "—"} />
             <InfoMini label="Motor" value={order.engine ?? "—"} />
-            <InfoMini label="Millaje" value={order.mileage ?? "—"} />
+            <InfoMini
+              label="Millaje"
+              value={formatMileage(order.mileage, order.mileageUnit) ?? "—"}
+            />
           </div>
         </div>
 
@@ -590,12 +597,13 @@ function ReceptionTab({
 }
 
 function ChecklistTab({ reception }: { reception: Reception | null }) {
-  const { checked, comments } = checklistRowsToDetails(reception?.checklist);
-  const total = CHECKLIST_ITEMS.length;
-  const checkedCount = CHECKLIST_ITEMS.filter((it) => checked[it.field]).length;
-  const commentCount = CHECKLIST_ITEMS.filter(
-    (it) => comments[it.field],
-  ).length;
+  const { checked, comments, present } = checklistRowsToDetails(
+    reception?.checklist,
+  );
+  const items = checklistDisplayItems(present);
+  const total = items.length;
+  const checkedCount = items.filter((it) => checked[it.field]).length;
+  const commentCount = items.filter((it) => comments[it.field]).length;
 
   return (
     <div className="card p-5">
@@ -614,7 +622,7 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-        {CHECKLIST_ITEMS.map((item) => {
+        {items.map((item) => {
           const ok = checked[item.field];
           const comment = comments[item.field];
           return (
@@ -727,6 +735,7 @@ function PhotosTab({ order }: { order: WorkOrder }) {
               src={p.photoUrl}
               alt={p.description ?? "Foto"}
               className="absolute inset-0 w-full h-full object-cover"
+              expandable
             />
           </div>
           <div className="p-3">

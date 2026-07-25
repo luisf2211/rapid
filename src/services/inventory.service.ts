@@ -43,10 +43,14 @@ export async function listInventoryParts(params?: {
   search?: string;
   filter?: "all" | "low" | "inactive";
   partType?: InventoryPartType;
+  category?: string;
 }) {
   const companyId = await requireCompanyIdFromSession();
-  const search = params?.search?.trim();
   const filter = params?.filter ?? "all";
+  const category = params?.category?.trim();
+
+  // Cada palabra debe aparecer en algún campo: "lija 400" encuentra "Lija de agua 400".
+  const terms = (params?.search ?? "").trim().split(/\s+/).filter(Boolean);
 
   const parts = await prisma.inventoryPart.findMany({
     where: {
@@ -56,14 +60,17 @@ export async function listInventoryParts(params?: {
       ...(filter === "all" || filter === "inactive"
         ? {}
         : { isActive: true }),
-      ...(search
+      ...(category ? { category } : {}),
+      ...(terms.length
         ? {
-            OR: [
-              { name: { contains: search } },
-              { sku: { contains: search } },
-              { category: { contains: search } },
-              { location: { contains: search } },
-            ],
+            AND: terms.map((term) => ({
+              OR: [
+                { name: { contains: term, mode: "insensitive" as const } },
+                { sku: { contains: term, mode: "insensitive" as const } },
+                { category: { contains: term, mode: "insensitive" as const } },
+                { location: { contains: term, mode: "insensitive" as const } },
+              ],
+            })),
           }
         : {}),
     },
@@ -73,6 +80,24 @@ export async function listInventoryParts(params?: {
   if (filter !== "low") return parts;
 
   return parts.filter((p) => isPartLowOrOutOfStock(p));
+}
+
+/** Categorías existentes para el filtro del inventario. */
+export async function listInventoryCategories(partType?: InventoryPartType) {
+  const companyId = await requireCompanyIdFromSession();
+  const rows = await prisma.inventoryPart.findMany({
+    where: {
+      ...companyWhere(companyId),
+      ...(partType ? { PartType: partType } : {}),
+      NOT: { category: null },
+    },
+    distinct: ["category"],
+    select: { category: true },
+    orderBy: { category: "asc" },
+  });
+  return rows
+    .map((r) => r.category)
+    .filter((c): c is string => Boolean(c?.trim()));
 }
 
 function isPartLowOrOutOfStock(part: {
@@ -191,7 +216,7 @@ export async function createInventoryPart(input: InventoryPartInput) {
   });
 
   if (existingSku) {
-    throw new Error("Ya existe una pieza con ese SKU en esta empresa");
+    throw new Error("Ya existe una pieza con ese código en esta empresa");
   }
 
   try {
@@ -218,7 +243,7 @@ export async function createInventoryPart(input: InventoryPartInput) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("El SKU ya existe. Usa otro valor.");
+      throw new Error("El código ya existe. Usa otro valor.");
     }
     throw error;
   }
@@ -245,7 +270,7 @@ export async function updateInventoryPart(
   });
 
   if (existingSku) {
-    throw new Error("Ya existe una pieza con ese SKU en esta empresa");
+    throw new Error("Ya existe una pieza con ese código en esta empresa");
   }
 
   const part = await prisma.inventoryPart.findFirst({
@@ -280,7 +305,7 @@ export async function updateInventoryPart(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("El SKU ya existe. Usa otro valor.");
+      throw new Error("El código ya existe. Usa otro valor.");
     }
     throw error;
   }

@@ -5,8 +5,10 @@ import { SummaryCard } from "@/components/ui/SummaryCard";
 import {
   availableQuantity,
   getInventoryStats,
+  listInventoryCategories,
   listInventoryParts,
 } from "@/services/inventory.service";
+import { InventorySearchBar } from "@/components/inventory/InventorySearchBar";
 import { formatMoney } from "@/lib/formatters/money";
 import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { INVENTORY_PART_TYPES } from "@/lib/constants";
@@ -14,26 +16,29 @@ import { INVENTORY_PART_TYPES } from "@/lib/constants";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; filter?: string }>;
+  searchParams: Promise<{ q?: string; filter?: string; category?: string }>;
 }
 
 export default async function PaintInventoryPage({ searchParams }: PageProps) {
-  const { q, filter } = await searchParams;
+  const { q, filter, category } = await searchParams;
   const filterValue =
     filter === "low" || filter === "inactive" ? filter : "all";
 
   let parts: Awaited<ReturnType<typeof listInventoryParts>> = [];
   let stats: Awaited<ReturnType<typeof getInventoryStats>> | null = null;
+  let categories: string[] = [];
   let error: string | null = null;
 
   try {
-    [parts, stats] = await Promise.all([
+    [parts, stats, categories] = await Promise.all([
       listInventoryParts({
         search: q,
         filter: filterValue,
         partType: INVENTORY_PART_TYPES.PAINT,
+        category,
       }),
       getInventoryStats({ partType: INVENTORY_PART_TYPES.PAINT }),
+      listInventoryCategories(INVENTORY_PART_TYPES.PAINT),
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Error desconocido";
@@ -83,22 +88,19 @@ export default async function PaintInventoryPage({ searchParams }: PageProps) {
             <Droplets className="w-4 h-4 text-rapid-green-dark" />
             <h2 className="font-bold">Pintura almacenada</h2>
           </div>
-          <form className="flex gap-2">
-            <input
-              name="q"
-              defaultValue={q ?? ""}
-              placeholder="Buscar SKU o nombre..."
-              className="form-input py-1.5 text-sm w-48"
-            />
-            <select name="filter" defaultValue={filterValue} className="form-input py-1.5 text-sm">
-              <option value="all">Todos</option>
-              <option value="low">Stock bajo</option>
-              <option value="inactive">Inactivos</option>
-            </select>
-            <button type="submit" className="btn-secondary text-sm py-1.5">
-              Filtrar
-            </button>
-          </form>
+          <InventorySearchBar
+            compact
+            initialQuery={q ?? ""}
+            initialFilter={filterValue}
+            initialCategory={category ?? ""}
+            categories={categories}
+            placeholder="Buscar código o nombre..."
+            filterOptions={[
+              { value: "all", label: "Todos" },
+              { value: "low", label: "Stock bajo" },
+              { value: "inactive", label: "Inactivos" },
+            ]}
+          />
         </div>
 
         {parts.length === 0 ? (

@@ -1,4 +1,4 @@
-import { CHECKLIST_ITEMS, WORK_ORDER_STATUS } from "@/lib/constants";
+import { ALL_CHECKLIST_ITEMS, WORK_ORDER_STATUS } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { sumLaborOrderAmount, sumLaborOrderPieces } from "@/lib/labor-order/piece-count";
 
@@ -10,6 +10,7 @@ const WORK_ORDER_STATUSES_COMPLETE_ON_PAID = [
 import { checklistFieldToDbItemName } from "@/lib/checklist";
 import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
 import { zoneName } from "@/lib/vehicle-zones";
+import { mileageValueToStore } from "@/lib/work-order/mileage";
 import type { WorkOrderInput } from "@/lib/validations/work-order";
 
 async function generateOrderNumber(companyId: number): Promise<number> {
@@ -129,16 +130,20 @@ export async function getWorkOrderForReceptionPrint(id: number) {
 }
 
 function buildChecklistRows(input: WorkOrderInput) {
-  return CHECKLIST_ITEMS.map((it) => {
+  const rows = [];
+  for (const it of ALL_CHECKLIST_ITEMS) {
     const entry = input.checklist[it.field];
-    const comment = entry?.comment?.trim() ?? "";
-    return {
+    // Los ítems retirados solo llegan desde órdenes que ya los tenían guardados.
+    if (!entry) continue;
+    const comment = entry.comment?.trim() ?? "";
+    rows.push({
       itemName: checklistFieldToDbItemName(it.field),
-      isChecked: Boolean(entry?.checked),
+      isChecked: Boolean(entry.checked),
       comments: comment || null,
       hasComment: comment.length > 0,
-    };
-  });
+    });
+  }
+  return rows;
 }
 
 function mapDamages(input: WorkOrderInput) {
@@ -175,7 +180,8 @@ function workOrderCoreData(input: WorkOrderInput) {
     vehicleYear: input.vehicleYear,
     color: input.color,
     plate: input.plate,
-    mileage: input.mileage || null,
+    mileage: mileageValueToStore(input.mileage),
+    mileageUnit: input.mileageUnit,
     engine: input.engine || null,
     notes: input.notes || null,
     updatedAt: new Date(),

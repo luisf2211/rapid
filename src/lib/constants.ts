@@ -82,13 +82,22 @@ export type ChecklistField =
   | "windows"
   | "radar"
   | "parkingSensors"
-  | "rearCamera";
+  | "rearCamera"
+  | "engineCover";
 
-export const CHECKLIST_ITEMS: Array<{ field: ChecklistField; label: string }> = [
+/**
+ * Ítems retirados del checklist: ya no se ofrecen al crear una recepción, pero
+ * se siguen mostrando y conservando en las órdenes que los tienen guardados.
+ */
+export type LegacyChecklistField = "carpets" | "carpetsFabric" | "carpetsRubber";
+
+export type ActiveChecklistField = Exclude<ChecklistField, LegacyChecklistField>;
+
+export const CHECKLIST_ITEMS: Array<{
+  field: ActiveChecklistField;
+  label: string;
+}> = [
   { field: "ac", label: "A/C" },
-  { field: "carpets", label: "Alfombras" },
-  { field: "carpetsFabric", label: "Alfombras (Tela)" },
-  { field: "carpetsRubber", label: "Alfombras (Goma)" },
   { field: "seats", label: "Asientos" },
   { field: "speakers", label: "Bocinas" },
   { field: "seatBelts", label: "Cinturones" },
@@ -112,19 +121,45 @@ export const CHECKLIST_ITEMS: Array<{ field: ChecklistField; label: string }> = 
   { field: "gasCap", label: "Tapa de gasolina" },
   { field: "antennas", label: "Antenas" },
   { field: "batteries", label: "Baterías" },
+  { field: "engineCover", label: "Cover del motor" },
   { field: "windows", label: "Vidrios" },
   { field: "radar", label: "Radar" },
   { field: "parkingSensors", label: "Sensores de parqueo" },
   { field: "rearCamera", label: "Cámara trasera" },
 ];
 
+export const LEGACY_CHECKLIST_ITEMS: Array<{
+  field: LegacyChecklistField;
+  label: string;
+}> = [
+  { field: "carpets", label: "Alfombras" },
+  { field: "carpetsFabric", label: "Alfombras (Tela)" },
+  { field: "carpetsRubber", label: "Alfombras (Goma)" },
+];
+
+/** Catálogo completo: lo vigente más lo retirado, para leer órdenes históricas. */
+export const ALL_CHECKLIST_ITEMS: Array<{
+  field: ChecklistField;
+  label: string;
+}> = [...CHECKLIST_ITEMS, ...LEGACY_CHECKLIST_ITEMS];
+
+const LEGACY_CHECKLIST_FIELDS = new Set<string>(
+  LEGACY_CHECKLIST_ITEMS.map((i) => i.field),
+);
+
+export function isLegacyChecklistField(
+  field: ChecklistField,
+): field is LegacyChecklistField {
+  return LEGACY_CHECKLIST_FIELDS.has(field);
+}
+
 export const CHECKLIST_LABEL_BY_FIELD: Record<ChecklistField, string> =
   Object.fromEntries(
-    CHECKLIST_ITEMS.map((i) => [i.field, i.label]),
+    ALL_CHECKLIST_ITEMS.map((i) => [i.field, i.label]),
   ) as Record<ChecklistField, string>;
 
 export const CHECKLIST_FIELD_BY_LABEL: Record<string, ChecklistField> =
-  Object.fromEntries(CHECKLIST_ITEMS.map((i) => [i.label, i.field]));
+  Object.fromEntries(ALL_CHECKLIST_ITEMS.map((i) => [i.label, i.field]));
 
 export const SUGGESTED_MATERIALS = [
   "Sistema",

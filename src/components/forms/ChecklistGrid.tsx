@@ -2,18 +2,33 @@
 
 import { Controller, type Control } from "react-hook-form";
 import { Check, MessageSquare } from "lucide-react";
-import { CHECKLIST_ITEMS } from "@/lib/constants";
+import {
+  CHECKLIST_ITEMS,
+  CHECKLIST_LABEL_BY_FIELD,
+  type LegacyChecklistField,
+} from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { WorkOrderFormValues } from "@/lib/validations/work-order";
 
 interface ChecklistGridProps {
   control: Control<WorkOrderFormValues>;
+  /** Ítems retirados que esta orden ya tenía guardados y hay que conservar. */
+  legacyFields?: LegacyChecklistField[];
 }
 
-export function ChecklistGrid({ control }: ChecklistGridProps) {
+export function ChecklistGrid({ control, legacyFields = [] }: ChecklistGridProps) {
+  const items = [
+    ...CHECKLIST_ITEMS.map((item) => ({ ...item, legacy: false })),
+    ...legacyFields.map((field) => ({
+      field,
+      label: CHECKLIST_LABEL_BY_FIELD[field],
+      legacy: true,
+    })),
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-      {CHECKLIST_ITEMS.map((item) => (
+      {items.map((item) => (
         <div
           key={item.field}
           className="rounded-lg border border-rapid-border bg-white p-3 space-y-2.5"
@@ -47,6 +62,11 @@ export function ChecklistGrid({ control }: ChecklistGridProps) {
                     onChange={(e) => field.onChange(e.target.checked)}
                   />
                   <span className="text-sm font-semibold">{item.label}</span>
+                  {item.legacy && (
+                    <span className="ml-auto shrink-0 rounded-full bg-rapid-surface-soft px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-rapid-text-muted">
+                      Retirado
+                    </span>
+                  )}
                 </label>
               );
             }}

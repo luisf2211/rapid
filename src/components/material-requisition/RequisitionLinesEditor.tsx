@@ -8,6 +8,7 @@ import type {
   MaterialRequisitionFormValues,
 } from "@/lib/validations/material-requisition";
 import { TextInput } from "@/components/forms/TextInput";
+import { Combobox } from "@/components/forms/Combobox";
 import { FractionQuantityInput } from "@/components/forms/FractionQuantityInput";
 import { MoneyInput } from "@/components/forms/MoneyInput";
 import { formatMoney } from "@/lib/formatters/money";
@@ -121,35 +122,27 @@ export function RequisitionLinesEditor({
                     control={control}
                     name={`${fieldName}.${idx}.inventoryPartId`}
                     render={({ field: f }) => (
-                      <select
-                        className="form-input"
+                      <Combobox
                         value={f.value ? String(f.value) : ""}
                         onBlur={f.onBlur}
-                        onChange={(e) => {
-                          const id = Number(e.target.value);
+                        placeholder="Buscar por código o nombre..."
+                        emptyMessage="Ningún producto coincide"
+                        onChange={(value) => {
+                          const id = Number(value);
                           f.onChange(id);
                           if (id) onPartChange(idx, id);
                         }}
-                      >
-                        <option value="">Seleccionar...</option>
-                        {parts.map((inv) => {
-                          const selectedElsewhere = watched?.some(
+                        options={parts.map((inv) => ({
+                          value: String(inv.id),
+                          label: `${inv.sku} · ${inv.name}`,
+                          sublabel: `Disponible ${formatFractionQuantity(inv.available)} ${inv.unit}`,
+                          disabled: watched?.some(
                             (row, i) =>
                               i !== idx &&
                               Number(row?.inventoryPartId) === inv.id,
-                          );
-                          return (
-                            <option
-                              key={inv.id}
-                              value={inv.id}
-                              disabled={selectedElsewhere}
-                            >
-                              {inv.sku} · {inv.name} (disp.{" "}
-                              {formatFractionQuantity(inv.available)} {inv.unit})
-                            </option>
-                          );
-                        })}
-                      </select>
+                          ),
+                        }))}
+                      />
                     )}
                   />
                   {errors[fieldName]?.[idx]?.inventoryPartId && (

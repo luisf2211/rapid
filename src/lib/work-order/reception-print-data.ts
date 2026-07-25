@@ -1,6 +1,5 @@
-import { checklistRowsToDetails } from "@/lib/checklist";
+import { checklistDisplayItems, checklistRowsToDetails } from "@/lib/checklist";
 import {
-  CHECKLIST_ITEMS,
   DAMAGE_SIDES,
   DAMAGE_TYPES,
   FUEL_LEVELS,
@@ -8,6 +7,7 @@ import {
   WORK_ORDER_STATUS_LABELS,
 } from "@/lib/constants";
 import { formatDate } from "@/lib/formatters/date";
+import { formatMileage } from "@/lib/work-order/mileage";
 import { VEHICLE_ZONE_MAP } from "@/lib/vehicle-zones";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
@@ -91,9 +91,11 @@ export function buildReceptionPrintData(
   _workshop: WorkshopPrintInfo,
 ): ReceptionPrintData {
   const reception = order.receptions[0] ?? null;
-  const { checked, comments } = checklistRowsToDetails(reception?.checklist);
+  const { checked, comments, present } = checklistRowsToDetails(
+    reception?.checklist,
+  );
 
-  const checklist = CHECKLIST_ITEMS.map((item) => ({
+  const checklist = checklistDisplayItems(present).map((item) => ({
     label: item.label,
     checked: checked[item.field],
     comment: comments[item.field],
@@ -123,7 +125,7 @@ export function buildReceptionPrintData(
     vehicleYear: order.vehicleYear,
     color: order.color,
     plate: order.plate,
-    mileage: order.mileage,
+    mileage: formatMileage(order.mileage, order.mileageUnit),
     engine: order.engine,
     quotationRef,
     deliveryDateTime: formatReceptionDateTime(
@@ -143,7 +145,7 @@ export function buildReceptionPrintData(
     requestedDamages: reception?.requestedDamages ?? null,
     observations: reception?.observations ?? null,
     checklist,
-    checklistSummary: `${checkedCount} de ${CHECKLIST_ITEMS.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
+    checklistSummary: `${checkedCount} de ${checklist.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
     damages: order.damages.map((d) => {
       const zone = d.zoneNumber ?? null;
       const zoneDef = zone != null ? VEHICLE_ZONE_MAP[zone] : null;

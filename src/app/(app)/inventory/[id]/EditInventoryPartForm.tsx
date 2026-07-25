@@ -76,7 +76,7 @@ export function EditInventoryPartForm({ part }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <TextInput
-          label="SKU *"
+          label="Código *"
           {...register("sku")}
           error={errors.sku?.message}
         />

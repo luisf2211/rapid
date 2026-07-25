@@ -5,30 +5,39 @@ import { SummaryCard } from "@/components/ui/SummaryCard";
 import {
   availableQuantity,
   getInventoryStats,
+  listInventoryCategories,
   listInventoryParts,
 } from "@/services/inventory.service";
+import { InventorySearchBar } from "@/components/inventory/InventorySearchBar";
 import { formatMoney } from "@/lib/formatters/money";
 import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; filter?: string }>;
+  searchParams: Promise<{ q?: string; filter?: string; category?: string }>;
 }
 
 export default async function InventoryPage({ searchParams }: PageProps) {
-  const { q, filter } = await searchParams;
+  const { q, filter, category } = await searchParams;
   const filterValue =
     filter === "low" || filter === "inactive" ? filter : "all";
 
   let parts: Awaited<ReturnType<typeof listInventoryParts>> = [];
   let stats: Awaited<ReturnType<typeof getInventoryStats>> | null = null;
+  let categories: string[] = [];
   let error: string | null = null;
 
   try {
-    [parts, stats] = await Promise.all([
-      listInventoryParts({ search: q, filter: filterValue, partType: "MATERIAL" }),
+    [parts, stats, categories] = await Promise.all([
+      listInventoryParts({
+        search: q,
+        filter: filterValue,
+        partType: "MATERIAL",
+        category,
+      }),
       getInventoryStats(),
+      listInventoryCategories("MATERIAL"),
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Error desconocido";
@@ -82,26 +91,18 @@ export default async function InventoryPage({ searchParams }: PageProps) {
         </div>
       )}
 
-      <form
-        method="get"
-        className="card p-4 mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_11.5rem_auto] md:items-center"
-      >
-        <input
-          type="text"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Buscar por nombre, SKU, categoría o ubicación..."
-          className="form-input w-full"
-        />
-        <select name="filter" defaultValue={filterValue} className="form-input w-full">
-          <option value="all">Todas</option>
-          <option value="low">Sin stock / bajo mínimo</option>
-          <option value="inactive">Inactivas</option>
-        </select>
-        <button type="submit" className="btn-dark w-full md:w-auto">
-          Filtrar
-        </button>
-      </form>
+      <InventorySearchBar
+        initialQuery={q ?? ""}
+        initialFilter={filterValue}
+        initialCategory={category ?? ""}
+        categories={categories}
+        placeholder="Buscar por nombre, código, categoría o ubicación..."
+        filterOptions={[
+          { value: "all", label: "Todas" },
+          { value: "low", label: "Sin stock / bajo mínimo" },
+          { value: "inactive", label: "Inactivas" },
+        ]}
+      />
 
       <div className="card overflow-hidden">
         {parts.length === 0 ? (
