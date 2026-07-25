@@ -191,7 +191,7 @@ export async function createInventoryPart(input: InventoryPartInput) {
   });
 
   if (existingSku) {
-    throw new Error("Ya existe una pieza con ese SKU en esta empresa");
+    throw new Error("Ya existe una pieza con ese código en esta empresa");
   }
 
   try {
@@ -218,7 +218,7 @@ export async function createInventoryPart(input: InventoryPartInput) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("El SKU ya existe. Usa otro valor.");
+      throw new Error("El código ya existe. Usa otro valor.");
     }
     throw error;
   }
@@ -245,7 +245,7 @@ export async function updateInventoryPart(
   });
 
   if (existingSku) {
-    throw new Error("Ya existe una pieza con ese SKU en esta empresa");
+    throw new Error("Ya existe una pieza con ese código en esta empresa");
   }
 
   const part = await prisma.inventoryPart.findFirst({
@@ -280,7 +280,7 @@ export async function updateInventoryPart(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("El SKU ya existe. Usa otro valor.");
+      throw new Error("El código ya existe. Usa otro valor.");
     }
     throw error;
   }

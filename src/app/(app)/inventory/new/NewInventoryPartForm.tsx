@@ -106,7 +106,7 @@ export function NewInventoryPartForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <TextInput
-            label="SKU *"
+            label="Código *"
             {...register("sku")}
             error={errors.sku?.message}
           />

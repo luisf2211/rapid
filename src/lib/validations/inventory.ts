@@ -22,7 +22,7 @@ export const inventoryPartSchema = z.object({
   sku: z
     .string()
     .trim()
-    .min(1, "SKU requerido")
+    .min(1, "Código requerido")
     .max(50)
     .transform((value) => value.toUpperCase()),
   name: z.string().min(1, "Nombre requerido").max(150),

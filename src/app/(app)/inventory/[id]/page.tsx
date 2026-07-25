@@ -68,7 +68,7 @@ export default async function InventoryPartPage({ params }: PageProps) {
         title={part.name}
         subtitle={
           part.sku
-            ? `SKU ${part.sku} · ${partTypeLabel(partClient.partType)}${part.category ? ` · ${part.category}` : ""}`
+            ? `Código ${part.sku} · ${partTypeLabel(partClient.partType)}${part.category ? ` · ${part.category}` : ""}`
             : partTypeLabel(partClient.partType)
         }
         actions={

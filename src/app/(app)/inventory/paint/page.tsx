@@ -87,7 +87,7 @@ export default async function PaintInventoryPage({ searchParams }: PageProps) {
             <input
               name="q"
               defaultValue={q ?? ""}
-              placeholder="Buscar SKU o nombre..."
+              placeholder="Buscar código o nombre..."
               className="form-input py-1.5 text-sm w-48"
             />
             <select name="filter" defaultValue={filterValue} className="form-input py-1.5 text-sm">

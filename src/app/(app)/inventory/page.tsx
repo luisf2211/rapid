@@ -90,7 +90,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
           type="text"
           name="q"
           defaultValue={q ?? ""}
-          placeholder="Buscar por nombre, SKU, categoría o ubicación..."
+          placeholder="Buscar por nombre, código, categoría o ubicación..."
           className="form-input w-full"
         />
         <select name="filter" defaultValue={filterValue} className="form-input w-full">
