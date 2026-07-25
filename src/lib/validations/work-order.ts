@@ -73,6 +73,7 @@ export const workOrderSchema = z.object({
   color: z.string().min(1, "Color requerido").max(50),
   plate: z.string().min(1, "Placa requerida").max(30),
   mileage: z.string().max(50).optional().or(z.literal("")),
+  mileageUnit: z.enum(["mi", "km"]).default("mi"),
   engine: z.string().max(50).optional().or(z.literal("")),
 
   // Recepción

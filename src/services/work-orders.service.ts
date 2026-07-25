@@ -10,6 +10,7 @@ const WORK_ORDER_STATUSES_COMPLETE_ON_PAID = [
 import { checklistFieldToDbItemName } from "@/lib/checklist";
 import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
 import { zoneName } from "@/lib/vehicle-zones";
+import { mileageValueToStore } from "@/lib/work-order/mileage";
 import type { WorkOrderInput } from "@/lib/validations/work-order";
 
 async function generateOrderNumber(companyId: number): Promise<number> {
@@ -175,7 +176,8 @@ function workOrderCoreData(input: WorkOrderInput) {
     vehicleYear: input.vehicleYear,
     color: input.color,
     plate: input.plate,
-    mileage: input.mileage || null,
+    mileage: mileageValueToStore(input.mileage),
+    mileageUnit: input.mileageUnit,
     engine: input.engine || null,
     notes: input.notes || null,
     updatedAt: new Date(),

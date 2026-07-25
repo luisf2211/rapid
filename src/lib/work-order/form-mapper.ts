@@ -6,6 +6,7 @@ import { CHECKLIST_ITEMS } from "@/lib/constants";
 import { toDateInputValue, toTimeInputValue } from "@/lib/formatters/date";
 import { getWorkshopTodayDateInput } from "@/lib/formatters/today";
 import { toPlainNumber } from "@/lib/serialize";
+import { parseMileage } from "@/lib/work-order/mileage";
 import type { PhotoInput, WorkOrderFormValues } from "@/lib/validations/work-order";
 import type { getWorkOrderById } from "@/services/work-orders.service";
 
@@ -45,6 +46,7 @@ export function makeDefaultWorkOrderFormValues(): WorkOrderFormValues {
     color: "",
     plate: "",
     mileage: "",
+    mileageUnit: "mi",
     engine: "",
     deliveryDate: getWorkshopTodayDateInput(),
     deliveryTime: "08:00",
@@ -66,6 +68,7 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
   const reception = order.receptions[0];
   const { checked, comments } = checklistRowsToDetails(reception?.checklist);
   const checklist = buildDefaultChecklistFormValues();
+  const mileage = parseMileage(order.mileage, order.mileageUnit);
 
   for (const item of CHECKLIST_ITEMS) {
     checklist[item.field] = {
@@ -84,7 +87,8 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
     vehicleYear: order.vehicleYear ?? new Date().getFullYear(),
     color: order.color ?? "",
     plate: order.plate ?? "",
-    mileage: order.mileage ?? "",
+    mileage: mileage.value,
+    mileageUnit: mileage.unit ?? "mi",
     engine: order.engine ?? "",
     deliveryDate:
       toDateInputValue(reception?.deliveryDate) ||

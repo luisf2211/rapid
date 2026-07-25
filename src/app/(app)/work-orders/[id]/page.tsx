@@ -42,6 +42,7 @@ import {
 } from "@/lib/labor-order/piece-count";
 import { canEditLaborOrder } from "@/lib/labor-order/can-edit";
 import { canEditWorkOrderReception } from "@/lib/work-order/can-edit";
+import { formatMileage } from "@/lib/work-order/mileage";
 import { canEditQuotation } from "@/lib/quotation/form-mapper";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
 import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
@@ -239,7 +240,10 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
             />
             <InfoMini label="Color" value={order.color ?? "—"} />
             <InfoMini label="Motor" value={order.engine ?? "—"} />
-            <InfoMini label="Millaje" value={order.mileage ?? "—"} />
+            <InfoMini
+              label="Millaje"
+              value={formatMileage(order.mileage, order.mileageUnit) ?? "—"}
+            />
           </div>
         </div>
 

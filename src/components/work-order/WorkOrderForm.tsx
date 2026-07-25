@@ -14,6 +14,7 @@ import {
 } from "@/lib/validations/work-order";
 import { TextInput } from "@/components/forms/TextInput";
 import { SelectInput } from "@/components/forms/SelectInput";
+import { MileageInput } from "@/components/forms/MileageInput";
 import { TextAreaInput } from "@/components/forms/TextAreaInput";
 import { ChecklistGrid } from "@/components/forms/ChecklistGrid";
 import { PhotoUploadList } from "@/components/forms/PhotoUploadList";
@@ -190,11 +191,19 @@ export function WorkOrderForm({
             className="uppercase"
             error={errors.plate?.message}
           />
-          <TextInput
-            label="Millaje"
-            placeholder="120,000 mi"
-            {...register("mileage")}
-            error={errors.mileage?.message}
+          <Controller
+            control={control}
+            name="mileageUnit"
+            render={({ field }) => (
+              <MileageInput
+                label="Millaje"
+                placeholder="120,000"
+                unit={field.value ?? "mi"}
+                onUnitChange={field.onChange}
+                error={errors.mileage?.message}
+                {...register("mileage")}
+              />
+            )}
           />
           <TextInput
             label="Motor"

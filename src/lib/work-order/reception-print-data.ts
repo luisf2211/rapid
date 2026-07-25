@@ -8,6 +8,7 @@ import {
   WORK_ORDER_STATUS_LABELS,
 } from "@/lib/constants";
 import { formatDate } from "@/lib/formatters/date";
+import { formatMileage } from "@/lib/work-order/mileage";
 import { VEHICLE_ZONE_MAP } from "@/lib/vehicle-zones";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
@@ -123,7 +124,7 @@ export function buildReceptionPrintData(
     vehicleYear: order.vehicleYear,
     color: order.color,
     plate: order.plate,
-    mileage: order.mileage,
+    mileage: formatMileage(order.mileage, order.mileageUnit),
     engine: order.engine,
     quotationRef,
     deliveryDateTime: formatReceptionDateTime(
