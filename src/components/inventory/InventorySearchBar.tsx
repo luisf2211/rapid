@@ -74,7 +74,7 @@ export function InventorySearchBar({
 
   const selectClass = compact
     ? "form-input py-1.5 text-sm w-auto"
-    : "form-input w-full";
+    : "form-input w-auto min-w-[11rem]";
 
   return (
     <div
