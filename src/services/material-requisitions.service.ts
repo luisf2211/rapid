@@ -74,7 +74,8 @@ function buildRequisitionLines(
 export async function createMaterialRequisition(
   input: MaterialRequisitionInput,
 ) {
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(
+    async (tx) => {
     const companyId = await requireCompanyIdFromSession();
     const workOrder = await tx.workOrder.findFirst({
       where: { id: input.workOrderId, CompanyId: companyId },
@@ -166,5 +167,7 @@ export async function createMaterialRequisition(
     }
 
     return req;
-  });
+    },
+    { maxWait: 30000, timeout: 30000 },
+  );
 }

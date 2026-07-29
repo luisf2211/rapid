@@ -62,6 +62,7 @@ import {
 import { Tabs } from "./Tabs";
 import { changeWorkOrderStatusAction } from "../actions";
 import { PhotoPreview } from "@/components/ui/PhotoPreview";
+import { ShareButtons } from "@/components/ui/ShareButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -131,7 +132,7 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
       {/* ── Action bar ───────────────────────────────────────────── */}
       {/* Two visual groups: utility (left) | workflow (right) */}
       <div className="flex flex-wrap items-center gap-2 mb-5 pb-5 border-b border-rapid-border">
-        {/* Utility: print + quotation */}
+        {/* Utility: print + share + quotation */}
         <Link
           href={`/print/work-orders/${order.id}`}
           target="_blank"
@@ -139,6 +140,14 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         >
           <Printer className="w-4 h-4" /> Imprimir
         </Link>
+        <ShareButtons
+          documentType="orden de recepción"
+          documentNumber={`ORD-${String(order.orderNumber).padStart(5, "0")}`}
+          customerName={order.customerName ?? "Cliente"}
+          phone={order.phone}
+          email={order.email}
+          printPath={`/print/work-orders/${order.id}`}
+        />
         {linkedQuotation && (
           <Link
             href={`/quotations/${linkedQuotation.id}`}

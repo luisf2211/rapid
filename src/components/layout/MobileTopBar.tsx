@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, CircleHelp } from "lucide-react";
 import { Logo } from "./Logo";
+import { MobileMenu } from "./MobileMenu";
 
 interface Props {
   stockAlertCount?: number;
@@ -14,6 +15,7 @@ export function MobileTopBar({ stockAlertCount = 0, workshop }: Props) {
   return (
     <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0c100f] px-4 py-3.5 text-white">
       <div className="flex items-center gap-2.5 min-w-0">
+        <MobileMenu />
         {workshop?.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

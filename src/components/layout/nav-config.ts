@@ -11,6 +11,10 @@ import {
   Settings,
   Users,
   Wallet,
+  TrendingDown,
+  Landmark,
+  Coins,
+  Shield,
 } from "lucide-react";
 
 export type NavItem = {
@@ -54,6 +58,20 @@ export const sidebarNavGroups: NavGroup[] = [
         stockAlerts: true,
       },
       { href: "/inventory/paint", label: "Pintura", icon: Droplets },
+    ],
+  },
+  {
+    label: "Finanzas",
+    items: [
+      { href: "/expenses", label: "Gastos", icon: TrendingDown },
+      { href: "/petty-cash", label: "Caja chica", icon: Coins },
+      { href: "/banks", label: "Bancos", icon: Landmark },
+    ],
+  },
+  {
+    label: "Sistema",
+    items: [
+      { href: "/users", label: "Usuarios", icon: Shield },
       { href: "/settings", label: "Configuración", icon: Settings },
     ],
   },

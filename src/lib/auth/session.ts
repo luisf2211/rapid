@@ -13,6 +13,7 @@ export type SessionPayload = {
   role: UserRole;
   companyId: number | null;
   companyName: string | null;
+  permissions?: string | null;
 };
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
@@ -48,6 +49,7 @@ export async function verifySessionToken(
       companyId:
         payload.companyId == null ? null : Number(payload.companyId),
       companyName: payload.companyName ? String(payload.companyName) : null,
+      permissions: payload.permissions ? String(payload.permissions) : null,
     };
   } catch {
     return null;

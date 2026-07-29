@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { AUTH_COOKIE_NAME, USER_ROLES } from "@/lib/auth/constants";
+import { hasModuleAccess } from "@/lib/auth/permissions";
 import { updateSession } from "@/lib/supabase/middleware";
 
 const PUBLIC_PATHS = ["/", "/login", "/api/auth/login"];
@@ -21,6 +22,7 @@ async function readSession(request: NextRequest) {
       role: String(payload.role ?? ""),
       companyId:
         payload.companyId == null ? null : Number(payload.companyId),
+      permissions: payload.permissions ? String(payload.permissions) : null,
     };
   } catch {
     return null;
@@ -84,6 +86,14 @@ export async function middleware(request: NextRequest) {
   if (session.companyId == null) {
     return withSupabaseCookies(
       NextResponse.redirect(new URL("/login", request.url)),
+      supabaseResponse,
+    );
+  }
+
+  // Check module permissions for non-admin users
+  if (!hasModuleAccess(session.role as any, session.permissions, pathname)) {
+    return withSupabaseCookies(
+      NextResponse.redirect(new URL("/dashboard?forbidden=1", request.url)),
       supabaseResponse,
     );
   }

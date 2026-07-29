@@ -30,7 +30,7 @@ export function AppSidebar({ alerts, total, session, workshop }: Props) {
   return (
     <aside
       className={cn(
-        "hidden lg:flex shrink-0 flex-col min-h-screen border-r border-white/[0.06] bg-[#0c100f] text-white transition-[width] duration-200 ease-out",
+        "hidden lg:flex shrink-0 flex-col h-screen sticky top-0 border-r border-white/[0.06] bg-[#0c100f] text-white transition-[width] duration-200 ease-out",
         collapsed ? "w-[76px]" : "w-[260px]",
         !ready && "w-[260px]",
       )}

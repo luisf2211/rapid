@@ -1,17 +1,23 @@
+import { DashboardAccounting } from "@/components/dashboard/DashboardAccounting";
 import { DashboardFinance } from "@/components/dashboard/DashboardFinance";
 import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { DashboardPipeline } from "@/components/dashboard/DashboardPipeline";
 import { DashboardQuickLinks } from "@/components/dashboard/DashboardQuickLinks";
 import { DashboardRecentOrders } from "@/components/dashboard/DashboardRecentOrders";
 import { getDashboardStats } from "@/services/work-orders.service";
+import { getFinanceStats } from "@/services/finance-stats.service";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   let stats: Awaited<ReturnType<typeof getDashboardStats>> | null = null;
+  let financeStats: Awaited<ReturnType<typeof getFinanceStats>> | null = null;
   let error: string | null = null;
   try {
-    stats = await getDashboardStats();
+    [stats, financeStats] = await Promise.all([
+      getDashboardStats(),
+      getFinanceStats(),
+    ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Error desconocido";
   }
@@ -36,6 +42,12 @@ export default async function DashboardPage() {
         completed={stats?.completedOrders ?? 0}
         delivered={stats?.deliveredOrders ?? 0}
       />
+
+      {financeStats && (
+        <div className="mb-6">
+          <DashboardAccounting stats={financeStats} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
         <DashboardRecentOrders orders={stats?.recentOrders ?? []} />

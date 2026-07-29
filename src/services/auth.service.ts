@@ -34,6 +34,7 @@ export async function authenticateUser(
     role: user.role as SessionPayload["role"],
     companyId: user.companyId,
     companyName: user.company?.name ?? null,
+    permissions: user.permissions ?? null,
   };
 }
 

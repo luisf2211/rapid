@@ -19,6 +19,7 @@ import {
   canDeleteQuotation,
   canEditQuotation,
 } from "@/lib/quotation/form-mapper";
+import { ShareButtons } from "@/components/ui/ShareButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +125,14 @@ export default async function QuotationDetailPage({
                   </Link>
                 )}
                 <PrintQuotationButton quotationId={quotation.id} />
+                <ShareButtons
+                  documentType="cotización"
+                  documentNumber={`COT-${String(quotation.quotationNumber).padStart(5, "0")}`}
+                  customerName={quotation.customerName}
+                  phone={quotation.phone}
+                  email={quotation.email}
+                  printPath={`/print/quotations/${quotation.id}`}
+                />
                 {canDelete && (
                   <DeleteQuotationButton
                     quotationId={quotation.id}

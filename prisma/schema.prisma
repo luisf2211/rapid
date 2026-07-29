@@ -13,14 +13,18 @@ model Company {
   slug             String             @unique(map: "UQ_Company_Slug") @map("Slug") @db.VarChar(80)
   isActive         Boolean            @default(true) @map("IsActive")
   createdAt        DateTime           @default(now()) @map("CreatedAt")
-  users            User[]
-  workOrders       WorkOrder[]
-  inventoryParts   InventoryPart[]
-  quotations       Quotation[]
-  invoices         Invoice[]
-  employees        Employee[]
-  payrollPeriods   PayrollPeriod[]
-  workshopSettings WorkshopSettings[]
+  users              User[]
+  workOrders         WorkOrder[]
+  inventoryParts     InventoryPart[]
+  quotations         Quotation[]
+  invoices           Invoice[]
+  employees          Employee[]
+  payrollPeriods     PayrollPeriod[]
+  workshopSettings   WorkshopSettings[]
+  expenseCategories  ExpenseCategory[]
+  expenses           Expense[]
+  bankAccounts       BankAccount[]
+  pettyCashFunds     PettyCashFund[]
 
   @@map("Company")
 }
@@ -35,6 +39,7 @@ model User {
   isActive     Boolean   @default(true) @map("IsActive")
   createdAt    DateTime  @default(now()) @map("CreatedAt")
   lastLoginAt  DateTime? @map("LastLoginAt")
+  permissions  String?   @map("Permissions")
   company      Company?  @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_User_Company")
 
   @@map("User")
@@ -527,6 +532,128 @@ model AuditLog {
   @@index([EntityType, EntityId, OccurredAt(sort: Desc)], map: "IX_AuditLog_Entity")
   @@index([OccurredAt(sort: Desc)], map: "IX_AuditLog_Occurred")
   @@index([WorkOrderId, OccurredAt(sort: Desc)], map: "IX_AuditLog_WorkOrder")
+}
+
+// ─── Módulo de Gastos ───────────────────────────────────────────────────────
+
+model ExpenseCategory {
+  Id        Int       @id(map: "PK_ExpenseCategory") @default(autoincrement())
+  CompanyId Int       @default(1) @map("CompanyId")
+  Name      String    @db.VarChar(100)
+  Color     String?   @db.VarChar(7)
+  IsActive  Boolean   @default(true)
+  CreatedAt DateTime  @default(now())
+  expenses  Expense[]
+  company   Company   @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_ExpenseCategory_Company")
+
+  @@unique([CompanyId, Name], map: "UQ_ExpenseCategory_Company_Name")
+  @@index([CompanyId, IsActive], map: "IX_ExpenseCategory_Company")
+}
+
+model Expense {
+  Id                    Int                    @id(map: "PK_Expense") @default(autoincrement())
+  CompanyId             Int                    @default(1) @map("CompanyId")
+  ExpenseNumber         Int
+  CategoryId            Int
+  Description           String                 @db.VarChar(250)
+  Amount                Decimal                @db.Decimal(18, 2)
+  ExpenseDate           DateTime               @db.Date
+  Supplier              String?                @db.VarChar(150)
+  Reference             String?                @db.VarChar(100)
+  Notes                 String?                @db.VarChar(500)
+  PaymentMethod         String?                @db.VarChar(30)
+  ReceiptUrl            String?                @db.VarChar(500)
+  BankAccountId         Int?
+  PettyCashTransactionId Int?
+  Status                String                 @default("REGISTERED") @db.VarChar(20)
+  CreatedBy             String?                @db.VarChar(150)
+  CreatedAt             DateTime               @default(now())
+  UpdatedAt             DateTime?
+  category              ExpenseCategory        @relation(fields: [CategoryId], references: [Id], onUpdate: NoAction, map: "FK_Expense_Category")
+  company               Company                @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_Expense_Company")
+  bankAccount           BankAccount?           @relation(fields: [BankAccountId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Expense_BankAccount")
+  pettyCashTransaction  PettyCashTransaction?  @relation(fields: [PettyCashTransactionId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Expense_PettyCash")
+
+  @@unique([CompanyId, ExpenseNumber], map: "UQ_Expense_Company_Number")
+  @@index([CompanyId, ExpenseDate(sort: Desc)], map: "IX_Expense_Company_Date")
+  @@index([CategoryId], map: "IX_Expense_Category")
+  @@index([BankAccountId], map: "IX_Expense_BankAccount")
+}
+
+// ─── Módulo de Bancos ───────────────────────────────────────────────────────
+
+model BankAccount {
+  Id              Int               @id(map: "PK_BankAccount") @default(autoincrement())
+  CompanyId       Int               @default(1) @map("CompanyId")
+  AccountName     String            @db.VarChar(150)
+  BankName        String            @db.VarChar(100)
+  AccountNumber   String?           @db.VarChar(50)
+  AccountType     String            @default("CHECKING") @db.VarChar(20)
+  Currency        String            @default("DOP") @db.VarChar(3)
+  CurrentBalance  Decimal           @default(0) @db.Decimal(18, 2)
+  IsActive        Boolean           @default(true)
+  Notes           String?           @db.VarChar(250)
+  CreatedAt       DateTime          @default(now())
+  UpdatedAt       DateTime?
+  transactions    BankTransaction[]
+  expenses        Expense[]
+  company         Company           @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_BankAccount_Company")
+
+  @@index([CompanyId, IsActive], map: "IX_BankAccount_Company")
+}
+
+model BankTransaction {
+  Id              Int         @id(map: "PK_BankTransaction") @default(autoincrement())
+  BankAccountId   Int
+  TransactionType String     @db.VarChar(20)
+  Amount          Decimal    @db.Decimal(18, 2)
+  BalanceAfter    Decimal    @db.Decimal(18, 2)
+  Description     String     @db.VarChar(250)
+  Reference       String?    @db.VarChar(100)
+  TransactionDate DateTime   @db.Date
+  Category        String?    @db.VarChar(50)
+  Notes           String?    @db.VarChar(250)
+  CreatedBy       String?    @db.VarChar(150)
+  CreatedAt       DateTime   @default(now())
+  bankAccount     BankAccount @relation(fields: [BankAccountId], references: [Id], onUpdate: NoAction, map: "FK_BankTransaction_Account")
+
+  @@index([BankAccountId, TransactionDate(sort: Desc)], map: "IX_BankTransaction_Account_Date")
+}
+
+// ─── Módulo de Caja Chica ───────────────────────────────────────────────────
+
+model PettyCashFund {
+  Id             Int                    @id(map: "PK_PettyCashFund") @default(autoincrement())
+  CompanyId      Int                    @default(1) @map("CompanyId")
+  Name           String                 @db.VarChar(100)
+  FundLimit      Decimal                @db.Decimal(18, 2)
+  CurrentBalance Decimal                @default(0) @db.Decimal(18, 2)
+  Custodian      String?                @db.VarChar(150)
+  IsActive       Boolean                @default(true)
+  CreatedAt      DateTime               @default(now())
+  UpdatedAt      DateTime?
+  transactions   PettyCashTransaction[]
+  company        Company                @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_PettyCashFund_Company")
+
+  @@index([CompanyId, IsActive], map: "IX_PettyCashFund_Company")
+}
+
+model PettyCashTransaction {
+  Id                Int           @id(map: "PK_PettyCashTransaction") @default(autoincrement())
+  PettyCashFundId   Int
+  TransactionType   String        @db.VarChar(20)
+  Amount            Decimal       @db.Decimal(18, 2)
+  BalanceAfter      Decimal       @db.Decimal(18, 2)
+  Description       String        @db.VarChar(250)
+  TransactionDate   DateTime      @db.Date
+  ReceiptUrl        String?       @db.VarChar(500)
+  Notes             String?       @db.VarChar(250)
+  CreatedBy         String?       @db.VarChar(150)
+  CreatedAt         DateTime      @default(now())
+  fund              PettyCashFund @relation(fields: [PettyCashFundId], references: [Id], onUpdate: NoAction, map: "FK_PettyCashTransaction_Fund")
+  expenses          Expense[]
+
+  @@index([PettyCashFundId, TransactionDate(sort: Desc)], map: "IX_PettyCashTransaction_Fund_Date")
 }
 
 model Employee {

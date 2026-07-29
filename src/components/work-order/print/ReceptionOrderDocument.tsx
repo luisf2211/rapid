@@ -174,6 +174,25 @@ export function ReceptionOrderDocument({
         </>
       )}
 
+      <div className="idoc-legal-section">
+        <h3 className="idoc-section-title">Condiciones legales y garantías del servicio</h3>
+        <ol className="idoc-legal-list">
+          <li>El cliente declara ser propietario del vehículo o estar debidamente autorizado para solicitar los servicios objeto de esta orden de trabajo.</li>
+          <li>El taller realizará únicamente los trabajos autorizados por el cliente. Cualquier trabajo adicional requerirá aprobación previa del propietario o su representante.</li>
+          <li>El cliente autoriza al taller a efectuar pruebas de manejo, inspecciones y movimientos internos del vehículo que sean necesarios para la correcta ejecución de los trabajos contratados.</li>
+          <li>El taller no se responsabiliza por objetos personales, dinero, herramientas, mercancías u otros bienes dejados dentro del vehículo.</li>
+          <li>Cuando el vehículo presente daños ocultos, defectos mecánicos, eléctricos o estructurales no visibles al momento de la recepción, el taller notificará al cliente para su evaluación y aprobación correspondiente.</li>
+          <li>Los trabajos de pintura y reparación de carrocería cuentan con garantía limitada contra defectos de aplicación, desprendimiento prematuro, agrietamiento o fallas atribuibles directamente al proceso realizado por el taller, por un período de 6 meses a partir de la fecha de entrega.</li>
+          <li>La garantía no cubre daños ocasionados por accidentes posteriores, mal uso, negligencia, fenómenos naturales, exposición a sustancias químicas, corrosión preexistente, modificaciones realizadas por terceros o falta de mantenimiento.</li>
+          <li>Las piezas, materiales o repuestos suministrados por el cliente no estarán cubiertos por garantía del taller.</li>
+          <li>El vehículo deberá ser retirado dentro de los 5 días siguientes a la notificación de finalización de los trabajos. Vencido dicho plazo, podrán generarse cargos por almacenamiento.</li>
+          <li>El cliente acepta que el vehículo permanecerá bajo custodia del taller únicamente durante el período de reparación y sujeto a las condiciones aquí establecidas.</li>
+          <li>La entrega del vehículo y la firma de conformidad por parte del cliente constituyen aceptación de los trabajos realizados, salvo observaciones expresamente anotadas en el documento de entrega.</li>
+          <li>Cualquier reclamación relacionada con los trabajos efectuados deberá presentarse dentro del período de garantía establecido y acompañarse de la documentación correspondiente.</li>
+        </ol>
+        <p className="idoc-legal-accept">Acepto las condiciones legales y de garantía anteriormente descritas.</p>
+      </div>
+
       <h3 className="idoc-section-title">Conformidad y firmas</h3>
       <div className="idoc-signatures-3">
         <div className="idoc-sig-block">

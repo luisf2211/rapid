@@ -10,6 +10,7 @@ import { formatMoney } from "@/lib/formatters/money";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
 import { toPlainNumber } from "@/lib/serialize";
 import { INVOICE_LINE_TYPE_LABELS } from "@/lib/constants";
+import { ShareButtons } from "@/components/ui/ShareButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -73,8 +74,16 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
         }
       />
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <InvoiceDetailActions invoiceId={invoice.id} status={invoice.status} />
+        <ShareButtons
+          documentType="factura"
+          documentNumber={`FAC-${String(invoice.invoiceNumber).padStart(5, "0")}`}
+          customerName={invoice.customerName}
+          phone={invoice.phone}
+          email={invoice.email}
+          printPath={`/print/invoices/${invoice.id}`}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
