@@ -114,57 +114,64 @@
   display: block;
 }
 
-/* Daños señalizados — título + figura viajan juntos entre páginas */
+/* Daños señalizados — solo el diagrama es indivisible; la tabla puede fluir */
 .idoc-damage-section {
   margin-top: 10px;
+}
+
+/* Layout lado a lado: diagrama a la izquierda, tabla a la derecha */
+.idoc-damage-layout {
+  display: grid;
+  grid-template-columns: 48% 1fr;
+  column-gap: 4mm;
+  align-items: start;
+  margin-top: 6px;
+}
+
+.idoc-damage-diagram-block {
   break-inside: avoid;
   page-break-inside: avoid;
 }
 
-/* Daños señalizados — figura con las 5 vistas del vehículo, agrupadas
-   como en la hoja tradicional del taller: frente/atrás arriba, laterales
-   apilados debajo y el techo como columna vertical al lado. */
+.idoc-damage-table-block {
+  min-width: 0;
+}
+
+.idoc-table--compact {
+  font-size: 7.5pt;
+}
+
+.idoc-table--compact th,
+.idoc-table--compact td {
+  padding: 2px 4px;
+}
+
+/* Daños señalizados — figura con las 5 vistas del vehículo simétricas.
+   Fila 1: Frente | Atrás (mismo tamaño, simétricos)
+   Fila 2: Izquierda (ancho completo)
+   Fila 3: Derecha (ancho completo, mismo tamaño que izquierda)
+   Fila 4: Techo (centrado, tamaño fijo) */
 .idoc-damage-figure {
-  display: grid;
-  grid-template-columns: 30mm 30mm 20mm;
-  grid-template-areas:
-    "front back top"
-    "left  left top"
-    "right right top";
-  column-gap: 4mm;
-  row-gap: 1mm;
-  justify-content: center;
-  align-items: end;
-  margin: 4px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3mm;
   break-inside: avoid;
   page-break-inside: avoid;
+}
+
+/* Fila de Front + Back simétricos */
+.idoc-damage-row-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  width: 100%;
 }
 
 .idoc-damage-view {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.idoc-damage-view--front {
-  grid-area: front;
-}
-
-.idoc-damage-view--back {
-  grid-area: back;
-}
-
-.idoc-damage-view--left {
-  grid-area: left;
-}
-
-.idoc-damage-view--right {
-  grid-area: right;
-}
-
-.idoc-damage-view--top {
-  grid-area: top;
-  align-self: center;
 }
 
 .idoc-damage-view svg {
@@ -174,20 +181,29 @@
   color: #000;
 }
 
-.idoc-damage-view--left svg,
-.idoc-damage-view--right svg {
-  max-width: 56mm;
+/* Laterales: mismos al ancho completo del contenedor */
+.idoc-damage-view--left,
+.idoc-damage-view--right {
+  width: 100%;
+}
+
+/* Techo: ancho fijo centrado para que no se estire */
+.idoc-damage-view--top {
+  width: 20mm;
 }
 
 .idoc-damage-view-label {
   margin-top: 2px;
-  font-size: 7.5pt;
+  font-size: 7pt;
+  font-weight: 600;
   color: #000;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .idoc-damage-footnote {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   font-size: 7pt;
   font-style: italic;
   color: #000;
@@ -198,7 +214,7 @@
     page-break-inside: avoid;
   }
 
-  .idoc-damage-section {
+  .idoc-damage-diagram-block {
     page-break-inside: avoid;
   }
 
