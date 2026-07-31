@@ -312,6 +312,7 @@ model Quotation {
   plate            String?                 @map("Plate") @db.VarChar(30)
   vin              String?                 @map("Vin") @db.VarChar(30)
   mileage          String?                 @map("Mileage") @db.VarChar(50)
+  mileageUnit      String?                 @map("MileageUnit") @db.VarChar(5)
   insuranceCompany String?                 @map("InsuranceCompany") @db.VarChar(150)
   insurerRnc       String?                 @map("InsurerRnc") @db.VarChar(30)
   claimNumber      String?                 @map("ClaimNumber") @db.VarChar(80)

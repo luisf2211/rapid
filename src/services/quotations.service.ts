@@ -120,6 +120,7 @@ function quotationHeaderData(
     plate: input.plate?.trim() || null,
     vin: input.vin?.trim() || null,
     mileage: input.mileage?.trim() || null,
+    mileageUnit: input.mileageUnit || null,
     insuranceCompany:
       input.quotationType === "INSURANCE" ? input.insuranceCompany?.trim() || null : null,
     insurerRnc:
@@ -226,7 +227,7 @@ export async function createQuotation(input: QuotationInput) {
   return prisma.quotation.create({
     data: {
       quotationNumber,
-      CompanyId: companyId,
+      company: { connect: { id: companyId } },
       ...quotationHeaderData(input, status, totals, taxRate),
       laborLines: { create: laborLines },
       materialLines: { create: materialLines },

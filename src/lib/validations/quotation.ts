@@ -68,6 +68,7 @@ export const quotationSchema = z
     plate: optionalStr(30),
     vin: optionalStr(30),
     mileage: optionalStr(50),
+    mileageUnit: z.enum(["km", "mi"]).default("mi"),
     insuranceCompany: optionalStr(150),
     insurerRnc: optionalStr(30),
     policyNumber: optionalStr(80),

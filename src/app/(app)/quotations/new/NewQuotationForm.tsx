@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -25,6 +25,7 @@ import {
 } from "@/lib/quotation/totals";
 import { TextInput } from "@/components/forms/TextInput";
 import { MoneyInput } from "@/components/forms/MoneyInput";
+import { MileageInput } from "@/components/forms/MileageInput";
 import { formatMoney } from "@/lib/formatters/money";
 import { QuotationPhotoUploadList } from "@/components/forms/QuotationPhotoUploadList";
 import { createQuotationAction, updateQuotationAction } from "../actions";
@@ -238,7 +239,20 @@ export function NewQuotationForm({
           <TextInput label="Color" {...register("color")} />
           <TextInput label="Placa" {...register("plate")} />
           <TextInput label="VIN" {...register("vin")} />
-          <TextInput label="Millaje" {...register("mileage")} />
+          <Controller
+            control={control}
+            name="mileageUnit"
+            render={({ field }) => (
+              <MileageInput
+                label="Millaje"
+                placeholder="120,000"
+                unit={field.value ?? "mi"}
+                onUnitChange={field.onChange}
+                error={errors.mileage?.message}
+                {...register("mileage")}
+              />
+            )}
+          />
         </div>
       </section>
 

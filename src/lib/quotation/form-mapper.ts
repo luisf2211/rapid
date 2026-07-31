@@ -34,6 +34,7 @@ export function quotationToFormValues(q: QuotationDetail): QuotationFormValues {
     plate: q.plate ?? "",
     vin: q.vin ?? "",
     mileage: q.mileage ?? "",
+    mileageUnit: (q.mileageUnit as "km" | "mi") ?? "mi",
     insuranceCompany: q.insuranceCompany ?? "",
     insurerRnc: q.insurerRnc ?? "",
     policyNumber: q.policyNumber ?? "",
