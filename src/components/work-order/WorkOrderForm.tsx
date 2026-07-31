@@ -302,7 +302,7 @@ export function WorkOrderForm({
             render={({ field }) => (
               <FuelGaugeInput
                 label="Nivel de combustible"
-                value={field.value ?? "HALF"}
+                value={field.value ?? 50}
                 onChange={field.onChange}
                 error={errors.fuelLevel?.message}
               />

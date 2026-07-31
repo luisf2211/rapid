@@ -453,7 +453,7 @@ export async function convertQuotationToWorkOrder(
           create: {
             deliveryDate,
             deliveryTime,
-            fuelLevel: "HALF",
+            fuelLevel: 50,
             observations: `Recepción generada desde cotización #${quotation.quotationNumber}. Complete el checklist en el detalle de la orden.`,
             receivedBy: actor,
             checklist: { create: checklistRows },

@@ -53,7 +53,7 @@ export function makeDefaultWorkOrderFormValues(): WorkOrderFormValues {
     deliveryTime: "08:00",
     exitDate: "",
     exitTime: "",
-    fuelLevel: "HALF",
+    fuelLevel: 50,
     requestedDamages: "",
     observations: "",
     receivedBy: "",
@@ -109,8 +109,7 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
     deliveryTime: toTimeInputValue(reception?.deliveryTime) || "08:00",
     exitDate: toDateInputValue(reception?.exitDate) || "",
     exitTime: toTimeInputValue(reception?.exitTime) || "",
-    fuelLevel:
-      (reception?.fuelLevel as WorkOrderFormValues["fuelLevel"]) ?? "HALF",
+    fuelLevel: reception?.fuelLevel ?? 50,
     requestedDamages: reception?.requestedDamages ?? "",
     observations: reception?.observations ?? "",
     receivedBy: reception?.receivedBy ?? "",

@@ -2,7 +2,6 @@ import { checklistDisplayItems, checklistRowsToDetails } from "@/lib/checklist";
 import {
   DAMAGE_SIDES,
   DAMAGE_TYPES,
-  FUEL_LEVELS,
   PHOTO_TYPES,
   WORK_ORDER_STATUS_LABELS,
 } from "@/lib/constants";
@@ -12,7 +11,6 @@ import { VEHICLE_ZONE_MAP } from "@/lib/vehicle-zones";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
 
-const fuelMap = Object.fromEntries(FUEL_LEVELS.map((f) => [f.value, f.label]));
 const sideMap = Object.fromEntries(DAMAGE_SIDES.map((s) => [s.value, s.label]));
 const damageTypeMap = Object.fromEntries(
   DAMAGE_TYPES.map((d) => [d.value, d.label]),
@@ -136,8 +134,8 @@ export function buildReceptionPrintData(
       reception?.exitDate,
       reception?.exitTime,
     ),
-    fuelLevel: reception?.fuelLevel
-      ? fuelMap[reception.fuelLevel] ?? reception.fuelLevel
+    fuelLevel: reception?.fuelLevel != null
+      ? `${reception.fuelLevel}%`
       : "—",
     receivedBy: reception?.receivedBy ?? null,
     deliveredBy: reception?.deliveredBy ?? null,

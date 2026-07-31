@@ -150,7 +150,7 @@ model WorkOrderReception {
   deliveryTime              DateTime?                     @map("DeliveryTime") @db.Time
   exitDate                  DateTime?                     @map("ExitDate") @db.Date
   exitTime                  DateTime?                     @map("ExitTime") @db.Time
-  fuelLevel                 String?                       @map("FuelLevel") @db.VarChar(20)
+  fuelLevel                 Int?                          @default(50) @map("FuelLevel")
   observations              String?                       @map("Observations") 
   requestedDamages          String?                       @map("RequestedDamages") 
   customerDeliverySignature String?                       @map("CustomerDeliverySignature") @db.VarChar(500)

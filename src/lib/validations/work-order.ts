@@ -99,9 +99,7 @@ export const workOrderSchema = z.object({
   deliveryTime: z.string().min(1, "Hora requerida"),
   exitDate: z.string().optional().or(z.literal("")),
   exitTime: z.string().optional().or(z.literal("")),
-  fuelLevel: z
-    .enum(["EMPTY", "QUARTER", "HALF", "THREE_QUARTERS", "FULL"])
-    .default("HALF"),
+  fuelLevel: z.coerce.number().int().min(0).max(100).default(50),
   requestedDamages: z.string().max(4000).optional().or(z.literal("")),
   observations: z.string().max(4000).optional().or(z.literal("")),
   receivedBy: z.string().min(1, "Recibido por es requerido").max(150),

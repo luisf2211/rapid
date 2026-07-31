@@ -53,7 +53,6 @@ import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { splitRequisitionItems } from "@/lib/material-requisition/line-type";
 import { formatDocNumber } from "@/lib/quotation/print-data";
 import {
-  FUEL_LEVELS,
   WORK_ORDER_STATUS_LABELS,
   DAMAGE_SIDES,
   DAMAGE_TYPES,
@@ -70,7 +69,6 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const fuelMap = Object.fromEntries(FUEL_LEVELS.map((f) => [f.value, f.label]));
 const sideMap = Object.fromEntries(
   DAMAGE_SIDES.map((s) => [s.value, s.label]),
 );
@@ -560,8 +558,8 @@ function ReceptionTab({
           icon={<Fuel className="w-4 h-4" />}
           label="Nivel de combustible"
           value={
-            reception?.fuelLevel
-              ? fuelMap[reception.fuelLevel] ?? reception.fuelLevel
+            reception?.fuelLevel != null
+              ? `${reception.fuelLevel}%`
               : "—"
           }
         />
