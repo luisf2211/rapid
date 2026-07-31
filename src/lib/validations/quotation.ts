@@ -69,6 +69,7 @@ export const quotationSchema = z
     vin: optionalStr(30),
     mileage: optionalStr(50),
     insuranceCompany: optionalStr(150),
+    insurerRnc: optionalStr(30),
     policyNumber: optionalStr(80),
     claimNumber: optionalStr(80),
     adjusterName: optionalStr(150),

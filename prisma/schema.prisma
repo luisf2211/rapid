@@ -313,6 +313,7 @@ model Quotation {
   vin              String?                 @map("Vin") @db.VarChar(30)
   mileage          String?                 @map("Mileage") @db.VarChar(50)
   insuranceCompany String?                 @map("InsuranceCompany") @db.VarChar(150)
+  insurerRnc       String?                 @map("InsurerRnc") @db.VarChar(30)
   claimNumber      String?                 @map("ClaimNumber") @db.VarChar(80)
   adjusterName     String?                 @map("AdjusterName") @db.VarChar(150)
   adjusterPhone    String?                 @map("AdjusterPhone") @db.VarChar(50)

@@ -122,6 +122,8 @@ function quotationHeaderData(
     mileage: input.mileage?.trim() || null,
     insuranceCompany:
       input.quotationType === "INSURANCE" ? input.insuranceCompany?.trim() || null : null,
+    insurerRnc:
+      input.quotationType === "INSURANCE" ? input.insurerRnc?.trim() || null : null,
     policyNumber:
       input.quotationType === "INSURANCE"
         ? input.policyNumber?.trim() || null

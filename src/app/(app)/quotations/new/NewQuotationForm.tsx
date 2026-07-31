@@ -210,6 +210,10 @@ export function NewQuotationForm({
               error={errors.insuranceCompany?.message}
               {...register("insuranceCompany")}
             />
+            <TextInput
+              label="RNC aseguradora"
+              {...register("insurerRnc")}
+            />
             <TextInput label="No. de póliza" {...register("policyNumber")} />
             <TextInput label="No. reclamo" {...register("claimNumber")} />
             <MoneyInput

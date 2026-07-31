@@ -50,6 +50,7 @@ export type QuotationPrintData = {
   vin: string | null;
   mileage: string | null;
   insuranceCompany: string | null;
+  insurerRnc: string | null;
   policyNumber: string | null;
   claimNumber: string | null;
   adjusterName: string | null;
@@ -211,6 +212,7 @@ export function buildQuotationPrintData(
     vin: q.vin,
     mileage: q.mileage,
     insuranceCompany: q.insuranceCompany,
+    insurerRnc: q.insurerRnc,
     policyNumber: q.policyNumber,
     claimNumber: q.claimNumber,
     adjusterName: q.adjusterName,

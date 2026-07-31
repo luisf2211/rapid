@@ -35,6 +35,7 @@ export function quotationToFormValues(q: QuotationDetail): QuotationFormValues {
     vin: q.vin ?? "",
     mileage: q.mileage ?? "",
     insuranceCompany: q.insuranceCompany ?? "",
+    insurerRnc: q.insurerRnc ?? "",
     policyNumber: q.policyNumber ?? "",
     claimNumber: q.claimNumber ?? "",
     adjusterName: q.adjusterName ?? "",

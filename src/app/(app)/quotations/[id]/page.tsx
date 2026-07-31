@@ -158,6 +158,9 @@ export default async function QuotationDetailPage({
                   {quotation.insuranceCompany && (
                     <p className="font-medium">{quotation.insuranceCompany}</p>
                   )}
+                  {quotation.insurerRnc && (
+                    <p className="text-rapid-text-muted">RNC: {quotation.insurerRnc}</p>
+                  )}
                   {quotation.policyNumber && (
                     <p>Póliza {quotation.policyNumber}</p>
                   )}

@@ -52,6 +52,7 @@ export function InsuranceQuotationDocument({
           <h3 className="qdoc-section-title">Datos del siniestro</h3>
           <div className="qdoc-box">
             {field("Aseguradora", data.insuranceCompany)}
+            {field("RNC aseguradora", data.insurerRnc)}
             {field("No. de póliza", data.policyNumber)}
             {field("No. de reclamo", data.claimNumber)}
             {field("Ajustador", data.adjusterName)}
