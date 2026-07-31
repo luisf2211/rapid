@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const FUEL_OPTIONS = [
@@ -18,8 +19,50 @@ interface FuelGaugeInputProps {
 }
 
 /**
- * Input visual de nivel de combustible estilo medidor con aguja.
- * El usuario toca/clica un segmento del arco para seleccionar el nivel.
+ * Calcula el ángulo (en grados, 0 = arriba/12 o'clock) desde el centro del
+ * gauge hasta la posición del puntero, y lo mapea al nivel más cercano.
+ */
+function angleFromPointer(
+  clientX: number,
+  clientY: number,
+  svgEl: SVGSVGElement,
+): number {
+  const rect = svgEl.getBoundingClientRect();
+  // Centro del gauge en coordenadas de pantalla (cx=100, cy=100 en viewBox 200x120)
+  const centerX = rect.left + rect.width * 0.5;
+  const centerY = rect.top + rect.height * (100 / 120);
+
+  const dx = clientX - centerX;
+  const dy = clientY - centerY;
+
+  // atan2 devuelve radianes desde el eje X positivo.
+  // Convertimos a grados donde 0° = arriba (eje Y negativo)
+  let deg = Math.atan2(dx, -dy) * (180 / Math.PI);
+
+  // Clamp al rango del gauge: -72 a +72
+  if (deg < -72) deg = -72;
+  if (deg > 72) deg = 72;
+
+  return deg;
+}
+
+function closestFuelValue(angleDeg: number): string {
+  let closest = FUEL_OPTIONS[0];
+  let minDist = Math.abs(angleDeg - closest.angle);
+
+  for (const opt of FUEL_OPTIONS) {
+    const dist = Math.abs(angleDeg - opt.angle);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = opt;
+    }
+  }
+  return closest.value;
+}
+
+/**
+ * Input visual de nivel de combustible estilo medidor con aguja arrastrable.
+ * El usuario arrastra la aguja o toca un segmento/botón para seleccionar.
  */
 export function FuelGaugeInput({
   value,
@@ -29,34 +72,83 @@ export function FuelGaugeInput({
 }: FuelGaugeInputProps) {
   const currentOption =
     FUEL_OPTIONS.find((o) => o.value === value) ?? FUEL_OPTIONS[2];
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [liveAngle, setLiveAngle] = useState<number | null>(null);
 
-  const needleAngle = currentOption.angle;
+  const needleAngle = dragging && liveAngle != null ? liveAngle : currentOption.angle;
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (!svgRef.current) return;
+      e.preventDefault();
+      (e.target as Element).setPointerCapture(e.pointerId);
+      setDragging(true);
+      const angle = angleFromPointer(e.clientX, e.clientY, svgRef.current);
+      setLiveAngle(angle);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragging || !svgRef.current) return;
+      const angle = angleFromPointer(e.clientX, e.clientY, svgRef.current);
+      setLiveAngle(angle);
+    },
+    [dragging],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragging || !svgRef.current) return;
+      (e.target as Element).releasePointerCapture(e.pointerId);
+      setDragging(false);
+      const angle = angleFromPointer(e.clientX, e.clientY, svgRef.current);
+      const newValue = closestFuelValue(angle);
+      setLiveAngle(null);
+      onChange(newValue);
+    },
+    [dragging, onChange],
+  );
+
+  const handleArcClick = useCallback(
+    (optionValue: string) => {
+      if (!dragging) onChange(optionValue);
+    },
+    [dragging, onChange],
+  );
 
   return (
     <div>
-      {label && (
-        <label className="form-label">{label}</label>
-      )}
+      {label && <label className="form-label">{label}</label>}
       <div className="flex flex-col items-center">
-        <div className="relative w-[180px] h-[110px]">
+        <div className="relative w-[200px] h-[120px] select-none touch-none">
           <svg
+            ref={svgRef}
             viewBox="0 0 200 120"
             className="w-full h-full"
             role="group"
             aria-label="Medidor de combustible"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            style={{ cursor: dragging ? "grabbing" : "default" }}
           >
             {/* Arco de fondo */}
             <path
               d="M 20 100 A 80 80 0 0 1 180 100"
               fill="none"
               stroke="#e5e7eb"
-              strokeWidth={12}
+              strokeWidth={14}
               strokeLinecap="round"
             />
 
             {/* Segmentos coloreados del arco */}
             {FUEL_OPTIONS.map((option, idx) => {
               const isActive = value === option.value;
+              const isAtOrBelow =
+                FUEL_OPTIONS.findIndex((o) => o.value === value) >= idx;
               const startAngle = -180 + idx * 36;
               const endAngle = startAngle + 36;
               const r = 80;
@@ -68,13 +160,13 @@ export function FuelGaugeInput({
               const x2 = cx + r * Math.cos((endAngle * Math.PI) / 180);
               const y2 = cy + r * Math.sin((endAngle * Math.PI) / 180);
 
-              const segmentColor = isActive
+              const segmentColor = isAtOrBelow
                 ? idx <= 1
-                  ? "#ef4444" // rojo para vacío/cuarto
+                  ? "#ef4444"
                   : idx === 2
-                    ? "#f59e0b" // ámbar para medio
-                    : "#22c55e" // verde para 3/4 y lleno
-                : "#e5e7eb";
+                    ? "#f59e0b"
+                    : "#22c55e"
+                : "#f3f4f6";
 
               return (
                 <path
@@ -82,35 +174,35 @@ export function FuelGaugeInput({
                   d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`}
                   fill="none"
                   stroke={segmentColor}
-                  strokeWidth={12}
+                  strokeWidth={14}
                   strokeLinecap="butt"
-                  className="cursor-pointer transition-colors"
-                  onClick={() => onChange(option.value)}
-                  role="button"
+                  className="cursor-grab active:cursor-grabbing"
+                  onClick={() => handleArcClick(option.value)}
                   aria-label={option.description}
-                  aria-pressed={isActive}
                 />
               );
             })}
 
-            {/* Marcas de texto E y F */}
+            {/* Marcas E y F */}
             <text
-              x="28"
-              y="108"
+              x="24"
+              y="112"
               fontSize="11"
               fontWeight="700"
               fill="#6b7280"
               textAnchor="middle"
+              className="pointer-events-none"
             >
               E
             </text>
             <text
-              x="172"
-              y="108"
+              x="176"
+              y="112"
               fontSize="11"
               fontWeight="700"
               fill="#6b7280"
               textAnchor="middle"
+              className="pointer-events-none"
             >
               F
             </text>
@@ -118,8 +210,8 @@ export function FuelGaugeInput({
             {/* Líneas de graduación */}
             {FUEL_OPTIONS.map((option) => {
               const angle = -90 + option.angle;
-              const r1 = 65;
-              const r2 = 72;
+              const r1 = 62;
+              const r2 = 70;
               const cx = 100;
               const cy = 100;
               const x1 = cx + r1 * Math.cos((angle * Math.PI) / 180);
@@ -137,38 +229,75 @@ export function FuelGaugeInput({
                   stroke="#9ca3af"
                   strokeWidth={1.5}
                   strokeLinecap="round"
+                  className="pointer-events-none"
                 />
               );
             })}
 
-            {/* Aguja */}
+            {/* Aguja (arrastrable) */}
             <g
               transform={`rotate(${needleAngle}, 100, 100)`}
-              className="transition-transform duration-300 ease-out"
+              className={cn(
+                "pointer-events-none",
+                !dragging && "transition-transform duration-300 ease-out",
+              )}
             >
               <line
                 x1="100"
                 y1="100"
                 x2="100"
-                y2="32"
+                y2="30"
                 stroke="#1f2937"
                 strokeWidth={2.5}
                 strokeLinecap="round"
               />
-              {/* Punta de la aguja */}
-              <polygon
-                points="97,38 103,38 100,28"
-                fill="#1f2937"
+              <polygon points="97,36 103,36 100,26" fill="#1f2937" />
+            </g>
+
+            {/* Zona interactiva de la aguja (invisible, más grande para facilitar el drag) */}
+            <g transform={`rotate(${needleAngle}, 100, 100)`}>
+              <rect
+                x="92"
+                y="24"
+                width="16"
+                height="78"
+                fill="transparent"
+                className="cursor-grab active:cursor-grabbing"
               />
             </g>
 
-            {/* Centro de la aguja */}
-            <circle cx="100" cy="100" r="6" fill="#374151" />
-            <circle cx="100" cy="100" r="3" fill="#6b7280" />
+            {/* Centro */}
+            <circle
+              cx="100"
+              cy="100"
+              r="7"
+              fill="#374151"
+              className="pointer-events-none"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="3.5"
+              fill="#6b7280"
+              className="pointer-events-none"
+            />
+
+            {/* Label del nivel actual */}
+            <text
+              x="100"
+              y="88"
+              fontSize="12"
+              fontWeight="700"
+              fill="#374151"
+              textAnchor="middle"
+              className="pointer-events-none"
+            >
+              {currentOption.description}
+            </text>
           </svg>
         </div>
 
-        {/* Botones de selección rápida debajo */}
+        {/* Botones de selección rápida */}
         <div
           role="radiogroup"
           aria-label="Nivel de combustible"
@@ -198,7 +327,9 @@ export function FuelGaugeInput({
           })}
         </div>
       </div>
-      {error && <p className="mt-1 text-xs text-rapid-error text-center">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-rapid-error text-center">{error}</p>
+      )}
     </div>
   );
 }
