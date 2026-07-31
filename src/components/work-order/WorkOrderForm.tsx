@@ -13,14 +13,14 @@ import {
   type WorkOrderFormValues,
 } from "@/lib/validations/work-order";
 import { TextInput } from "@/components/forms/TextInput";
-import { SelectInput } from "@/components/forms/SelectInput";
 import { MileageInput } from "@/components/forms/MileageInput";
+import { FuelGaugeInput } from "@/components/forms/FuelGaugeInput";
 import { TextAreaInput } from "@/components/forms/TextAreaInput";
 import { ChecklistGrid } from "@/components/forms/ChecklistGrid";
 import { PhotoUploadList } from "@/components/forms/PhotoUploadList";
 import { SignaturePad } from "@/components/forms/SignaturePad";
 import { VehicleDamageZonePicker } from "@/components/work-order/VehicleDamageZonePicker";
-import { FUEL_LEVELS, LEGACY_CHECKLIST_ITEMS } from "@/lib/constants";
+import { LEGACY_CHECKLIST_ITEMS } from "@/lib/constants";
 import {
   createWorkOrderAction,
   updateWorkOrderAction,
@@ -296,11 +296,17 @@ export function WorkOrderForm({
             {...register("deliveryTime")}
             error={errors.deliveryTime?.message}
           />
-          <SelectInput
-            label="Nivel de combustible"
-            options={FUEL_LEVELS}
-            {...register("fuelLevel")}
-            error={errors.fuelLevel?.message}
+          <Controller
+            control={control}
+            name="fuelLevel"
+            render={({ field }) => (
+              <FuelGaugeInput
+                label="Nivel de combustible"
+                value={field.value ?? "HALF"}
+                onChange={field.onChange}
+                error={errors.fuelLevel?.message}
+              />
+            )}
           />
           <TextInput
             label="Fecha estimada de entrega"
