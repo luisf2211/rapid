@@ -162,10 +162,10 @@ export async function listQuotations(params?: {
     const s = params.search.trim();
     const asNumber = Number(s);
     const or: Prisma.QuotationWhereInput[] = [
-      { customerName: { contains: s } },
-      { plate: { contains: s } },
-      { brand: { contains: s } },
-      { model: { contains: s } },
+      { customerName: { contains: s, mode: "insensitive" } },
+      { plate: { contains: s, mode: "insensitive" } },
+      { brand: { contains: s, mode: "insensitive" } },
+      { model: { contains: s, mode: "insensitive" } },
     ];
     if (!Number.isNaN(asNumber) && Number.isFinite(asNumber)) {
       or.push({ quotationNumber: asNumber });

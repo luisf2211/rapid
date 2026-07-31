@@ -213,8 +213,8 @@ export async function listInvoices(params?: {
     const s = params.search.trim();
     const asNumber = Number(s);
     const or: Prisma.InvoiceWhereInput[] = [
-      { customerName: { contains: s } },
-      { plate: { contains: s } },
+      { customerName: { contains: s, mode: "insensitive" } },
+      { plate: { contains: s, mode: "insensitive" } },
     ];
     if (!Number.isNaN(asNumber) && Number.isFinite(asNumber)) {
       or.push({ invoiceNumber: asNumber });

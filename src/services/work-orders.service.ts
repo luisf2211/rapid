@@ -41,10 +41,10 @@ export async function listWorkOrders(params?: {
     const s = params.search;
     const asNumber = Number(s);
     const or: Record<string, unknown>[] = [
-      { customerName: { contains: s } },
-      { plate: { contains: s } },
-      { brand: { contains: s } },
-      { model: { contains: s } },
+      { customerName: { contains: s, mode: "insensitive" } },
+      { plate: { contains: s, mode: "insensitive" } },
+      { brand: { contains: s, mode: "insensitive" } },
+      { model: { contains: s, mode: "insensitive" } },
     ];
     if (!Number.isNaN(asNumber) && Number.isFinite(asNumber)) {
       or.push({ orderNumber: asNumber });
