@@ -80,6 +80,11 @@ export type ReceptionPrintData = {
     type: string;
     description: string;
     hasMarker: boolean;
+    annotationTool: string | null;
+    positionX: number | null;
+    positionY: number | null;
+    positionX2: number | null;
+    positionY2: number | null;
   }[];
   photos: { url: string; label: string; description: string | null }[];
 };
@@ -153,7 +158,12 @@ export function buildReceptionPrintData(
         side: d.vehicleSide ? sideMap[d.vehicleSide] ?? d.vehicleSide : "—",
         type: d.damageType ? damageTypeMap[d.damageType] ?? d.damageType : "—",
         description: d.description ?? "—",
-        hasMarker: zoneDef != null,
+        hasMarker: zoneDef != null || d.positionX != null,
+        annotationTool: (d as Record<string, unknown>).annotationTool as string | null ?? null,
+        positionX: d.positionX != null ? Number(d.positionX) : null,
+        positionY: d.positionY != null ? Number(d.positionY) : null,
+        positionX2: (d as Record<string, unknown>).positionX2 != null ? Number((d as Record<string, unknown>).positionX2) : null,
+        positionY2: (d as Record<string, unknown>).positionY2 != null ? Number((d as Record<string, unknown>).positionY2) : null,
       };
     }),
     photos: order.photos.map((p) => ({

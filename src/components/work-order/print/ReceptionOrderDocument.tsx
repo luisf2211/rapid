@@ -2,7 +2,6 @@ import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { InvoicePrintFooter } from "@/components/invoice/print/InvoicePrintFooter";
 import { PrintWorkshopReceiverSignature } from "@/components/print/PrintWorkshopReceiverSignature";
-import { DamageDiagramFigure } from "@/components/work-order/print/DamageDiagramFigure";
 import { resolvePhotoUrl } from "@/lib/photos";
 
 function field(label: string, value: string | null | undefined) {
@@ -141,41 +140,9 @@ export function ReceptionOrderDocument({
       </div>
 
       {data.damages.length > 0 && (
-        <div className="idoc-damage-section">
-          <h3 className="idoc-section-title">Daños señalizados</h3>
-          <div className="idoc-damage-layout">
-            <div className="idoc-damage-diagram-block">
-              <DamageDiagramFigure damages={data.damages} />
-            </div>
-            <div className="idoc-damage-table-block">
-              <table className="idoc-table idoc-table--compact">
-                <thead>
-                  <tr>
-                    <th className="num">Zona</th>
-                    <th>Parte</th>
-                    <th>Tipo</th>
-                    <th>Descripción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.damages.map((d, i) => (
-                    <tr key={i}>
-                      <td className="num">{d.hasMarker && d.zone != null ? d.zone : "—"}</td>
-                      <td>{d.zoneName ?? d.side}</td>
-                      <td>{d.type}</td>
-                      <td>{d.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {data.damages.some((d) => !d.hasMarker) && (
-                <p className="idoc-damage-footnote">
-                  — Daño sin zona señalizada en el diagrama.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        <p className="idoc-damage-note" style={{ fontSize: "8pt", marginTop: 8, fontStyle: "italic" }}>
+          Ver hoja adjunta de inspección de daños ({data.damages.length} señalado{data.damages.length > 1 ? "s" : ""}).
+        </p>
       )}
 
       <div className="idoc-legal-section">

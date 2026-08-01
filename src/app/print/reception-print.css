@@ -252,3 +252,87 @@
   color: #000;
   margin: 8px 0 0;
 }
+
+
+/* ─── Página de inspección de daños (hoja separada) ────────────────────────── */
+
+.idoc-inspection-page {
+  page-break-before: always;
+  break-before: page;
+  padding-top: 8px;
+}
+
+.idoc-inspection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1.5px solid #000;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
+.idoc-inspection-header-title {
+  font-size: 11pt;
+  font-weight: 700;
+  color: #000;
+}
+
+.idoc-inspection-header-meta {
+  font-size: 9pt;
+  color: #000;
+}
+
+/* Fila de 3 vistas (Frente, Atrás, Techo) */
+.idoc-inspection-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4mm;
+  margin-bottom: 4mm;
+}
+
+/* Fila de vistas de ancho completo (Izquierda, Derecha) */
+.idoc-inspection-row-full {
+  display: flex;
+  flex-direction: column;
+  gap: 3mm;
+  margin-bottom: 4mm;
+}
+
+.idoc-inspection-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.idoc-inspection-svg-wrap {
+  position: relative;
+  width: 100%;
+  border: 0.5px solid #ccc;
+  border-radius: 2px;
+  background: #fff;
+}
+
+.idoc-inspection-silhouette {
+  color: #d1d5db;
+}
+
+.idoc-inspection-view-label {
+  margin-top: 2px;
+  font-size: 7pt;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+@media print {
+  .idoc-inspection-page {
+    page-break-before: always;
+  }
+
+  .idoc-inspection-svg-wrap {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

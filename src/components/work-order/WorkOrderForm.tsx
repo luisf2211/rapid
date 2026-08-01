@@ -11,6 +11,7 @@ import {
   workOrderCreateSchema,
   type WorkOrderInput,
   type WorkOrderFormValues,
+  type DamageInput,
 } from "@/lib/validations/work-order";
 import { TextInput } from "@/components/forms/TextInput";
 import { MileageInput } from "@/components/forms/MileageInput";
@@ -19,13 +20,26 @@ import { TextAreaInput } from "@/components/forms/TextAreaInput";
 import { ChecklistGrid } from "@/components/forms/ChecklistGrid";
 import { PhotoUploadList } from "@/components/forms/PhotoUploadList";
 import { SignaturePad } from "@/components/forms/SignaturePad";
-import { VehicleDamageZonePicker } from "@/components/work-order/VehicleDamageZonePicker";
+import { VehicleInspectionDiagram, type VehicleAnnotation } from "@/components/vehicle-inspection";
 import { LEGACY_CHECKLIST_ITEMS } from "@/lib/constants";
 import {
   createWorkOrderAction,
   updateWorkOrderAction,
 } from "@/app/(app)/work-orders/actions";
 import { useWorkOrderDraft } from "@/lib/work-order/use-work-order-draft";
+
+/** Maps annotation tool to the closest damage type for backward compat */
+function toolToDamageType(tool: string): DamageInput["damageType"] {
+  switch (tool) {
+    case "scratch": return "SCRATCH";
+    case "circle": return "DENT";
+    case "crack": return "BROKEN";
+    case "crossMark": return "OTHER";
+    case "arrow": return "OTHER";
+    case "text": return "OTHER";
+    default: return "OTHER";
+  }
+}
 
 interface Props {
   mode: "create" | "edit";
@@ -377,17 +391,46 @@ export function WorkOrderForm({
       <section id="daños" className="card p-5">
         <SectionHeader
           title="Daños del vehículo"
-          subtitle="Toca la zona del vehículo donde hay un daño; cada zona tiene su número"
+          subtitle="Selecciona una herramienta y toca sobre el vehículo para marcar daños"
         />
         <Controller
           control={control}
           name="damages"
-          render={({ field }) => (
-            <VehicleDamageZonePicker
-              value={field.value ?? []}
-              onChange={field.onChange}
-            />
-          )}
+          render={({ field }) => {
+            // Map form damages to annotations
+            const annotations: VehicleAnnotation[] = (field.value ?? []).map((d: DamageInput, i: number) => ({
+              id: `damage_${i}`,
+              view: (d.vehicleSide?.toLowerCase() ?? "left") as VehicleAnnotation["view"],
+              tool: (d.annotationTool ?? "crossMark") as VehicleAnnotation["tool"],
+              x: d.positionX ?? 50,
+              y: d.positionY ?? 50,
+              x2: d.positionX2,
+              y2: d.positionY2,
+              text: d.description || undefined,
+              number: i + 1,
+            }));
+
+            const handleChange = (newAnnotations: VehicleAnnotation[]) => {
+              const damages: DamageInput[] = newAnnotations.map((ann) => ({
+                vehicleSide: ann.view.toUpperCase() as DamageInput["vehicleSide"],
+                annotationTool: ann.tool,
+                damageType: toolToDamageType(ann.tool),
+                positionX: ann.x,
+                positionY: ann.y,
+                positionX2: ann.x2,
+                positionY2: ann.y2,
+                description: ann.text || "",
+              }));
+              field.onChange(damages);
+            };
+
+            return (
+              <VehicleInspectionDiagram
+                annotations={annotations}
+                onChange={handleChange}
+              />
+            );
+          }}
         />
       </section>
 

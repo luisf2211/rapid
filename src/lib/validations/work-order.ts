@@ -36,13 +36,14 @@ export type ChecklistInput = z.infer<typeof checklistSchema>;
 
 export const damageSchema = z.object({
   vehicleSide: z.enum(["FRONT", "BACK", "LEFT", "RIGHT", "TOP"]),
-  damageType: z.enum(["SCRATCH", "DENT", "PAINT_DAMAGE", "BROKEN", "OTHER"]),
+  damageType: z.enum(["SCRATCH", "DENT", "PAINT_DAMAGE", "BROKEN", "OTHER"]).optional(),
+  annotationTool: z.enum(["crossMark", "circle", "scratch", "arrow", "crack", "text"]).optional(),
   description: z.string().max(250).optional().or(z.literal("")),
-  /** Zona numerada del vehículo señalada en el diagrama. */
   zoneNumber: z.number().int().positive().optional(),
-  // Legacy: coordenadas libres de daños antiguos (solo lectura, ya no se editan).
-  positionX: z.number().optional(),
-  positionY: z.number().optional(),
+  positionX: z.number().min(0).max(100).optional(),
+  positionY: z.number().min(0).max(100).optional(),
+  positionX2: z.number().min(0).max(100).optional(),
+  positionY2: z.number().min(0).max(100).optional(),
 });
 
 export type DamageInput = z.infer<typeof damageSchema>;
