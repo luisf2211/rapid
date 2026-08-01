@@ -1,8 +1,7 @@
 /**
- * Siluetas SVG de vehículo para el diagrama de inspección.
- * Estilo: dibujo de hoja de inspección de taller — trazo grueso, curvas orgánicas,
- * paneles claramente delimitados (puertas, guardabarros, capó, baúl), ventanas marcadas.
- * Proporciones de sedán/SUV moderno compacto.
+ * Siluetas SVG de vehículo sedán para inspección.
+ * Referencia visual: sedán compacto moderno (tipo Civic).
+ * Estilo: trazo limpio, líneas continuas, paneles claros, proporciones reales.
  */
 
 import type { SVGProps } from "react";
@@ -18,51 +17,58 @@ export const VIEW_LABELS: Record<VehicleView, string> = {
 };
 
 export const VIEW_DIMENSIONS: Record<VehicleView, { w: number; h: number }> = {
-  front: { w: 260, h: 220 },
-  back: { w: 260, h: 220 },
-  left: { w: 440, h: 180 },
-  right: { w: 440, h: 180 },
-  top: { w: 440, h: 160 },
+  front: { w: 280, h: 230 },
+  back: { w: 280, h: 230 },
+  left: { w: 480, h: 180 },
+  right: { w: 480, h: 180 },
+  top: { w: 480, h: 170 },
 };
 
 interface SilhouetteProps extends SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-/** Vista frontal */
+/** Vista frontal — sedán compacto moderno */
 export function FrontSilhouette({ className, ...props }: SilhouetteProps) {
   return (
-    <svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-      <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round">
-        {/* Contorno exterior carrocería */}
-        <path d="M 45 165 L 45 120 C 45 105 50 95 60 88 L 75 80 L 88 45 C 92 32 102 26 118 24 L 130 23 L 142 24 C 158 26 168 32 172 45 L 185 80 L 200 88 C 210 95 215 105 215 120 L 215 165" />
-        {/* Bumper inferior */}
-        <path d="M 45 165 C 42 168 40 173 42 178 L 48 185 L 80 188 C 85 188 88 186 88 183 L 88 178 L 172 178 L 172 183 C 172 186 175 188 180 188 L 212 185 L 218 178 C 220 173 218 168 215 165" />
+    <svg viewBox="0 0 280 230" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <g fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round">
+        {/* Silueta exterior completa */}
+        <path d="
+          M 52 172
+          L 52 128 C 52 112 58 104 70 97 L 82 91
+          L 92 52 C 97 36 108 28 125 26 L 140 25 L 155 26 C 172 28 183 36 188 52 L 198 91
+          L 210 97 C 222 104 228 112 228 128 L 228 172
+          L 228 178 C 228 183 225 186 220 186 L 205 186 C 200 186 198 184 198 180 L 198 176
+          L 82 176 L 82 180 C 82 184 80 186 75 186 L 60 186 C 55 186 52 183 52 178 Z
+        " />
         {/* Parabrisas */}
-        <path d="M 88 45 C 110 40 150 40 172 45" />
-        {/* Línea capó inferior */}
-        <path d="M 75 80 C 110 75 150 75 185 80" />
-        {/* Faro izquierdo */}
-        <path d="M 50 95 C 50 90 55 87 62 87 L 85 85 C 90 85 92 88 92 92 L 92 108 C 92 112 90 115 85 115 L 62 113 C 55 113 50 110 50 105 Z" />
+        <path d="M 92 52 C 120 46 160 46 188 52" />
+        {/* Línea inferior del parabrisas / capó */}
+        <path d="M 82 91 C 120 86 160 86 198 91" />
+        {/* Capó curva */}
+        <path d="M 82 91 L 82 97 C 130 93 150 93 198 97 L 198 91" />
+        {/* Faro izquierdo — angular moderno */}
+        <path d="M 55 100 L 56 95 C 57 91 62 89 68 89 L 87 88 C 90 88 92 90 92 94 L 92 112 C 92 116 90 118 87 118 L 65 116 C 58 115 55 112 55 107 Z" />
         {/* Faro derecho */}
-        <path d="M 210 95 C 210 90 205 87 198 87 L 175 85 C 170 85 168 88 168 92 L 168 108 C 168 112 170 115 175 115 L 198 113 C 205 113 210 110 210 105 Z" />
-        {/* Parrilla */}
-        <path d="M 98 115 C 115 113 145 113 162 115 L 162 135 C 145 137 115 137 98 135 Z" />
-        <path d="M 105 122 L 155 122" />
-        <path d="M 105 128 L 155 128" />
-        {/* Toma de aire / bumper */}
-        <path d="M 68 142 C 100 140 160 140 192 142 L 192 162 C 160 164 100 164 68 162 Z" />
+        <path d="M 225 100 L 224 95 C 223 91 218 89 212 89 L 193 88 C 190 88 188 90 188 94 L 188 112 C 188 116 190 118 193 118 L 215 116 C 222 115 225 112 225 107 Z" />
+        {/* Parrilla superior */}
+        <path d="M 100 118 C 125 116 155 116 180 118 L 180 130 C 155 132 125 132 100 130 Z" />
+        {/* Parrilla líneas */}
+        <line x1="108" y1="123" x2="172" y2="123" />
+        {/* Toma de aire inferior */}
+        <path d="M 72 138 C 110 136 170 136 208 138 L 208 160 C 170 162 110 162 72 160 Z" />
         {/* Placa */}
-        <rect x="112" y="148" width="36" height="10" rx="2" />
-        {/* Espejos */}
-        <path d="M 32 82 C 30 80 30 76 33 74 L 42 72 L 45 88 L 36 90 C 32 90 30 87 32 82 Z" />
-        <path d="M 228 82 C 230 80 230 76 227 74 L 218 72 L 215 88 L 224 90 C 228 90 230 87 228 82 Z" />
-        {/* Ruedas asomando */}
-        <path d="M 55 188 L 55 196 C 55 204 62 208 72 208 L 92 208 C 102 208 108 204 108 196 L 108 188" />
-        <path d="M 152 188 L 152 196 C 152 204 158 208 168 208 L 188 208 C 198 208 205 204 205 196 L 205 188" />
+        <rect x="120" y="143" width="40" height="12" rx="2" />
         {/* Neblineros */}
-        <circle cx="78" cy="154" r="5" />
-        <circle cx="182" cy="154" r="5" />
+        <path d="M 62 142 C 62 139 65 137 68 137 L 78 137 C 81 137 83 139 83 142 L 83 152 C 83 155 81 157 78 157 L 68 157 C 65 157 62 155 62 152 Z" />
+        <path d="M 218 142 C 218 139 215 137 212 137 L 202 137 C 199 137 197 139 197 142 L 197 152 C 197 155 199 157 202 157 L 212 157 C 215 157 218 155 218 152 Z" />
+        {/* Espejos laterales */}
+        <path d="M 38 85 L 38 77 C 38 74 40 72 43 72 L 50 73 L 52 91 L 45 92 C 41 92 38 90 38 87 Z" />
+        <path d="M 242 85 L 242 77 C 242 74 240 72 237 72 L 230 73 L 228 91 L 235 92 C 239 92 242 90 242 87 Z" />
+        {/* Ruedas parciales */}
+        <path d="M 60 186 L 60 195 C 60 205 68 210 80 210 L 100 210 C 112 210 118 205 118 195 L 118 186" />
+        <path d="M 162 186 L 162 195 C 162 205 170 210 182 210 L 200 210 C 212 210 220 205 220 195 L 220 186" />
       </g>
     </svg>
   );
@@ -71,168 +77,200 @@ export function FrontSilhouette({ className, ...props }: SilhouetteProps) {
 /** Vista trasera */
 export function BackSilhouette({ className, ...props }: SilhouetteProps) {
   return (
-    <svg viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-      <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round">
-        {/* Contorno exterior */}
-        <path d="M 45 165 L 45 120 C 45 105 50 95 60 88 L 75 80 L 88 45 C 92 32 102 26 118 24 L 130 23 L 142 24 C 158 26 168 32 172 45 L 185 80 L 200 88 C 210 95 215 105 215 120 L 215 165" />
-        {/* Bumper */}
-        <path d="M 45 165 C 42 168 40 173 42 178 L 48 185 L 80 188 C 85 188 88 186 88 183 L 88 178 L 172 178 L 172 183 C 172 186 175 188 180 188 L 212 185 L 218 178 C 220 173 218 168 215 165" />
+    <svg viewBox="0 0 280 230" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <g fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round">
+        {/* Silueta exterior */}
+        <path d="
+          M 52 172
+          L 52 128 C 52 112 58 104 70 97 L 82 91
+          L 92 52 C 97 36 108 28 125 26 L 140 25 L 155 26 C 172 28 183 36 188 52 L 198 91
+          L 210 97 C 222 104 228 112 228 128 L 228 172
+          L 228 178 C 228 183 225 186 220 186 L 205 186 C 200 186 198 184 198 180 L 198 176
+          L 82 176 L 82 180 C 82 184 80 186 75 186 L 60 186 C 55 186 52 183 52 178 Z
+        " />
         {/* Cristal trasero */}
-        <path d="M 88 45 C 110 40 150 40 172 45" />
-        <path d="M 75 80 C 110 75 150 75 185 80" />
-        {/* Baúl / portón */}
-        <path d="M 80 80 L 80 120 C 110 118 150 118 180 120 L 180 80" />
-        {/* Luces traseras */}
-        <path d="M 48 90 L 48 130 C 48 135 52 138 58 138 L 78 136 L 78 88 L 58 86 C 52 86 48 88 48 90 Z" />
-        <path d="M 212 90 L 212 130 C 212 135 208 138 202 138 L 182 136 L 182 88 L 202 86 C 208 86 212 88 212 90 Z" />
-        {/* Bumper detalles */}
-        <path d="M 65 145 C 100 143 160 143 195 145 L 195 168 C 160 170 100 170 65 168 Z" />
+        <path d="M 92 52 C 120 46 160 46 188 52" />
+        <path d="M 82 91 C 120 86 160 86 198 91" />
+        {/* Baúl */}
+        <path d="M 85 91 L 85 108 C 120 106 160 106 195 108 L 195 91" />
+        {/* Luces traseras — forma angular que envuelve la esquina */}
+        <path d="M 52 94 L 52 128 C 52 132 55 134 60 134 L 82 132 L 82 92 L 60 90 C 55 90 52 92 52 94 Z" />
+        <path d="M 228 94 L 228 128 C 228 132 225 134 220 134 L 198 132 L 198 92 L 220 90 C 225 90 228 92 228 94 Z" />
+        {/* Bumper trasero */}
+        <path d="M 62 140 C 100 138 180 138 218 140 L 218 168 C 180 170 100 170 62 168 Z" />
         {/* Placa */}
-        <rect x="112" y="150" width="36" height="10" rx="2" />
-        {/* Escapes */}
-        <ellipse cx="92" cy="180" rx="8" ry="4" />
-        <ellipse cx="168" cy="180" rx="8" ry="4" />
-        {/* Espejos */}
-        <path d="M 32 82 C 30 80 30 76 33 74 L 42 72 L 45 88 L 36 90 C 32 90 30 87 32 82 Z" />
-        <path d="M 228 82 C 230 80 230 76 227 74 L 218 72 L 215 88 L 224 90 C 228 90 230 87 228 82 Z" />
-        {/* Ruedas */}
-        <path d="M 55 188 L 55 196 C 55 204 62 208 72 208 L 92 208 C 102 208 108 204 108 196 L 108 188" />
-        <path d="M 152 188 L 152 196 C 152 204 158 208 168 208 L 188 208 C 198 208 205 204 205 196 L 205 188" />
+        <rect x="120" y="146" width="40" height="12" rx="2" />
         {/* Reflectores */}
-        <rect x="82" y="155" width="14" height="5" rx="2.5" />
-        <rect x="164" y="155" width="14" height="5" rx="2.5" />
+        <rect x="78" y="152" width="15" height="5" rx="2.5" />
+        <rect x="187" y="152" width="15" height="5" rx="2.5" />
+        {/* Escapes */}
+        <ellipse cx="95" cy="176" rx="7" ry="4" />
+        <ellipse cx="185" cy="176" rx="7" ry="4" />
+        {/* Espejos */}
+        <path d="M 38 85 L 38 77 C 38 74 40 72 43 72 L 50 73 L 52 91 L 45 92 C 41 92 38 90 38 87 Z" />
+        <path d="M 242 85 L 242 77 C 242 74 240 72 237 72 L 230 73 L 228 91 L 235 92 C 239 92 242 90 242 87 Z" />
+        {/* Ruedas */}
+        <path d="M 60 186 L 60 195 C 60 205 68 210 80 210 L 100 210 C 112 210 118 205 118 195 L 118 186" />
+        <path d="M 162 186 L 162 195 C 162 205 170 210 182 210 L 200 210 C 212 210 220 205 220 195 L 220 186" />
       </g>
     </svg>
   );
 }
 
-/** Vista lateral izquierda — estilo hoja de inspección con paneles marcados */
+/** Vista lateral izquierda — perfil de sedán moderno, techo inclinado */
 export function LeftSilhouette({ className, ...props }: SilhouetteProps) {
   return (
-    <svg viewBox="0 0 440 180" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-      <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round">
-        {/* Contorno principal del cuerpo */}
-        <path d="M 28 118 L 28 95 C 28 82 35 75 48 70 L 78 62 L 112 55 L 140 30 C 145 25 152 22 162 20 L 200 18 C 240 17 280 18 310 20 L 320 22 C 330 25 335 30 338 35 L 362 60 L 395 68 L 412 75 C 420 80 422 88 422 98 L 422 118" />
-        {/* Línea del techo */}
-        <path d="M 140 30 C 200 16 300 16 338 35" />
-        {/* Ventanas (área oscura en la hoja) */}
-        <path d="M 142 30 L 118 58 C 116 61 118 64 122 64 L 354 64 C 358 64 360 61 358 58 L 340 35" />
-        {/* Pilar A */}
-        <path d="M 136 28 L 112 62" />
-        {/* Pilar B */}
-        <path d="M 218 20 L 218 64" />
-        {/* Pilar C */}
-        <path d="M 312 20 L 312 64" />
-        {/* Pilar D */}
-        <path d="M 342 32 L 362 62" />
-        {/* Línea de cintura / moldura lateral */}
-        <path d="M 35 85 C 130 78 320 78 415 85" />
+    <svg viewBox="0 0 480 180" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <g fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round">
+        {/* Carrocería completa — perfil sedan moderno */}
+        <path d="
+          M 24 115
+          L 24 95 C 24 82 30 76 42 72 L 72 64
+          L 105 57 L 138 28 C 143 23 150 20 160 19
+          L 200 17 C 250 16 295 17 320 19 L 332 21 C 342 24 348 28 352 34
+          L 374 58 L 408 66 L 432 72 C 445 76 452 84 452 96
+          L 452 115
+        " />
+        {/* Techo — curva descendente hacia atrás (tipo fastback/civic) */}
+        <path d="M 138 28 C 180 14 320 14 352 34" />
+        {/* Cristales — área de ventanas */}
+        <path d="
+          M 140 28 L 115 56 C 113 59 115 62 119 62
+          L 368 62 C 372 62 374 59 372 56 L 354 34
+        " />
+        {/* Pilar A (delantero) */}
+        <path d="M 132 26 L 108 58" />
+        {/* Pilar B (central) */}
+        <path d="M 222 18 L 222 62" />
+        {/* Pilar C (trasero) */}
+        <path d="M 322 18 L 322 62" />
+        {/* Pilar D / fin cristal trasero */}
+        <path d="M 356 32 L 378 58" />
+        {/* Línea de carácter / moldura lateral */}
+        <path d="M 30 82 C 150 75 350 75 448 82" />
         {/* Puerta delantera */}
-        <path d="M 145 64 L 145 118" />
+        <path d="M 150 62 L 150 115" />
         {/* Puerta trasera */}
-        <path d="M 232 64 L 232 118" />
-        {/* Separación guardabarros trasero */}
-        <path d="M 325 64 L 325 118" />
-        {/* Manijas de puertas */}
-        <path d="M 175 78 L 192 78 C 194 78 194 80 194 82 L 175 82 C 173 82 173 78 175 78 Z" />
-        <path d="M 265 78 L 282 78 C 284 78 284 80 284 82 L 265 82 C 263 82 263 78 265 78 Z" />
-        {/* Guardabarros / falda inferior */}
-        <path d="M 28 118 L 28 128 C 28 134 32 136 38 136 L 62 136" />
-        <path d="M 130 136 L 298 136" />
-        <path d="M 368 136 L 405 136 C 412 136 416 134 416 128 L 422 118" />
+        <path d="M 240 62 L 240 115" />
+        {/* Línea guardabarros trasero */}
+        <path d="M 336 62 L 336 115" />
+        {/* Manijas */}
+        <rect x="178" y="76" width="16" height="4" rx="2" />
+        <rect x="272" y="76" width="16" height="4" rx="2" />
+        {/* Falda inferior / umbral */}
+        <path d="M 24 115 L 24 125 C 24 130 28 132 34 132 L 58 132" />
+        <path d="M 126 132 L 310 132" />
+        <path d="M 380 132 L 420 132 C 428 132 432 130 432 125 L 452 115" />
         {/* Estribo */}
-        <path d="M 138 130 L 306 130 L 306 136 L 138 136 Z" />
+        <rect x="140" y="126" width="178" height="6" rx="2" />
         {/* Rueda delantera */}
-        <circle cx="96" cy="136" r="28" />
-        <circle cx="96" cy="136" r="18" />
-        <circle cx="96" cy="136" r="5" />
+        <circle cx="92" cy="132" r="27" />
+        <circle cx="92" cy="132" r="18" />
+        <circle cx="92" cy="132" r="5" />
         {/* Rueda trasera */}
-        <circle cx="333" cy="136" r="28" />
-        <circle cx="333" cy="136" r="18" />
-        <circle cx="333" cy="136" r="5" />
+        <circle cx="345" cy="132" r="27" />
+        <circle cx="345" cy="132" r="18" />
+        <circle cx="345" cy="132" r="5" />
+        {/* Arco de rueda delantero */}
+        <path d="M 58 115 C 62 100 75 92 92 92 C 109 92 122 100 126 115" />
+        {/* Arco de rueda trasero */}
+        <path d="M 310 115 C 315 100 328 92 345 92 C 362 92 375 100 380 115" />
         {/* Faro delantero */}
-        <path d="M 28 78 L 28 98 C 28 102 32 105 38 104 L 60 100 L 60 76 L 38 72 C 32 71 28 74 28 78 Z" />
+        <path d="M 24 80 L 24 100 C 24 104 28 106 34 106 L 58 102 L 58 76 L 34 72 C 28 71 24 74 24 80 Z" />
         {/* Luz trasera */}
-        <path d="M 422 78 L 422 98 C 422 102 418 105 412 104 L 395 100 L 395 76 L 412 72 C 418 71 422 74 422 78 Z" />
-        {/* Espejo */}
-        <path d="M 108 52 L 100 48 C 97 46 96 48 96 52 L 96 62 L 108 62 Z" />
-        {/* Detalle guardabarros delantero: moldura del arco */}
-        <path d="M 60 118 C 65 105 78 98 96 98 C 114 98 127 105 130 118" />
-        {/* Detalle guardabarros trasero: moldura del arco */}
-        <path d="M 300 118 C 305 105 318 98 333 98 C 350 98 362 105 368 118" />
+        <path d="M 452 80 L 452 100 C 452 104 448 106 442 106 L 422 102 L 422 76 L 442 72 C 448 71 452 74 452 80 Z" />
+        {/* Espejo retrovisor */}
+        <path d="M 106 50 L 98 45 C 95 43 94 45 94 48 L 94 58 L 106 60 Z" />
       </g>
     </svg>
   );
 }
 
-/** Vista lateral derecha — espejada */
+/** Vista lateral derecha — espejo de la izquierda */
 export function RightSilhouette({ className, ...props }: SilhouetteProps) {
   return (
-    <svg viewBox="0 0 440 180" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-      <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" transform="translate(440, 0) scale(-1, 1)">
-        {/* Misma geometría que Left, espejada */}
-        <path d="M 28 118 L 28 95 C 28 82 35 75 48 70 L 78 62 L 112 55 L 140 30 C 145 25 152 22 162 20 L 200 18 C 240 17 280 18 310 20 L 320 22 C 330 25 335 30 338 35 L 362 60 L 395 68 L 412 75 C 420 80 422 88 422 98 L 422 118" />
-        <path d="M 140 30 C 200 16 300 16 338 35" />
-        <path d="M 142 30 L 118 58 C 116 61 118 64 122 64 L 354 64 C 358 64 360 61 358 58 L 340 35" />
-        <path d="M 136 28 L 112 62" />
-        <path d="M 218 20 L 218 64" />
-        <path d="M 312 20 L 312 64" />
-        <path d="M 342 32 L 362 62" />
-        <path d="M 35 85 C 130 78 320 78 415 85" />
-        <path d="M 145 64 L 145 118" />
-        <path d="M 232 64 L 232 118" />
-        <path d="M 325 64 L 325 118" />
-        <path d="M 175 78 L 192 78 C 194 78 194 80 194 82 L 175 82 C 173 82 173 78 175 78 Z" />
-        <path d="M 265 78 L 282 78 C 284 78 284 80 284 82 L 265 82 C 263 82 263 78 265 78 Z" />
-        <path d="M 28 118 L 28 128 C 28 134 32 136 38 136 L 62 136" />
-        <path d="M 130 136 L 298 136" />
-        <path d="M 368 136 L 405 136 C 412 136 416 134 416 128 L 422 118" />
-        <path d="M 138 130 L 306 130 L 306 136 L 138 136 Z" />
-        <circle cx="96" cy="136" r="28" />
-        <circle cx="96" cy="136" r="18" />
-        <circle cx="96" cy="136" r="5" />
-        <circle cx="333" cy="136" r="28" />
-        <circle cx="333" cy="136" r="18" />
-        <circle cx="333" cy="136" r="5" />
-        <path d="M 28 78 L 28 98 C 28 102 32 105 38 104 L 60 100 L 60 76 L 38 72 C 32 71 28 74 28 78 Z" />
-        <path d="M 422 78 L 422 98 C 422 102 418 105 412 104 L 395 100 L 395 76 L 412 72 C 418 71 422 74 422 78 Z" />
-        <path d="M 108 52 L 100 48 C 97 46 96 48 96 52 L 96 62 L 108 62 Z" />
-        <path d="M 60 118 C 65 105 78 98 96 98 C 114 98 127 105 130 118" />
-        <path d="M 300 118 C 305 105 318 98 333 98 C 350 98 362 105 368 118" />
+    <svg viewBox="0 0 480 180" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <g fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round" transform="translate(480, 0) scale(-1, 1)">
+        {/* Misma geometría espejada */}
+        <path d="M 24 115 L 24 95 C 24 82 30 76 42 72 L 72 64 L 105 57 L 138 28 C 143 23 150 20 160 19 L 200 17 C 250 16 295 17 320 19 L 332 21 C 342 24 348 28 352 34 L 374 58 L 408 66 L 432 72 C 445 76 452 84 452 96 L 452 115" />
+        <path d="M 138 28 C 180 14 320 14 352 34" />
+        <path d="M 140 28 L 115 56 C 113 59 115 62 119 62 L 368 62 C 372 62 374 59 372 56 L 354 34" />
+        <path d="M 132 26 L 108 58" />
+        <path d="M 222 18 L 222 62" />
+        <path d="M 322 18 L 322 62" />
+        <path d="M 356 32 L 378 58" />
+        <path d="M 30 82 C 150 75 350 75 448 82" />
+        <path d="M 150 62 L 150 115" />
+        <path d="M 240 62 L 240 115" />
+        <path d="M 336 62 L 336 115" />
+        <rect x="178" y="76" width="16" height="4" rx="2" />
+        <rect x="272" y="76" width="16" height="4" rx="2" />
+        <path d="M 24 115 L 24 125 C 24 130 28 132 34 132 L 58 132" />
+        <path d="M 126 132 L 310 132" />
+        <path d="M 380 132 L 420 132 C 428 132 432 130 432 125 L 452 115" />
+        <rect x="140" y="126" width="178" height="6" rx="2" />
+        <circle cx="92" cy="132" r="27" />
+        <circle cx="92" cy="132" r="18" />
+        <circle cx="92" cy="132" r="5" />
+        <circle cx="345" cy="132" r="27" />
+        <circle cx="345" cy="132" r="18" />
+        <circle cx="345" cy="132" r="5" />
+        <path d="M 58 115 C 62 100 75 92 92 92 C 109 92 122 100 126 115" />
+        <path d="M 310 115 C 315 100 328 92 345 92 C 362 92 375 100 380 115" />
+        <path d="M 24 80 L 24 100 C 24 104 28 106 34 106 L 58 102 L 58 76 L 34 72 C 28 71 24 74 24 80 Z" />
+        <path d="M 452 80 L 452 100 C 452 104 448 106 442 106 L 422 102 L 422 76 L 442 72 C 448 71 452 74 452 80 Z" />
+        <path d="M 106 50 L 98 45 C 95 43 94 45 94 48 L 94 58 L 106 60 Z" />
       </g>
     </svg>
   );
 }
 
-/** Vista superior — auto desde arriba, estilo hoja de inspección */
+/** Vista superior — sedán desde arriba */
 export function TopSilhouette({ className, ...props }: SilhouetteProps) {
   return (
-    <svg viewBox="0 0 440 160" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-      <g fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round">
-        {/* Contorno exterior */}
-        <path d="M 40 48 C 35 52 30 60 28 70 L 26 80 C 26 90 28 92 30 92 L 38 108 C 42 115 52 118 65 120 L 100 122 C 200 126 340 126 380 122 L 400 120 C 415 118 420 112 422 105 L 428 88 C 430 80 428 70 425 62 L 420 52 C 416 46 408 42 395 40 L 360 38 C 280 34 160 34 100 38 L 65 40 C 50 42 44 44 40 48 Z" />
+    <svg viewBox="0 0 480 170" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <g fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round">
+        {/* Contorno exterior del cuerpo */}
+        <path d="
+          M 38 50 C 34 54 30 62 28 72 L 26 85
+          C 26 98 28 100 30 102 L 36 115 C 40 120 50 124 62 126
+          L 95 128 C 200 132 360 132 400 128 L 420 126
+          C 435 124 440 118 443 112 L 448 98 C 450 85 448 72 445 62
+          L 440 52 C 436 46 428 42 415 40 L 380 38
+          C 300 34 160 34 95 38 L 62 40 C 48 42 42 46 38 50 Z
+        " />
         {/* Parabrisas */}
-        <path d="M 80 50 C 80 46 88 44 98 43 L 140 41 C 180 39 220 40 250 42 L 268 43 C 278 44 282 46 282 50 L 282 62 C 220 58 100 58 80 62 Z" />
+        <path d="
+          M 78 52 C 78 47 85 44 95 43
+          L 142 40 C 190 38 220 38 252 40 L 275 43
+          C 285 44 290 47 290 52
+          L 290 65 C 240 61 110 61 78 65 Z
+        " />
         {/* Cristal trasero */}
-        <path d="M 330 50 C 330 46 338 44 348 43 L 372 42 C 390 41 402 43 410 46 C 414 48 416 50 416 54 L 416 62 C 380 58 340 58 330 62 Z" />
-        {/* Techo (panel central) */}
-        <path d="M 82 65 C 180 60 360 60 410 65 L 410 95 C 360 100 180 100 82 95 Z" />
+        <path d="
+          M 340 52 C 340 47 348 44 356 43
+          L 380 41 C 400 40 415 42 425 46
+          C 430 48 432 51 432 55
+          L 432 65 C 400 61 350 61 340 65 Z
+        " />
+        {/* Panel del techo */}
+        <path d="M 82 68 C 200 63 380 63 428 68 L 428 102 C 380 107 200 107 82 102 Z" />
         {/* Capó */}
-        <path d="M 35 55 C 36 50 42 47 52 45 L 75 43 C 76 58 76 80 75 100 L 55 98 C 42 96 36 92 35 88 Z" />
+        <path d="M 36 58 C 37 52 44 48 54 46 L 74 44 C 75 60 75 85 74 110 L 54 108 C 42 106 36 100 36 94 Z" />
         {/* Baúl */}
-        <path d="M 418 55 C 416 50 412 47 402 45 L 382 43 C 380 58 380 80 382 100 L 400 98 C 412 96 416 92 418 88 Z" />
+        <path d="M 440 58 C 438 52 432 48 422 46 L 402 44 C 400 60 400 85 402 110 L 422 108 C 432 106 438 100 440 94 Z" />
         {/* Espejos */}
-        <ellipse cx="80" cy="38" rx="10" ry="5" />
-        <ellipse cx="80" cy="122" rx="10" ry="5" />
-        {/* Ruedas */}
-        <rect x="52" y="28" width="30" height="10" rx="4" />
-        <rect x="52" y="122" width="30" height="10" rx="4" />
-        <rect x="365" y="28" width="30" height="10" rx="4" />
-        <rect x="365" y="122" width="30" height="10" rx="4" />
+        <ellipse cx="78" cy="38" rx="10" ry="5" />
+        <ellipse cx="78" cy="132" rx="10" ry="5" />
+        {/* Ruedas (vista superior = rectángulos) */}
+        <rect x="48" y="28" width="28" height="10" rx="4" />
+        <rect x="48" y="132" width="28" height="10" rx="4" />
+        <rect x="385" y="28" width="28" height="10" rx="4" />
+        <rect x="385" y="132" width="28" height="10" rx="4" />
         {/* Líneas de puertas */}
-        <path d="M 140 38 L 140 122" />
-        <path d="M 232 38 L 232 122" />
-        <path d="M 320 38 L 320 122" />
+        <path d="M 148 38 L 148 132" />
+        <path d="M 238 38 L 238 132" />
+        <path d="M 332 38 L 332 132" />
       </g>
     </svg>
   );
