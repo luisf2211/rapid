@@ -201,6 +201,21 @@ export async function getQuotationById(id: number) {
   });
 }
 
+/** Versión pública (sin sesión) para rutas de impresión accesibles por clientes. */
+export async function getQuotationForPrint(id: number) {
+  return prisma.quotation.findUnique({
+    where: { id },
+    include: {
+      laborLines: { orderBy: { sortOrder: "asc" } },
+      materialLines: { orderBy: { sortOrder: "asc" }, include: { inventoryPart: true } },
+      partLines: { orderBy: { sortOrder: "asc" } },
+      damages: { orderBy: { id: "asc" } },
+      photos: { orderBy: { id: "asc" } },
+      workOrder: { select: { id: true, orderNumber: true, status: true } },
+    },
+  });
+}
+
 export async function createQuotation(input: QuotationInput) {
   const companyId = await requireCompanyIdFromSession();
   const quotationNumber = await generateQuotationNumber(companyId);

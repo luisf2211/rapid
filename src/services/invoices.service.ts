@@ -251,6 +251,26 @@ export async function getInvoiceById(id: number) {
   });
 }
 
+/** Versión pública (sin sesión) para rutas de impresión accesibles por clientes. */
+export async function getInvoiceForPrint(id: number) {
+  return prisma.invoice.findUnique({
+    where: { id },
+    include: {
+      lines: { orderBy: { sortOrder: "asc" } },
+      workOrder: { select: { id: true, orderNumber: true, status: true } },
+      quotation: {
+        select: {
+          id: true,
+          quotationNumber: true,
+          insuranceCompany: true,
+          policyNumber: true,
+          deductibleAmount: true,
+        },
+      },
+    },
+  });
+}
+
 export async function listWorkOrdersReadyToInvoice() {
   const companyId = await requireCompanyIdFromSession();
   const orders = await prisma.workOrder.findMany({

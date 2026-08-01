@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getQuotationById } from "@/services/quotations.service";
+import { getQuotationForPrint } from "@/services/quotations.service";
 import { getWorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { buildQuotationPrintData } from "@/lib/quotation/print-data";
 import { PrivateQuotationDocument } from "@/components/quotation/print/PrivateQuotationDocument";
@@ -20,7 +20,7 @@ export default async function QuotationPrintPage({
   const id = Number(idParam);
   if (!Number.isFinite(id)) notFound();
 
-  const quotation = await getQuotationById(id);
+  const quotation = await getQuotationForPrint(id);
   if (!quotation) notFound();
 
   const workshop = await getWorkshopPrintInfo();

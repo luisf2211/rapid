@@ -1,6 +1,6 @@
 import "@/app/print/invoice-print.css";
 import { notFound } from "next/navigation";
-import { getInvoiceById } from "@/services/invoices.service";
+import { getInvoiceForPrint } from "@/services/invoices.service";
 import { getWorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { buildInvoicePrintData } from "@/lib/invoice/print-data";
 import { InvoiceDocument } from "@/components/invoice/print/InvoiceDocument";
@@ -20,7 +20,7 @@ export default async function InvoicePrintPage({
   const id = Number(idParam);
   if (!Number.isFinite(id)) notFound();
 
-  const invoice = await getInvoiceById(id);
+  const invoice = await getInvoiceForPrint(id);
   if (!invoice) notFound();
 
   const workshop = await getWorkshopPrintInfo();
