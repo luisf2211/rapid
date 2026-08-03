@@ -28,6 +28,7 @@ export default async function SettingsPage() {
     quotationPaymentNotes:
       row?.quotationPaymentNotes ?? printInfo.quotationPaymentNotes ?? "",
     invoiceFooter: row?.invoiceFooter ?? printInfo.invoiceFooter ?? "",
+    brandColor: row?.brandColor ?? printInfo.brandColor ?? "#c41e3a",
   };
 
   return (

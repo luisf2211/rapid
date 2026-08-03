@@ -516,6 +516,7 @@ model WorkshopSettings {
   updatedAt       DateTime? @map("UpdatedAt")
   updatedBy       String?   @map("UpdatedBy") @db.VarChar(150)
   stampUrl        String?   @map("StampUrl") @db.VarChar(500)
+  brandColor      String?   @map("BrandColor") @db.VarChar(7)
   company         Company?  @relation(fields: [CompanyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_WorkshopSettings_Company")
 
   @@map("WorkshopSettings")

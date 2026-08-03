@@ -35,6 +35,7 @@ export async function upsertWorkshopSettings(input: WorkshopSettingsInput) {
     quotationWarrantyNotes: emptyToNull(input.quotationWarrantyNotes),
     quotationPaymentNotes: emptyToNull(input.quotationPaymentNotes),
     invoiceFooter: emptyToNull(input.invoiceFooter),
+    brandColor: emptyToNull(input.brandColor),
     updatedAt: new Date(),
     updatedBy: emptyToNull(input.updatedBy),
   };

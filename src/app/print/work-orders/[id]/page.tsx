@@ -29,6 +29,7 @@ export default async function WorkOrderReceptionPrintPage({
   const data = buildReceptionPrintData(order, workshop);
   const backHref = `/work-orders/${id}`;
   const autoPrint = auto === "1";
+  const brandColor = workshop.brandColor ?? "#c41e3a";
 
   return (
     <>
@@ -37,7 +38,7 @@ export default async function WorkOrderReceptionPrintPage({
         backLabel="Volver a la orden"
         autoPrint={autoPrint}
       />
-      <div style={{ padding: "16px" }}>
+      <div style={{ padding: "16px", "--brand-color": brandColor } as React.CSSProperties}>
         <ReceptionOrderDocument data={data} workshop={workshop} />
         {data.damages.length > 0 && (
           <DamageInspectionPage

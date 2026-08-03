@@ -27,6 +27,7 @@ export type SettingsFormDefaults = {
   quotationWarrantyNotes: string;
   quotationPaymentNotes: string;
   invoiceFooter: string;
+  brandColor: string;
 };
 
 interface Props {
@@ -149,6 +150,30 @@ export function WorkshopSettingsForm({ defaults, fromDatabase }: Props) {
           {...register("address")}
           error={errors.address?.message}
         />
+        <div>
+          <label className="form-label" htmlFor="brandColor">Color de marca</label>
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              id="brandColor"
+              {...register("brandColor")}
+              className="w-12 h-12 rounded-lg border border-rapid-border cursor-pointer p-1"
+            />
+            <input
+              type="text"
+              {...register("brandColor")}
+              placeholder="#c41e3a"
+              className="form-input w-32 font-mono text-sm"
+              maxLength={7}
+            />
+            <span className="text-xs text-rapid-text-muted">
+              Se usa en encabezados y títulos de documentos impresos.
+            </span>
+          </div>
+          {errors.brandColor?.message && (
+            <p className="mt-1 text-xs text-rapid-error">{errors.brandColor.message}</p>
+          )}
+        </div>
       </section>
 
       <section className="card p-5 space-y-4">

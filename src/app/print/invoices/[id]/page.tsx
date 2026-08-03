@@ -27,11 +27,12 @@ export default async function InvoicePrintPage({
   const data = buildInvoicePrintData(invoice, workshop);
   const backHref = `/invoices/${id}`;
   const autoPrint = auto === "1";
+  const brandColor = workshop.brandColor ?? "#c41e3a";
 
   return (
     <>
       <PrintToolbar backHref={backHref} autoPrint={autoPrint} />
-      <div style={{ padding: "16px" }}>
+      <div style={{ padding: "16px", "--brand-color": brandColor } as React.CSSProperties}>
         <InvoiceDocument data={data} workshop={workshop} />
       </div>
     </>

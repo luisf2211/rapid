@@ -27,6 +27,7 @@ export default async function QuotationPrintPage({
   const data = buildQuotationPrintData(quotation, workshop);
   const backHref = `/quotations/${id}`;
   const autoPrint = auto === "1";
+  const brandColor = workshop.brandColor ?? "#c41e3a";
 
   return (
     <>
@@ -35,7 +36,7 @@ export default async function QuotationPrintPage({
         backLabel="Volver a la cotización"
         autoPrint={autoPrint}
       />
-      <div style={{ padding: "16px" }}>
+      <div style={{ padding: "16px", "--brand-color": brandColor } as React.CSSProperties}>
         {data.quotationType === "INSURANCE" ? (
           <InsuranceQuotationDocument data={data} workshop={workshop} />
         ) : (

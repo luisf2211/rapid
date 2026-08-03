@@ -67,39 +67,6 @@ export function InsuranceQuotationDocument({
         </div>
       </div>
 
-      <h3 className="qdoc-section-title">Detalle de daños y operaciones</h3>
-      <table className="qdoc-table">
-        <thead>
-          <tr>
-            <th>Pieza</th>
-            <th>Operación</th>
-            <th>Tipo de trabajo</th>
-            <th className="num">Horas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.damageRows.length === 0 ? (
-            data.workLines.slice(0, 8).map((w, i) => (
-              <tr key={i}>
-                <td>{w.concept}</td>
-                <td>Reparar</td>
-                <td>—</td>
-                <td className="num">—</td>
-              </tr>
-            ))
-          ) : (
-            data.damageRows.map((d, i) => (
-              <tr key={i}>
-                <td>{d.partName}</td>
-                <td>{d.operation}</td>
-                <td>{d.workType}</td>
-                <td className="num">{d.hours}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-
       <PrintQuotationDetailSections data={data} />
 
       <h3 className="qdoc-section-title">Resumen del presupuesto</h3>

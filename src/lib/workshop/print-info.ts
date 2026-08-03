@@ -23,6 +23,7 @@ export type WorkshopPrintInfo = {
   quotationPaymentNotes: string | null;
   invoiceFooter: string | null;
   defaultTaxRate: number;
+  brandColor: string;
 };
 
 const ENV_DEFAULTS: WorkshopPrintInfo = {
@@ -45,6 +46,7 @@ const ENV_DEFAULTS: WorkshopPrintInfo = {
   quotationPaymentNotes: "50% anticipo al aprobar; saldo contra entrega.",
   invoiceFooter: null,
   defaultTaxRate: 0.18,
+  brandColor: "#c41e3a",
 };
 
 function fromEnv(): WorkshopPrintInfo {
@@ -104,5 +106,6 @@ export async function getWorkshopPrintInfo(): Promise<WorkshopPrintInfo> {
       row.quotationPaymentNotes ?? env.quotationPaymentNotes,
     invoiceFooter: row.invoiceFooter ?? env.invoiceFooter,
     defaultTaxRate: toPlainNumber(row.defaultTaxRate) ?? env.defaultTaxRate,
+    brandColor: row.brandColor ?? env.brandColor,
   };
 }

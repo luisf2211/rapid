@@ -20,6 +20,7 @@ export const workshopSettingsSchema = z.object({
   quotationWarrantyNotes: z.string().trim().max(2000).optional().or(z.literal("")),
   quotationPaymentNotes: z.string().trim().max(2000).optional().or(z.literal("")),
   invoiceFooter: z.string().trim().max(2000).optional().or(z.literal("")),
+  brandColor: z.string().trim().max(7).regex(/^#[0-9a-fA-F]{6}$/, "Color hexadecimal inválido").optional().or(z.literal("")),
   updatedBy: z.string().trim().max(150).optional().or(z.literal("")),
 });
 
