@@ -31,13 +31,6 @@ export function MobileTopBar({ stockAlertCount = 0, workshop }: Props) {
         </span>
       </div>
       <div className="flex items-center gap-1.5">
-        <Link
-          href="/guia"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.06] text-white/70 hover:bg-white/10 hover:text-white transition"
-          aria-label="Guía rápida"
-        >
-          <CircleHelp className="w-5 h-5" strokeWidth={2} />
-        </Link>
         {stockAlertCount > 0 && (
           <Link
             href="/inventory?filter=low"
