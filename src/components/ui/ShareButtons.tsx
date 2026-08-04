@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Mail } from "lucide-react";
+import { MessageCircle, Mail, Download } from "lucide-react";
 
 interface ShareButtonsProps {
   /** Tipo de documento (para el mensaje) */
@@ -55,8 +55,23 @@ export function ShareButtons({
     ? `mailto:${email}?subject=${emailSubject}&body=${emailBody}`
     : `mailto:?subject=${emailSubject}&body=${emailBody}`;
 
+  /** Abre la vista de impresión con auto=1 para disparar print() automáticamente */
+  const handleDownloadPdf = () => {
+    const separator = printPath.includes("?") ? "&" : "?";
+    window.open(`${printPath}${separator}auto=1`, "_blank");
+  };
+
   return (
     <div className="flex items-center gap-1.5">
+      <button
+        type="button"
+        onClick={handleDownloadPdf}
+        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-rapid-surface-soft text-rapid-text hover:bg-rapid-surface transition"
+        title="Descargar / Imprimir PDF"
+      >
+        <Download className="w-3.5 h-3.5" />
+        PDF
+      </button>
       <a
         href={whatsappHref}
         target="_blank"

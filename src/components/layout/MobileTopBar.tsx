@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, CircleHelp } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 
