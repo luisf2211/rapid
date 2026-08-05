@@ -150,14 +150,17 @@ function mapDamages(input: WorkOrderInput) {
   return input.damages.map((d) => ({
     vehicleSide: d.vehicleSide,
     damageType: d.damageType,
+    annotationTool: d.annotationTool ?? null,
     description: d.description || null,
     zoneNumber: d.zoneNumber ?? null,
     // Nombre de la zona congelado al guardar (desnormalizado): resiliente a
     // futuros cambios del catálogo de zonas. Derivado en el servidor, no del cliente.
     PartName: d.zoneNumber != null ? zoneName(d.zoneNumber) : null,
-    // positionX/Y quedan solo como legacy: no se escriben para daños con zona.
-    positionX: d.zoneNumber != null ? null : d.positionX ?? null,
-    positionY: d.zoneNumber != null ? null : d.positionY ?? null,
+    // Un daño legacy puede llevar zona y además coordenadas aproximadas.
+    positionX: d.positionX ?? null,
+    positionY: d.positionY ?? null,
+    positionX2: d.positionX2 ?? null,
+    positionY2: d.positionY2 ?? null,
   }));
 }
 

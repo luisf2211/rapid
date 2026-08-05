@@ -7,7 +7,7 @@ import {
 } from "@/lib/constants";
 import { formatDate } from "@/lib/formatters/date";
 import { formatMileage } from "@/lib/work-order/mileage";
-import { VEHICLE_ZONE_MAP } from "@/lib/vehicle-zones";
+import { VEHICLE_ZONE_MAP, zoneToAnnotationPoint } from "@/lib/vehicle-zones";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
 
@@ -76,7 +76,10 @@ export type ReceptionPrintData = {
   damages: {
     zone: number | null;
     zoneName: string | null;
+    /** Etiqueta en español para tablas ("Izquierda"). */
     side: string;
+    /** Código de vista del diagrama ("front"|"back"|"left"|"right"|"top"). */
+    sideCode: string | null;
     type: string;
     description: string;
     hasMarker: boolean;
@@ -152,18 +155,24 @@ export function buildReceptionPrintData(
     damages: order.damages.map((d) => {
       const zone = d.zoneNumber ?? null;
       const zoneDef = zone != null ? VEHICLE_ZONE_MAP[zone] : null;
+      // Daño legacy solo-zona: se dibuja en la posición aproximada del panel.
+      const legacyPoint =
+        d.positionX == null && zone != null ? zoneToAnnotationPoint(zone) : null;
       return {
         zone,
         zoneName: zoneDef?.name ?? d.PartName ?? null,
         side: d.vehicleSide ? sideMap[d.vehicleSide] ?? d.vehicleSide : "—",
+        sideCode: legacyPoint?.view ?? d.vehicleSide?.toLowerCase() ?? null,
         type: d.damageType ? damageTypeMap[d.damageType] ?? d.damageType : "—",
         description: d.description ?? "—",
         hasMarker: zoneDef != null || d.positionX != null,
-        annotationTool: (d as Record<string, unknown>).annotationTool as string | null ?? null,
-        positionX: d.positionX != null ? Number(d.positionX) : null,
-        positionY: d.positionY != null ? Number(d.positionY) : null,
-        positionX2: (d as Record<string, unknown>).positionX2 != null ? Number((d as Record<string, unknown>).positionX2) : null,
-        positionY2: (d as Record<string, unknown>).positionY2 != null ? Number((d as Record<string, unknown>).positionY2) : null,
+        annotationTool: d.annotationTool ?? null,
+        positionX:
+          d.positionX != null ? Number(d.positionX) : legacyPoint?.x ?? null,
+        positionY:
+          d.positionY != null ? Number(d.positionY) : legacyPoint?.y ?? null,
+        positionX2: d.positionX2 != null ? Number(d.positionX2) : null,
+        positionY2: d.positionY2 != null ? Number(d.positionY2) : null,
       };
     }),
     photos: order.photos.map((p) => ({

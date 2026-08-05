@@ -52,6 +52,8 @@ import { formatDate, formatDateTime } from "@/lib/formatters/date";
 import { formatFractionQuantity } from "@/lib/formatters/fraction-quantity";
 import { splitRequisitionItems } from "@/lib/material-requisition/line-type";
 import { formatDocNumber } from "@/lib/quotation/print-data";
+import { zoneName } from "@/lib/vehicle-zones";
+import { ANNOTATION_TOOLS } from "@/components/vehicle-inspection/types";
 import {
   WORK_ORDER_STATUS_LABELS,
   DAMAGE_SIDES,
@@ -683,40 +685,51 @@ function DamagesTab({ order }: { order: WorkOrder }) {
           <tr>
             <th className="text-left font-semibold px-5 py-3">Lado</th>
             <th className="text-left font-semibold px-5 py-3">Tipo</th>
+            <th className="text-left font-semibold px-5 py-3">Marca</th>
+            <th className="text-left font-semibold px-5 py-3">Zona / Parte</th>
             <th className="text-left font-semibold px-5 py-3">Descripción</th>
-            <th className="text-right font-semibold px-5 py-3">Pos. X</th>
-            <th className="text-right font-semibold px-5 py-3">Pos. Y</th>
           </tr>
         </thead>
         <tbody>
-          {order.damages.map((d) => (
-            <tr
-              key={d.id}
-              className="border-t border-rapid-border hover:bg-rapid-bg/30"
-            >
-              <td className="px-5 py-3 font-medium">
-                {d.vehicleSide
-                  ? sideMap[d.vehicleSide] ?? d.vehicleSide
-                  : "—"}
-              </td>
-              <td className="px-5 py-3">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rapid-bg text-rapid-text text-xs font-semibold">
-                  {d.damageType
-                    ? damageTypeMap[d.damageType] ?? d.damageType
+          {order.damages.map((d) => {
+            const tool = (d as { annotationTool?: string | null })
+              .annotationTool;
+            const toolLabel = tool
+              ? ANNOTATION_TOOLS.find((t) => t.tool === tool)?.label ?? tool
+              : null;
+            const part =
+              d.zoneNumber != null
+                ? d.PartName ?? zoneName(d.zoneNumber)
+                : null;
+            return (
+              <tr
+                key={d.id}
+                className="border-t border-rapid-border hover:bg-rapid-bg/30"
+              >
+                <td className="px-5 py-3 font-medium">
+                  {d.vehicleSide
+                    ? sideMap[d.vehicleSide] ?? d.vehicleSide
                     : "—"}
-                </span>
-              </td>
-              <td className="px-5 py-3 text-rapid-text-muted">
-                {d.description || "—"}
-              </td>
-              <td className="px-5 py-3 text-right font-mono tabular-nums">
-                {d.positionX != null ? Number(d.positionX) : "—"}
-              </td>
-              <td className="px-5 py-3 text-right font-mono tabular-nums">
-                {d.positionY != null ? Number(d.positionY) : "—"}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="px-5 py-3">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rapid-bg text-rapid-text text-xs font-semibold">
+                    {d.damageType
+                      ? damageTypeMap[d.damageType] ?? d.damageType
+                      : "—"}
+                  </span>
+                </td>
+                <td className="px-5 py-3">
+                  {toolLabel ?? (d.zoneNumber != null ? "Zona" : "—")}
+                </td>
+                <td className="px-5 py-3 text-rapid-text-muted">
+                  {part ?? "—"}
+                </td>
+                <td className="px-5 py-3 text-rapid-text-muted">
+                  {d.description || "—"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

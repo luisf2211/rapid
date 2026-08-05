@@ -1,4 +1,7 @@
-import { getWorkshopSettings } from "@/services/workshop-settings.service";
+import {
+  getWorkshopSettings,
+  getWorkshopSettingsByCompanyId,
+} from "@/services/workshop-settings.service";
 import { toPlainNumber } from "@/lib/serialize";
 
 import { DEFAULT_WORKSHOP_STAMP_URL } from "@/lib/workshop/stamp";
@@ -80,13 +83,24 @@ function fromEnv(): WorkshopPrintInfo {
       process.env.NEXT_PUBLIC_WORKSHOP_INVOICE_FOOTER ??
       ENV_DEFAULTS.invoiceFooter,
     defaultTaxRate: ENV_DEFAULTS.defaultTaxRate,
+    brandColor:
+      process.env.NEXT_PUBLIC_WORKSHOP_BRAND_COLOR ?? ENV_DEFAULTS.brandColor,
   };
 }
 
-/** Lee configuración de BD con respaldo en variables de entorno. */
-export async function getWorkshopPrintInfo(): Promise<WorkshopPrintInfo> {
+/**
+ * Lee configuración de BD con respaldo en variables de entorno.
+ * Con `companyId` no requiere sesión (rutas públicas de impresión, que
+ * resuelven la empresa desde el documento a imprimir).
+ */
+export async function getWorkshopPrintInfo(
+  companyId?: number,
+): Promise<WorkshopPrintInfo> {
   const env = fromEnv();
-  const row = await getWorkshopSettings();
+  const row =
+    companyId != null
+      ? await getWorkshopSettingsByCompanyId(companyId)
+      : await getWorkshopSettings();
   if (!row) return env;
 
   return {

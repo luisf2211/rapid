@@ -607,3 +607,53 @@ export function zoneName(zone: number | null | undefined): string | null {
   if (zone == null) return null;
   return VEHICLE_ZONE_MAP[zone]?.name ?? null;
 }
+
+/* ------------------------------------------------------------------ */
+/* Puente legacy → diagrama de inspección libre                        */
+/* ------------------------------------------------------------------ */
+
+/** Código de vista del diagrama de inspección (VehicleSilhouettes). */
+export type InspectionViewCode = "front" | "back" | "left" | "right" | "top";
+
+/**
+ * Ajustes finos por zona, en % (0-100) de la vista NUEVA del diagrama de
+ * inspección. Solo hace falta agregar una entrada cuando la posición derivada
+ * del catálogo cae fuera del panel en las siluetas nuevas.
+ */
+const LEGACY_ZONE_POINT_OVERRIDES: Partial<
+  Record<number, { x: number; y: number }>
+> = {};
+
+/**
+ * Convierte un número de zona legacy (1-32) a un punto porcentual sobre las
+ * vistas del diagrama de inspección libre, para que los daños guardados solo
+ * con ZoneNumber sigan dibujándose sobre el panel que les corresponde.
+ *
+ * Los porcentajes se derivan de labelX/labelY del viewBox antiguo y son
+ * independientes del viewBox de las siluetas nuevas. La vista TOP legacy era
+ * vertical (frente arriba) y la nueva es horizontal (frente a la izquierda),
+ * por lo que en TOP se intercambian los ejes.
+ */
+export function zoneToAnnotationPoint(
+  zone: number | null | undefined,
+): { view: InspectionViewCode; x: number; y: number } | null {
+  if (zone == null) return null;
+  const z = VEHICLE_ZONE_MAP[zone];
+  if (!z) return null;
+  const view = z.side.toLowerCase() as InspectionViewCode;
+  const override = LEGACY_ZONE_POINT_OVERRIDES[zone];
+  if (override) return { view, ...override };
+  const vb = VIEW_DEFS[z.side].viewBox;
+  if (z.side === "TOP") {
+    return {
+      view,
+      x: (z.labelY / vb.h) * 100,
+      y: (z.labelX / vb.w) * 100,
+    };
+  }
+  return {
+    view,
+    x: (z.labelX / vb.w) * 100,
+    y: (z.labelY / vb.h) * 100,
+  };
+}
