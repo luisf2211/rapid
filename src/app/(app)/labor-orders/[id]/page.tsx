@@ -73,6 +73,14 @@ export default async function LaborOrderDetailPage({ params }: PageProps) {
               <Printer className="w-4 h-4" />
               Imprimir
             </Link>
+            <Link
+              href={`/print/labor-orders/${lo.id}/ticket`}
+              target="_blank"
+              className="btn-secondary"
+            >
+              <Printer className="w-4 h-4" />
+              Ticket
+            </Link>
           </>
         }
       />
