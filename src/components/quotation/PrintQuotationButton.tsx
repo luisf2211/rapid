@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Printer } from "lucide-react";
 
-/** Botón(es) de impresión para cotización. Si es de seguro, muestra 2 opciones. */
+/** Botón(es) de impresión para cotización. Si es de seguro, muestra 3 opciones. */
 export function PrintQuotationButton({
   quotationId,
   quotationType,
@@ -20,10 +20,19 @@ export function PrintQuotationButton({
     return (
       <div className="flex items-center gap-1.5">
         <Link
-          href={`/print/quotations/${quotationId}?auto=1&view=insurance`}
+          href={`/print/quotations/${quotationId}?auto=1`}
           target="_blank"
           rel="noopener noreferrer"
           className={className}
+        >
+          <Printer className="w-4 h-4" />
+          Completa
+        </Link>
+        <Link
+          href={`/print/quotations/${quotationId}?auto=1&view=insurance`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary inline-flex items-center gap-2"
         >
           <Printer className="w-4 h-4" />
           Aseguradora

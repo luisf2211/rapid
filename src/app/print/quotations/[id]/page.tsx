@@ -35,9 +35,11 @@ export default async function QuotationPrintPage({
   if (data.quotationType === "INSURANCE") {
     if (view === "client") {
       document = <ClientExtrasQuotationDocument data={data} workshop={workshop} />;
-    } else {
-      // Default for insurance: show only insurance lines (view=insurance or no param)
+    } else if (view === "insurance") {
       document = <InsuranceQuotationDocument data={data} workshop={workshop} filterBilling="INSURANCE" />;
+    } else {
+      // "Completa" — muestra todo junto
+      document = <InsuranceQuotationDocument data={data} workshop={workshop} />;
     }
   } else {
     document = <PrivateQuotationDocument data={data} workshop={workshop} />;
