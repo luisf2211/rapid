@@ -5,7 +5,7 @@ import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Trash2, Save, Send, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Save, Send, AlertCircle, Camera } from "lucide-react";
 import {
   quotationSchema,
   type QuotationInput,
@@ -28,6 +28,7 @@ import { MoneyInput } from "@/components/forms/MoneyInput";
 import { MileageInput } from "@/components/forms/MileageInput";
 import { formatMoney } from "@/lib/formatters/money";
 import { QuotationPhotoUploadList } from "@/components/forms/QuotationPhotoUploadList";
+import { VinScanner } from "@/components/vin/VinScanner";
 import { createQuotationAction, updateQuotationAction } from "../actions";
 
 const emptyLabor = () => ({
@@ -69,6 +70,7 @@ export function NewQuotationForm({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showVinScanner, setShowVinScanner] = useState(false);
 
   const form = useForm<QuotationFormValues, unknown, QuotationInput>({
     resolver: zodResolver(quotationSchema),
@@ -205,9 +207,18 @@ export function NewQuotationForm({
       )}
 
       <section className="card p-5 space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
-          Vehículo
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
+            Vehículo
+          </h2>
+          <button
+            type="button"
+            className="btn-secondary text-xs"
+            onClick={() => setShowVinScanner(true)}
+          >
+            <Camera className="w-3.5 h-3.5" /> Escanear VIN
+          </button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <TextInput label="Marca" {...register("brand")} />
           <TextInput label="Modelo" {...register("model")} />
@@ -231,6 +242,24 @@ export function NewQuotationForm({
           />
         </div>
       </section>
+
+      {showVinScanner && (
+        <VinScanner
+          onResult={(data) => {
+            // Autofill form fields from NHTSA data (don't overwrite with null)
+            if (data.vin) form.setValue("vin", data.vin);
+            if (data.make) form.setValue("brand", data.make);
+            if (data.model) form.setValue("model", data.model);
+            if (data.year) form.setValue("vehicleYear", data.year);
+            setShowVinScanner(false);
+          }}
+          onVinConfirmed={(vin) => {
+            form.setValue("vin", vin);
+            setShowVinScanner(false);
+          }}
+          onClose={() => setShowVinScanner(false)}
+        />
+      )}
 
       <section className="card p-5 space-y-4">
         <div className="flex items-center justify-between">
