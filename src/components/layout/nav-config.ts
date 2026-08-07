@@ -88,5 +88,8 @@ export function isNavActive(pathname: string, href: string): boolean {
       !pathname.startsWith("/inventory/paint")
     );
   }
+  if (href === "/settings") {
+    return pathname === "/settings";
+  }
   return pathname.startsWith(`${href}/`);
 }
