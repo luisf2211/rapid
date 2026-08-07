@@ -51,6 +51,7 @@ export function quotationToFormValues(q: QuotationDetail): QuotationFormValues {
       area: l.area,
       description: l.description ?? "",
       lineTotal: toPlainNumber(l.lineTotal) ?? 0,
+      billingTarget: (l.billingTarget ?? "INSURANCE") as "INSURANCE" | "CLIENT",
     })),
     materialLines: [],
     partLines: q.partLines.map((p) => ({
@@ -58,6 +59,7 @@ export function quotationToFormValues(q: QuotationDetail): QuotationFormValues {
       description: p.description ?? "",
       quantity: toPlainNumber(p.quantity) ?? 1,
       unitPrice: toPlainNumber(p.unitPrice) ?? 0,
+      billingTarget: (p.billingTarget ?? "INSURANCE") as "INSURANCE" | "CLIENT",
     })),
     damages: q.damages.map((d) => ({
       partName: d.partName ?? "",

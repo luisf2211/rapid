@@ -275,6 +275,16 @@ export function NewQuotationForm({
               {...register(`laborLines.${idx}.description`)}
             />
             <MoneyInput label="Total" {...register(`laborLines.${idx}.lineTotal`)} />
+            {quotationType === "INSURANCE" && (
+              <select
+                {...register(`laborLines.${idx}.billingTarget`)}
+                className="form-input w-24 text-xs"
+                title="Facturar a"
+              >
+                <option value="INSURANCE">Seguro</option>
+                <option value="CLIENT">Extra</option>
+              </select>
+            )}
             <button
               type="button"
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
@@ -326,6 +336,16 @@ export function NewQuotationForm({
               {...register(`partLines.${idx}.quantity`)}
             />
             <MoneyInput label="Precio" {...register(`partLines.${idx}.unitPrice`)} />
+            {quotationType === "INSURANCE" && (
+              <select
+                {...register(`partLines.${idx}.billingTarget`)}
+                className="form-input w-24 text-xs"
+                title="Facturar a"
+              >
+                <option value="INSURANCE">Seguro</option>
+                <option value="CLIENT">Extra</option>
+              </select>
+            )}
             <button
               type="button"
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg"

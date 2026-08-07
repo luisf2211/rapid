@@ -13,6 +13,8 @@ type WorkOrderOption = {
   model: string | null;
   laborCount: number;
   materialCount: number;
+  quotationType?: string;
+  hasClientExtras?: boolean;
 };
 
 export function NewInvoiceForm({
@@ -30,8 +32,10 @@ export function NewInvoiceForm({
   );
   const [discount, setDiscount] = useState("0");
   const [notes, setNotes] = useState("");
+  const [billingFilter, setBillingFilter] = useState<"ALL" | "INSURANCE" | "CLIENT">("ALL");
 
   const selected = workOrders.find((o) => o.id === Number(workOrderId));
+  const isInsurance = selected?.quotationType === "INSURANCE";
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,6 +45,7 @@ export function NewInvoiceForm({
         workOrderId: Number(workOrderId),
         discountAmount: Number(discount) || 0,
         notes,
+        billingFilter: isInsurance ? billingFilter : "ALL",
       });
       if (!res.ok) {
         setError(res.error);
@@ -86,6 +91,26 @@ export function NewInvoiceForm({
             {selected.brand} {selected.model} · MO: {selected.laborCount} ·
             Materiales: {selected.materialCount}
           </p>
+        )}
+
+        {isInsurance && (
+          <div>
+            <label className="form-label">Tipo de factura</label>
+            <select
+              className="form-input w-full max-w-xs"
+              value={billingFilter}
+              onChange={(e) => setBillingFilter(e.target.value as "ALL" | "INSURANCE" | "CLIENT")}
+            >
+              <option value="ALL">Completa (todo junto)</option>
+              <option value="INSURANCE">Aseguradora (solo siniestro)</option>
+              <option value="CLIENT">Extras cliente (trabajos adicionales)</option>
+            </select>
+            <p className="mt-1 text-xs text-rapid-text-muted">
+              {billingFilter === "INSURANCE" && "Solo incluye los trabajos cubiertos por el seguro + ITBIS."}
+              {billingFilter === "CLIENT" && "Solo incluye los trabajos extras solicitados por el cliente. Sin ITBIS."}
+              {billingFilter === "ALL" && "Incluye todos los trabajos en una sola factura."}
+            </p>
+          </div>
         )}
 
         <div>

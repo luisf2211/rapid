@@ -373,6 +373,7 @@ model QuotationLaborLine {
   hourlyRate     Decimal?  @map("HourlyRate") @db.Decimal(18, 2)
   lineTotal      Decimal   @default(0) @map("LineTotal") @db.Decimal(18, 2)
   sortOrder      Int       @default(0) @map("SortOrder")
+  billingTarget  String    @default("INSURANCE") @map("BillingTarget") @db.VarChar(20)
   quotation      Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuotationLaborLine_Quotation")
 
   @@map("QuotationLaborLine")
@@ -403,6 +404,7 @@ model QuotationPartLine {
   unitPrice   Decimal   @default(0) @map("UnitPrice") @db.Decimal(18, 2)
   lineTotal   Decimal   @default(0) @map("LineTotal") @db.Decimal(18, 2)
   sortOrder   Int       @default(0) @map("SortOrder")
+  billingTarget String  @default("INSURANCE") @map("BillingTarget") @db.VarChar(20)
   quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuotationPartLine_Quotation")
 
   @@map("QuotationPartLine")

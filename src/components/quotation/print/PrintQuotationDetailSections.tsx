@@ -13,9 +13,22 @@ function emptyRow(colSpan: number) {
 
 export function PrintQuotationDetailSections({
   data,
+  filterBilling,
 }: {
   data: QuotationPrintData;
+  /** Si se pasa, filtra las líneas por billingTarget. Si no, muestra todas. */
+  filterBilling?: "INSURANCE" | "CLIENT";
 }) {
+  const laborRows = filterBilling
+    ? data.laborRows.filter((l) => l.billingTarget === filterBilling)
+    : data.laborRows;
+
+  const partRows = filterBilling
+    ? data.partRows.filter((p) => p.billingTarget === filterBilling)
+    : data.partRows;
+
+  if (laborRows.length === 0 && partRows.length === 0) return null;
+
   return (
     <>
       <h3 className="qdoc-section-title">Partes a trabajar</h3>
@@ -28,12 +41,12 @@ export function PrintQuotationDetailSections({
           </tr>
         </thead>
         <tbody>
-          {data.laborRows.length === 0
+          {laborRows.length === 0
             ? emptyRow(3)
-            : data.laborRows.map((l, i) => (
+            : laborRows.map((l, i) => (
                 <tr key={i}>
                   <td>{l.area}</td>
-                  <td>{l.description || "—"}</td>
+                  <td>{l.description || "\u2014"}</td>
                   <td className="num">{formatMoney(l.total)}</td>
                 </tr>
               ))}
@@ -53,13 +66,13 @@ export function PrintQuotationDetailSections({
           </tr>
         </thead>
         <tbody>
-          {data.partRows.length === 0
+          {partRows.length === 0
             ? emptyRow(4)
-            : data.partRows.map((p, i) => (
+            : partRows.map((p, i) => (
                 <tr key={i}>
                   <td>
                     {p.name}
-                    {p.description ? ` — ${p.description}` : ""}
+                    {p.description ? ` \u2014 ${p.description}` : ""}
                   </td>
                   <td className="num">{p.quantity}</td>
                   <td className="num">{formatMoney(p.unitPrice)}</td>

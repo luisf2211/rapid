@@ -12,6 +12,7 @@ export const quotationLaborLineSchema = z.object({
   area: z.enum(QUOTATION_LABOR_AREA_VALUES),
   description: optionalStr(250),
   lineTotal: z.coerce.number().min(0).default(0),
+  billingTarget: z.enum(["INSURANCE", "CLIENT"]).default("INSURANCE"),
 });
 
 export const quotationMaterialLineSchema = z.object({
@@ -27,6 +28,7 @@ export const quotationPartLineSchema = z.object({
   description: optionalStr(250),
   quantity: z.coerce.number().positive("Cantidad debe ser mayor a 0"),
   unitPrice: z.coerce.number().min(0),
+  billingTarget: z.enum(["INSURANCE", "CLIENT"]).default("INSURANCE"),
 });
 
 export const quotationPhotoSchema = z.object({

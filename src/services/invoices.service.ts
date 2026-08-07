@@ -73,7 +73,7 @@ export function canEditInvoice(status: string): boolean {
 export async function buildInvoiceDraftFromWorkOrder(
   workOrderId: number,
   discountAmount = 0,
-  options?: { excludeInvoiceId?: number },
+  options?: { excludeInvoiceId?: number; billingFilter?: "ALL" | "INSURANCE" | "CLIENT" },
 ): Promise<InvoiceDraft> {
   const order = await prisma.workOrder.findUnique({
     where: { id: workOrderId },
@@ -99,13 +99,19 @@ export async function buildInvoiceDraftFromWorkOrder(
 
   const existing = await findActiveInvoiceForWorkOrder(workOrderId);
   if (existing && existing.id !== options?.excludeInvoiceId) {
-    throw new Error(
-      `Ya existe la factura #${existing.invoiceNumber} para esta orden`,
-    );
+    // Allow multiple invoices for split billing (insurance + client extras)
+    const billingFilter = options?.billingFilter ?? "ALL";
+    if (billingFilter === "ALL") {
+      throw new Error(
+        `Ya existe la factura #${existing.invoiceNumber} para esta orden`,
+      );
+    }
   }
 
   const billingType = order.quotation?.quotationType ?? "PRIVATE";
-  const taxRate = invoiceTaxRate(billingType);
+  const billingFilter = options?.billingFilter ?? "ALL";
+  // Client extras invoice has no ITBIS (private billing)
+  const taxRate = billingFilter === "CLIENT" ? 0 : invoiceTaxRate(billingType);
 
   const lines: InvoiceLineDraft[] = [];
   let sort = 0;
@@ -114,6 +120,8 @@ export async function buildInvoiceDraftFromWorkOrder(
     for (const l of order.quotation.laborLines) {
       const lineTotal = num(l.lineTotal);
       if (lineTotal <= 0) continue;
+      const lineBilling = (l as Record<string, unknown>).billingTarget as string ?? "INSURANCE";
+      if (billingFilter !== "ALL" && lineBilling !== billingFilter) continue;
       const label = quotationLaborAreaLabel(l.area);
       const desc = l.description?.trim()
         ? `${label} — ${l.description.trim()}`
@@ -133,6 +141,8 @@ export async function buildInvoiceDraftFromWorkOrder(
       const qty = num(p.quantity) || 1;
       const lineTotal = num(p.lineTotal);
       if (lineTotal <= 0) continue;
+      const lineBilling = (p as Record<string, unknown>).billingTarget as string ?? "INSURANCE";
+      if (billingFilter !== "ALL" && lineBilling !== billingFilter) continue;
       const unitPrice = Math.round((lineTotal / qty) * 100) / 100;
       lines.push({
         lineType: "PART",
@@ -285,6 +295,7 @@ export async function listWorkOrdersReadyToInvoice() {
         select: { laborOrders: true, materialRequisitions: true },
       },
       invoices: { where: { status: { not: "VOID" } }, take: 1 },
+      quotation: { select: { quotationType: true } },
     },
   });
 
@@ -299,14 +310,17 @@ export async function listWorkOrdersReadyToInvoice() {
       model: o.model,
       laborCount: o._count.laborOrders,
       materialCount: o._count.materialRequisitions,
+      quotationType: o.quotation?.quotationType ?? "PRIVATE",
     }));
 }
 
 export async function createInvoiceFromWorkOrder(input: CreateInvoiceInput) {
   const companyId = await requireCompanyIdFromSession();
+  const billingFilter = input.billingFilter ?? "ALL";
   const draft = await buildInvoiceDraftFromWorkOrder(
     input.workOrderId,
     input.discountAmount,
+    { billingFilter },
   );
 
   const invoiceNumber = await generateInvoiceNumber(companyId);

@@ -73,6 +73,7 @@ export type QuotationPrintData = {
     hours: number | null;
     rate: number | null;
     total: number;
+    billingTarget: string;
   }>;
   materialRows: Array<{
     name: string;
@@ -87,6 +88,7 @@ export type QuotationPrintData = {
     quantity: number;
     unitPrice: number;
     total: number;
+    billingTarget: string;
   }>;
   damageRows: Array<{
     partName: string;
@@ -111,6 +113,7 @@ export function buildQuotationPrintData(
     hours: toPlainNumber(l.estimatedHours),
     rate: toPlainNumber(l.hourlyRate),
     total: toPlainNumber(l.lineTotal) ?? 0,
+    billingTarget: (l as Record<string, unknown>).billingTarget as string ?? "INSURANCE",
   }));
 
   const partRows = q.partLines.map((p) => ({
@@ -119,6 +122,7 @@ export function buildQuotationPrintData(
     quantity: toPlainNumber(p.quantity) ?? 0,
     unitPrice: toPlainNumber(p.unitPrice) ?? 0,
     total: toPlainNumber(p.lineTotal) ?? 0,
+    billingTarget: (p as Record<string, unknown>).billingTarget as string ?? "INSURANCE",
   }));
 
   const workLines: WorkLine[] = [

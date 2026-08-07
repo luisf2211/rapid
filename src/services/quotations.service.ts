@@ -61,6 +61,7 @@ function buildLines(input: QuotationInput) {
     hourlyRate: null,
     lineTotal: Number(l.lineTotal) || 0,
     sortOrder: i,
+    billingTarget: l.billingTarget ?? "INSURANCE",
   }));
 
   // Materiales gastables no van en cotización al cliente (solo control interno vía requisiciones).
@@ -83,6 +84,7 @@ function buildLines(input: QuotationInput) {
       unitPrice: p.unitPrice,
       lineTotal: total,
       sortOrder: i,
+      billingTarget: p.billingTarget ?? "INSURANCE",
     };
   });
 

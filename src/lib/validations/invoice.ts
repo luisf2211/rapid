@@ -4,6 +4,8 @@ export const createInvoiceSchema = z.object({
   workOrderId: z.coerce.number().int().positive("Selecciona una orden"),
   discountAmount: z.coerce.number().min(0).default(0),
   notes: z.string().max(8000).optional().or(z.literal("")),
+  /** Para cotizaciones de seguro: filtrar líneas por tipo de facturación */
+  billingFilter: z.enum(["ALL", "INSURANCE", "CLIENT"]).default("ALL"),
 });
 
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
