@@ -486,7 +486,7 @@ export function NewQuotationForm({
   );
 }
 
-/** Sección de aseguradora con autocomplete desde el catálogo. */
+/** Sección de aseguradora con dropdown del catálogo + modal para agregar nueva. */
 function InsuranceSection({
   register,
   errors,
@@ -496,31 +496,71 @@ function InsuranceSection({
   errors: ReturnType<typeof useForm<QuotationFormValues>>["formState"]["errors"];
   setValue: ReturnType<typeof useForm<QuotationFormValues>>["setValue"];
 }) {
-  const [suggestions, setSuggestions] = useState<
+  const [companies, setCompanies] = useState<
     { id: number; name: string; rnc: string | null; phone: string | null; contactName: string | null }[]
   >([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newRnc, setNewRnc] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [newContact, setNewContact] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
-  const fetchSuggestions = async (query: string) => {
-    if (query.length < 2) { setSuggestions([]); return; }
+  const loadCompanies = async () => {
     try {
       const res = await fetch("/api/insurance-companies");
       if (!res.ok) return;
       const data = await res.json();
-      const filtered = data.filter((c: { name: string }) =>
-        c.name.toLowerCase().includes(query.toLowerCase()),
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
+      setCompanies(data);
+      setLoaded(true);
     } catch { /* ignore */ }
   };
 
-  const selectCompany = (company: typeof suggestions[number]) => {
-    setValue("insuranceCompany", company.name);
-    setValue("insurerRnc", company.rnc ?? "");
-    setValue("adjusterName", company.contactName ?? "");
-    setValue("adjusterPhone", company.phone ?? "");
-    setShowSuggestions(false);
+  // Load on mount
+  if (!loaded) { loadCompanies(); }
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = Number(e.target.value);
+    const company = companies.find((c) => c.id === id);
+    if (company) {
+      setValue("insuranceCompany", company.name);
+      setValue("insurerRnc", company.rnc ?? "");
+      setValue("adjusterName", company.contactName ?? "");
+      setValue("adjusterPhone", company.phone ?? "");
+    }
+  };
+
+  const handleCreateNew = async () => {
+    if (!newName.trim()) { setModalError("Nombre requerido"); return; }
+    setSaving(true);
+    setModalError(null);
+    try {
+      const res = await fetch("/api/insurance-companies", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName, rnc: newRnc, phone: newPhone, contactName: newContact }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setModalError(data.error || "Error al guardar");
+        setSaving(false);
+        return;
+      }
+      const created = await res.json();
+      // Reload list and select the new one
+      await loadCompanies();
+      setValue("insuranceCompany", created.name);
+      setValue("insurerRnc", created.rnc ?? "");
+      setValue("adjusterName", created.contactName ?? "");
+      setValue("adjusterPhone", created.phone ?? "");
+      setShowModal(false);
+      setNewName(""); setNewRnc(""); setNewPhone(""); setNewContact("");
+    } catch {
+      setModalError("Error de conexion");
+    }
+    setSaving(false);
   };
 
   return (
@@ -529,32 +569,32 @@ function InsuranceSection({
         Aseguradora
       </h2>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="relative">
-          <TextInput
-            label="Compania *"
-            error={errors.insuranceCompany?.message}
-            {...register("insuranceCompany", {
-              onChange: (e) => fetchSuggestions(e.target.value),
-            })}
-            onFocus={(e) => fetchSuggestions(e.target.value)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            autoComplete="off"
-          />
-          {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-rapid-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-              {suggestions.map((c) => (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-rapid-surface-soft"
-                    onMouseDown={() => selectCompany(c)}
-                  >
-                    <span className="font-medium">{c.name}</span>
-                    {c.rnc && <span className="text-xs text-rapid-text-muted ml-2">RNC: {c.rnc}</span>}
-                  </button>
-                </li>
+        <div>
+          <label className="form-label">Compania *</label>
+          <div className="flex gap-2">
+            <select
+              className="form-input flex-1"
+              onChange={handleSelect}
+              defaultValue=""
+            >
+              <option value="" disabled>Seleccionar aseguradora...</option>
+              {companies.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}{c.rnc ? ` (${c.rnc})` : ""}</option>
               ))}
-            </ul>
+            </select>
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              className="btn-secondary px-3"
+              title="Agregar nueva aseguradora"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          {/* Hidden input for form value */}
+          <input type="hidden" {...register("insuranceCompany")} />
+          {errors.insuranceCompany?.message && (
+            <p className="mt-1 text-xs text-rapid-error">{errors.insuranceCompany.message}</p>
           )}
         </div>
         <TextInput label="RNC aseguradora" {...register("insurerRnc")} />
@@ -564,6 +604,40 @@ function InsuranceSection({
         <TextInput label="Ajustador" {...register("adjusterName")} />
         <TextInput label="Tel. ajustador" {...register("adjusterPhone")} />
       </div>
+
+      {/* Modal para agregar aseguradora */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 space-y-4">
+            <h3 className="font-bold text-lg">Nueva aseguradora</h3>
+            {modalError && <p className="text-sm text-red-600">{modalError}</p>}
+            <div className="space-y-3">
+              <div>
+                <label className="form-label">Nombre *</label>
+                <input className="form-input w-full" value={newName} onChange={(e) => setNewName(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">RNC</label>
+                <input className="form-input w-full" value={newRnc} onChange={(e) => setNewRnc(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Telefono</label>
+                <input className="form-input w-full" value={newPhone} onChange={(e) => setNewPhone(e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Contacto</label>
+                <input className="form-input w-full" value={newContact} onChange={(e) => setNewContact(e.target.value)} />
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>Cancelar</button>
+              <button type="button" className="btn-primary" onClick={handleCreateNew} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
