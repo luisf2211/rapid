@@ -4,8 +4,10 @@ import { ArrowLeft, ClipboardList, Pencil, Printer } from "lucide-react";
 import { canEditInvoice } from "@/services/invoices.service";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getInvoiceById } from "@/services/invoices.service";
+import { listInvoicePayments, getInvoiceBalance } from "@/services/invoice-payments.service";
 import { InvoiceStatusBadge } from "@/components/invoice/InvoiceStatusBadge";
 import { InvoiceDetailActions } from "@/components/invoice/InvoiceDetailActions";
+import { InvoicePaymentsSection } from "./InvoicePaymentsSection";
 import { formatMoney } from "@/lib/formatters/money";
 import { formatDate, formatDateTime } from "@/lib/formatters/date";
 import { toPlainNumber } from "@/lib/serialize";
@@ -34,6 +36,11 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
   const taxRate = toPlainNumber(invoice.taxRate) ?? 0;
   const showTax = taxRate > 0;
   const editable = canEditInvoice(invoice.status);
+
+  const [payments, balanceData] = await Promise.all([
+    listInvoicePayments(id),
+    getInvoiceBalance(id),
+  ]);
 
   return (
     <>
@@ -199,6 +206,16 @@ export default async function InvoiceDetailPage({ params }: PageProps) {
           )}
         </div>
       )}
+
+      <InvoicePaymentsSection
+        invoiceId={invoice.id}
+        invoiceNumber={invoice.invoiceNumber}
+        payments={payments}
+        grandTotal={balanceData.grandTotal}
+        totalPaid={balanceData.totalPaid}
+        balance={balanceData.balance}
+        invoiceStatus={invoice.status}
+      />
     </>
   );
 }
