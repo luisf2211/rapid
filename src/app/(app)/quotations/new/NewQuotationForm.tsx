@@ -201,31 +201,7 @@ export function NewQuotationForm({
       </section>
 
       {quotationType === "INSURANCE" && (
-        <section className="card p-5 space-y-4">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
-            Aseguradora
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextInput
-              label="Compañía *"
-              error={errors.insuranceCompany?.message}
-              {...register("insuranceCompany")}
-            />
-            <TextInput
-              label="RNC aseguradora"
-              {...register("insurerRnc")}
-            />
-            <TextInput label="No. de póliza" {...register("policyNumber")} />
-            <TextInput label="No. reclamo" {...register("claimNumber")} />
-            <MoneyInput
-              label="Deducible"
-              error={errors.deductibleAmount?.message}
-              {...register("deductibleAmount")}
-            />
-            <TextInput label="Ajustador" {...register("adjusterName")} />
-            <TextInput label="Tel. ajustador" {...register("adjusterPhone")} />
-          </div>
-        </section>
+        <InsuranceSection register={register} errors={errors} setValue={form.setValue} />
       )}
 
       <section className="card p-5 space-y-4">
@@ -487,5 +463,87 @@ export function NewQuotationForm({
         </div>
       </div>
     </form>
+  );
+}
+
+/** Sección de aseguradora con autocomplete desde el catálogo. */
+function InsuranceSection({
+  register,
+  errors,
+  setValue,
+}: {
+  register: ReturnType<typeof useForm<QuotationFormValues>>["register"];
+  errors: ReturnType<typeof useForm<QuotationFormValues>>["formState"]["errors"];
+  setValue: ReturnType<typeof useForm<QuotationFormValues>>["setValue"];
+}) {
+  const [suggestions, setSuggestions] = useState<
+    { id: number; name: string; rnc: string | null; phone: string | null; contactName: string | null }[]
+  >([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const fetchSuggestions = async (query: string) => {
+    if (query.length < 2) { setSuggestions([]); return; }
+    try {
+      const res = await fetch("/api/insurance-companies");
+      if (!res.ok) return;
+      const data = await res.json();
+      const filtered = data.filter((c: { name: string }) =>
+        c.name.toLowerCase().includes(query.toLowerCase()),
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } catch { /* ignore */ }
+  };
+
+  const selectCompany = (company: typeof suggestions[number]) => {
+    setValue("insuranceCompany", company.name);
+    setValue("insurerRnc", company.rnc ?? "");
+    setValue("adjusterName", company.contactName ?? "");
+    setValue("adjusterPhone", company.phone ?? "");
+    setShowSuggestions(false);
+  };
+
+  return (
+    <section className="card p-5 space-y-4">
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
+        Aseguradora
+      </h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="relative">
+          <TextInput
+            label="Compania *"
+            error={errors.insuranceCompany?.message}
+            {...register("insuranceCompany", {
+              onChange: (e) => fetchSuggestions(e.target.value),
+            })}
+            onFocus={(e) => fetchSuggestions(e.target.value)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            autoComplete="off"
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <ul className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-rapid-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+              {suggestions.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-rapid-surface-soft"
+                    onMouseDown={() => selectCompany(c)}
+                  >
+                    <span className="font-medium">{c.name}</span>
+                    {c.rnc && <span className="text-xs text-rapid-text-muted ml-2">RNC: {c.rnc}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <TextInput label="RNC aseguradora" {...register("insurerRnc")} />
+        <TextInput label="No. de poliza" {...register("policyNumber")} />
+        <TextInput label="No. reclamo" {...register("claimNumber")} />
+        <MoneyInput label="Deducible" error={errors.deductibleAmount?.message} {...register("deductibleAmount")} />
+        <TextInput label="Ajustador" {...register("adjusterName")} />
+        <TextInput label="Tel. ajustador" {...register("adjusterPhone")} />
+      </div>
+    </section>
   );
 }

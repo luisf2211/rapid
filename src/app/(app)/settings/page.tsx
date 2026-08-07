@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getWorkshopSettings } from "@/services/workshop-settings.service";
 import { getWorkshopPrintInfo } from "@/lib/workshop/print-info";
@@ -34,8 +35,13 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader
-        title="Configuración del taller"
-        subtitle="Logo, datos fiscales y pies de página para documentos impresos."
+        title="Configuracion del taller"
+        subtitle="Logo, datos fiscales y pies de pagina para documentos impresos."
+        actions={
+          <Link href="/settings/insurance-companies" className="btn-secondary">
+            Aseguradoras
+          </Link>
+        }
       />
       <WorkshopSettingsForm defaults={defaults} fromDatabase={!!row} />
     </>
