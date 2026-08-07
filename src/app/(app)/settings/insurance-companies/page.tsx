@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowLeft, Plus, Building2 } from "lucide-react";
+import { Plus, Building2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { listInsuranceCompanies } from "@/services/insurance-companies.service";
 import { InsuranceCompaniesClient } from "./InsuranceCompaniesClient";
@@ -20,11 +19,6 @@ export default async function InsuranceCompaniesPage() {
       <PageHeader
         title="Aseguradoras"
         subtitle="Gestiona las compañías de seguros para cotizaciones."
-        actions={
-          <Link href="/settings" className="btn-secondary">
-            <ArrowLeft className="w-4 h-4" /> Configuración
-          </Link>
-        }
       />
 
       {error && (
