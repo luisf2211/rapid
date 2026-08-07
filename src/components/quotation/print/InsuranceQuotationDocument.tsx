@@ -18,9 +18,11 @@ function field(label: string, value: string | null | undefined) {
 export function InsuranceQuotationDocument({
   data,
   workshop,
+  filterBilling,
 }: {
   data: QuotationPrintData;
   workshop: WorkshopPrintInfo;
+  filterBilling?: "INSURANCE" | "CLIENT";
 }) {
   return (
     <article className="qdoc">
@@ -67,10 +69,10 @@ export function InsuranceQuotationDocument({
         </div>
       </div>
 
-      <PrintQuotationDetailSections data={data} filterBilling="INSURANCE" />
+      <PrintQuotationDetailSections data={data} filterBilling={filterBilling ?? "INSURANCE"} />
 
-      {/* Extras por cuenta del cliente (si existen) */}
-      {(data.laborRows.some((l) => l.billingTarget === "CLIENT") ||
+      {/* Extras por cuenta del cliente (solo si no estamos filtrando) */}
+      {!filterBilling && (data.laborRows.some((l) => l.billingTarget === "CLIENT") ||
         data.partRows.some((p) => p.billingTarget === "CLIENT")) && (
         <>
           <h3 className="qdoc-section-title" style={{ marginTop: 16 }}>

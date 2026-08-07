@@ -124,7 +124,7 @@ export default async function QuotationDetailPage({
                     Editar
                   </Link>
                 )}
-                <PrintQuotationButton quotationId={quotation.id} />
+                <PrintQuotationButton quotationId={quotation.id} quotationType={quotation.quotationType} />
                 <ShareButtons
                   documentType="cotización"
                   documentNumber={`COT-${String(quotation.quotationNumber).padStart(5, "0")}`}
