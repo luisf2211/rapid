@@ -71,17 +71,6 @@ export function InsuranceQuotationDocument({
 
       <PrintQuotationDetailSections data={data} filterBilling={filterBilling ?? "INSURANCE"} />
 
-      {/* Extras por cuenta del cliente (solo si no estamos filtrando) */}
-      {!filterBilling && (data.laborRows.some((l) => l.billingTarget === "CLIENT") ||
-        data.partRows.some((p) => p.billingTarget === "CLIENT")) && (
-        <>
-          <h3 className="qdoc-section-title" style={{ marginTop: 16 }}>
-            Trabajos extras (cuenta del cliente)
-          </h3>
-          <PrintQuotationDetailSections data={data} filterBilling="CLIENT" />
-        </>
-      )}
-
       <h3 className="qdoc-section-title">Resumen del presupuesto</h3>
       <div className="qdoc-summary-box">
         <table>
@@ -141,20 +130,6 @@ export function InsuranceQuotationDocument({
                   </td>
                 </tr>
               </>
-            )}
-            {(data.laborRows.some((l) => l.billingTarget === "CLIENT") ||
-              data.partRows.some((p) => p.billingTarget === "CLIENT")) && (
-              <tr>
-                <td><strong>Extras cliente</strong></td>
-                <td>
-                  <strong>
-                    {formatMoney(
-                      data.laborRows.filter((l) => l.billingTarget === "CLIENT").reduce((s, l) => s + l.total, 0) +
-                      data.partRows.filter((p) => p.billingTarget === "CLIENT").reduce((s, p) => s + p.total, 0),
-                    )}
-                  </strong>
-                </td>
-              </tr>
             )}
           </tbody>
         </table>
