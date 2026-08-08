@@ -128,13 +128,12 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
       />
 
       {/* ── Action bar ───────────────────────────────────────────── */}
-      {/* Two visual groups: utility (left) | workflow (right) */}
-      <div className="flex flex-wrap items-center gap-2 mb-5 pb-5 border-b border-rapid-border">
+      <div className="flex flex-wrap items-center gap-1.5 mb-5 pb-5 border-b border-rapid-hairline">
         {/* Utility: print + share + quotation */}
         <Link
           href={`/print/work-orders/${order.id}`}
           target="_blank"
-          className="btn-secondary text-sm px-3"
+          className="btn-secondary"
         >
           <Printer className="w-4 h-4" /> Imprimir
         </Link>
@@ -149,7 +148,7 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         {linkedQuotation && (
           <Link
             href={`/quotations/${linkedQuotation.id}`}
-            className="btn-secondary text-sm px-3"
+            className="btn-secondary"
           >
             <FileText className="w-4 h-4" />{" "}
             {formatDocNumber(
@@ -161,40 +160,40 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         {linkedQuotation && quotationEditable && (
           <Link
             href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
-            className="btn-secondary text-sm px-3"
+            className="btn-secondary"
           >
             <Pencil className="w-4 h-4" /> Editar cotización
           </Link>
         )}
 
         {/* Separator */}
-        <span className="hidden sm:block w-px h-6 bg-rapid-border mx-1" aria-hidden />
+        <span className="hidden sm:block w-px h-5 bg-rapid-border mx-1" aria-hidden />
 
-        {/* Workflow: the key actions for the order */}
+        {/* Workflow */}
         {receptionEditable && (
           <Link
             href={`/work-orders/${order.id}/edit`}
-            className="btn-secondary text-sm px-3"
+            className="btn-secondary"
           >
             <Pencil className="w-4 h-4" /> Editar recepción
           </Link>
         )}
         <Link
           href={`/material-requisitions/new?workOrderId=${order.id}`}
-          className="btn-secondary text-sm px-3"
+          className="btn-secondary"
         >
           <Boxes className="w-4 h-4" /> Materiales
         </Link>
         <Link
           href={`/labor-orders/new?workOrderId=${order.id}`}
-          className="btn-primary text-sm px-4"
+          className="btn-primary"
         >
           <Wrench className="w-4 h-4" /> Mano de obra
         </Link>
         {latestInvoice ? (
           <Link
             href={`/invoices/${latestInvoice.id}`}
-            className="btn-secondary text-sm px-3"
+            className="btn-secondary"
           >
             <Receipt className="w-4 h-4" /> FAC-
             {String(latestInvoice.invoiceNumber).padStart(5, "0")}
@@ -202,7 +201,7 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         ) : (
           <Link
             href={`/invoices/new?workOrderId=${order.id}`}
-            className="btn-primary text-sm px-4"
+            className="btn-primary"
           >
             <Receipt className="w-4 h-4" /> Facturar
           </Link>
@@ -212,18 +211,17 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
       {/* ── Checklist alert ──────────────────────────────────────── */}
       {receptionEditable && checklistPending && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="text-sm text-amber-900">
-            <p className="font-semibold">Checklist de recepción pendiente</p>
-            <p className="mt-0.5 text-amber-800">
-              Completa la inspección del vehículo antes de continuar con el
-              trabajo en taller.
+          <div className="text-sm text-amber-800">
+            <p className="font-medium">Checklist de recepción pendiente</p>
+            <p className="mt-0.5 text-xs text-amber-700">
+              Completa la inspección del vehículo antes de continuar.
             </p>
           </div>
           <Link
             href={`/work-orders/${order.id}/edit#checklist`}
             className="btn-primary shrink-0"
           >
-            Completar checklist
+            Completar
           </Link>
         </div>
       )}
@@ -233,14 +231,14 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         {/* Vehicle info */}
         <div className="card p-5 lg:col-span-2">
           <div className="flex items-start justify-between mb-3">
-            <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted">
+            <p className="text-xs font-medium text-rapid-text-muted">
               Vehículo
             </p>
-            <span className="font-mono text-xs uppercase px-2 py-1 rounded-md bg-rapid-black text-rapid-green font-bold">
+            <span className="font-mono text-[11px] uppercase px-2 py-0.5 rounded-md bg-rapid-surface-strong text-rapid-text-muted font-semibold">
               {order.plate ?? "—"}
             </span>
           </div>
-          <p className="text-[22px] font-bold text-rapid-text leading-tight">
+          <p className="text-xl font-semibold text-rapid-text leading-tight">
             {order.brand ?? ""} {order.model ?? ""}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
@@ -258,45 +256,45 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
         </div>
 
         {/* Financial summary + status changer combined */}
-        <div className="surface-dark p-5 flex flex-col gap-4">
+        <div className="card p-5 flex flex-col gap-4 border-l-4 border-l-rapid-green">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-white/50">
+            <p className="text-xs font-medium text-rapid-text-muted">
               Costos internos
             </p>
-            <p className="text-[28px] font-bold mt-1.5 text-rapid-green leading-none tabular-nums">
+            <p className="text-2xl font-semibold mt-1.5 text-rapid-text leading-none tabular-nums">
               {formatMoney(financial.grandTotal)}
             </p>
-            <div className="mt-3 space-y-1.5 text-xs text-white/60">
+            <div className="mt-3 space-y-1.5 text-xs text-rapid-text-muted">
               <div className="flex justify-between">
                 <span>Materiales</span>
-                <span className="font-mono text-white/90">
+                <span className="font-mono text-rapid-text">
                   {formatMoney(financial.totalMaterials)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Pintura</span>
-                <span className="font-mono text-white/90">
+                <span className="font-mono text-rapid-text">
                   {formatMoney(financial.totalPaint)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Mano de obra</span>
-                <span className="font-mono text-white/90">
+                <span className="font-mono text-rapid-text">
                   {formatMoney(financial.totalLaborAmount)}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-white/10 pt-1.5">
+              <div className="flex justify-between border-t border-rapid-hairline pt-1.5">
                 <span>Piezas MO</span>
-                <span className="font-mono text-white/90">
+                <span className="font-mono text-rapid-text">
                   {formatPieceCount(financial.totalLaborPieces)}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Status changer inside the dark card */}
-          <div className="border-t border-white/10 pt-3">
-            <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-white/50 mb-2">
+          {/* Status changer */}
+          <div className="border-t border-rapid-hairline pt-3">
+            <p className="text-xs font-medium text-rapid-text-muted mb-2">
               Estado
             </p>
             <form
@@ -307,10 +305,10 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
               <select
                 name="status"
                 defaultValue={order.status}
-                className="flex-1 min-w-0 bg-white/10 border border-white/20 text-white text-sm font-medium rounded-lg px-3 h-9 appearance-none focus:border-rapid-green focus:outline-none transition"
+                className="form-input flex-1 min-w-0 h-9 text-sm"
               >
                 {Object.entries(WORK_ORDER_STATUS_LABELS).map(([k, v]) => (
-                  <option key={k} value={k} className="bg-rapid-black">
+                  <option key={k} value={k}>
                     {v}
                   </option>
                 ))}
@@ -318,7 +316,7 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
               <button
                 type="submit"
                 aria-label="Guardar estado"
-                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-lg bg-rapid-green text-rapid-black text-xs font-bold hover:bg-rapid-green-dark hover:text-white transition focus-visible:ring-2 focus-visible:ring-rapid-green focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-lg bg-rapid-green text-white text-xs font-bold hover:bg-rapid-green-dark transition"
               >
                 <Check className="w-4 h-4" />
               </button>
@@ -415,7 +413,7 @@ function getLinkedQuotation(order: WorkOrder): LinkedQuotation | null {
 function InfoMini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wider font-semibold text-rapid-text-muted">
+      <p className="text-[11px] font-medium text-rapid-text-muted">
         {label}
       </p>
       <p className="text-sm font-medium text-rapid-text mt-0.5">{value}</p>
@@ -433,12 +431,12 @@ function InfoRow({
   value: string;
 }) {
   return (
-    <div className="flex items-start gap-3 py-2.5 border-b border-rapid-border last:border-0">
-      <div className="shrink-0 w-8 h-8 rounded-lg bg-rapid-bg flex items-center justify-center text-rapid-text-muted">
+    <div className="flex items-start gap-3 py-2.5 border-b border-rapid-hairline last:border-0">
+      <div className="shrink-0 w-7 h-7 rounded-lg bg-rapid-surface-strong flex items-center justify-center text-rapid-text-muted">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] uppercase tracking-wider font-semibold text-rapid-text-muted">
+        <p className="text-[11px] font-medium text-rapid-text-muted">
           {label}
         </p>
         <p className="text-sm font-medium text-rapid-text break-words">
@@ -503,8 +501,8 @@ function ReceptionTab({
       )}
 
       <div className="card p-5">
-        <h3 className="font-bold text-lg mb-1">Cliente</h3>
-        <p className="text-sm text-rapid-text-muted mb-3">
+        <h3 className="text-sm font-semibold text-rapid-text mb-1">Cliente</h3>
+        <p className="text-xs text-rapid-text-muted mb-3">
           Información de contacto
         </p>
         <InfoRow
@@ -530,8 +528,8 @@ function ReceptionTab({
       </div>
 
       <div className="card p-5">
-        <h3 className="font-bold text-lg mb-1">Recepción</h3>
-        <p className="text-sm text-rapid-text-muted mb-3">Datos de entrada</p>
+        <h3 className="text-sm font-semibold text-rapid-text mb-1">Recepción</h3>
+        <p className="text-xs text-rapid-text-muted mb-3">Datos de entrada</p>
         <InfoRow
           icon={<Calendar className="w-4 h-4" />}
           label="Fecha y hora de entrada"
@@ -571,10 +569,10 @@ function ReceptionTab({
       </div>
 
       <div className="card p-5 lg:col-span-2">
-        <h3 className="font-bold text-lg mb-3">Observaciones</h3>
+        <h3 className="text-sm font-semibold text-rapid-text mb-3">Observaciones</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-[11px] uppercase tracking-wider font-semibold text-rapid-text-muted">
+            <p className="text-[11px] font-medium text-rapid-text-muted">
               Daños solicitados
             </p>
             <p className="text-sm mt-1 whitespace-pre-wrap">
@@ -582,7 +580,7 @@ function ReceptionTab({
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wider font-semibold text-rapid-text-muted">
+            <p className="text-[11px] font-medium text-rapid-text-muted">
               Observaciones
             </p>
             <p className="text-sm mt-1 whitespace-pre-wrap">
@@ -592,7 +590,7 @@ function ReceptionTab({
         </div>
         {order.notes && (
           <div className="mt-4 pt-4 border-t border-rapid-border">
-            <p className="text-[11px] uppercase tracking-wider font-semibold text-rapid-text-muted">
+            <p className="text-[11px] font-medium text-rapid-text-muted">
               Notas internas
             </p>
             <p className="text-sm mt-1 whitespace-pre-wrap">{order.notes}</p>
@@ -616,14 +614,14 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
     <div className="card p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-bold text-lg">Checklist de recepción</h3>
+          <h3 className="text-sm font-semibold text-rapid-text">Checklist de recepción</h3>
           <p className="text-sm text-rapid-text-muted">
             {checkedCount} de {total} verificados
             {commentCount > 0 && ` · ${commentCount} con comentario`}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-rapid-green-dark">
+          <p className="text-xl font-semibold text-rapid-green-dark">
             {Math.round((checkedCount / total) * 100)}%
           </p>
         </div>
@@ -1015,10 +1013,10 @@ function FinancialTab({
       {latestInvoice && (
         <div className="card p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+            <p className="text-xs font-medium text-rapid-text-muted">
               Facturación
             </p>
-            <p className="text-lg font-bold mt-1">
+            <p className="text-lg font-semibold mt-1">
               FAC-{String(latestInvoice.invoiceNumber).padStart(5, "0")}
             </p>
             <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -1046,50 +1044,50 @@ function FinancialTab({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-      <div className="card p-5">
-        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+      <div className="card p-4">
+        <p className="text-xs font-medium text-rapid-text-muted">
           Materiales
         </p>
-        <p className="text-3xl font-bold mt-2">
+        <p className="text-2xl font-semibold mt-1.5 tabular-nums">
           {formatMoney(financial.totalMaterials)}
         </p>
-        <p className="text-xs text-rapid-text-muted mt-1.5">
+        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
           {order.materialRequisitions.length} requisición(es)
         </p>
       </div>
-      <div className="card p-5">
-        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+      <div className="card p-4">
+        <p className="text-xs font-medium text-rapid-text-muted">
           Pintura
         </p>
-        <p className="text-3xl font-bold mt-2">
+        <p className="text-2xl font-semibold mt-1.5 tabular-nums">
           {formatMoney(financial.totalPaint)}
         </p>
-        <p className="text-xs text-rapid-text-muted mt-1.5">
+        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
           Inventario separado
         </p>
       </div>
-      <div className="card p-5">
-        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
+      <div className="card p-4">
+        <p className="text-xs font-medium text-rapid-text-muted">
           Mano de obra
         </p>
-        <p className="text-3xl font-bold mt-2">
+        <p className="text-2xl font-semibold mt-1.5 tabular-nums">
           {formatMoney(financial.totalLaborAmount)}
         </p>
-        <p className="text-xs text-rapid-text-muted mt-1.5">
+        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
           {formatPieceCount(financial.totalLaborPieces)} piezas ·{" "}
           {order.laborOrders.length} técnico(s)
         </p>
       </div>
-      <div className="surface-dark p-5">
-        <p className="text-xs uppercase tracking-wider font-semibold text-white/60">
+      <div className="card p-4 border-l-4 border-l-rapid-green">
+        <p className="text-xs font-medium text-rapid-text-muted">
           Total interno
         </p>
-        <p className="text-3xl font-bold mt-2 text-rapid-green">
+        <p className="text-2xl font-semibold mt-1.5 tabular-nums text-rapid-green-dark">
           {formatMoney(financial.grandTotal)}
         </p>
-        <p className="text-xs text-white/50 mt-1.5">
-          Materiales + mano de obra (pagos a técnicos)
+        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
+          Materiales + mano de obra
         </p>
       </div>
       </div>

@@ -36,22 +36,22 @@ export default async function BanksPage() {
     <>
       <PageHeader
         title="Bancos"
-        subtitle="Administra las cuentas bancarias del taller y visualiza los balances."
+        subtitle="Cuentas bancarias del taller y sus balances."
         actions={<CreateBankAccountDialog />}
       />
 
       {accounts.length > 0 && (
         <div className="card p-4 mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-            <Landmark className="w-5 h-5 text-blue-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50">
+            <Landmark className="w-4 h-4 text-blue-600" />
           </div>
           <div>
-            <p className="text-xs text-rapid-text-muted">Balance total en bancos</p>
-            <p className="text-xl font-bold tabular-nums text-blue-600">
+            <p className="text-[11px] text-rapid-text-muted">Balance total</p>
+            <p className="text-lg font-semibold tabular-nums text-blue-600">
               {formatMoney(totalBalance)}
             </p>
           </div>
-          <p className="ml-auto text-sm text-rapid-text-muted">
+          <p className="ml-auto text-xs text-rapid-text-muted">
             {accounts.length} cuenta{accounts.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -65,9 +65,9 @@ export default async function BanksPage() {
 
       {!error && accounts.length === 0 && (
         <div className="card p-12 text-center">
-          <Landmark className="w-10 h-10 mx-auto text-rapid-text-muted/50 mb-3" />
-          <p className="font-medium text-rapid-text">No hay cuentas bancarias</p>
-          <p className="text-sm text-rapid-text-muted mt-1">
+          <Landmark className="w-10 h-10 mx-auto text-rapid-text-muted-soft mb-3" />
+          <p className="text-sm font-medium text-rapid-text">No hay cuentas bancarias</p>
+          <p className="text-xs text-rapid-text-muted mt-1">
             Registra las cuentas del taller para llevar el control del dinero.
           </p>
         </div>

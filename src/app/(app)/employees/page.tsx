@@ -40,7 +40,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
       />
 
       {error && (
-        <div className="card border-amber-200 bg-amber-50 p-4 mb-4 text-sm text-amber-900">
+        <div className="card border-amber-200 bg-amber-50 p-4 mb-4 text-sm text-amber-800">
           {error}
         </div>
       )}
@@ -52,7 +52,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
         </div>
       )}
 
-      <form method="get" className="card p-4 mb-4 flex gap-2">
+      <form method="get" className="card p-3 mb-4 flex gap-2">
         <input
           name="q"
           defaultValue={q ?? ""}
@@ -66,52 +66,52 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
 
       <div className="card overflow-hidden">
         {items.length === 0 ? (
-          <div className="p-14 text-center">
-            <Users className="w-10 h-10 mx-auto text-rapid-text-muted mb-3" />
-            <p className="font-semibold">Sin empleados</p>
+          <div className="p-12 text-center">
+            <Users className="w-10 h-10 mx-auto text-rapid-text-muted-soft mb-3" />
+            <p className="text-sm font-medium text-rapid-text">Sin empleados</p>
             <Link href="/employees/new" className="btn-primary mt-4 inline-flex">
               Registrar empleado
             </Link>
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-rapid-bg/60 text-xs uppercase tracking-wider text-rapid-text-muted">
-              <tr>
-                <th className="text-left font-semibold px-5 py-3">Nombre</th>
-                <th className="text-left font-semibold px-5 py-3">Rol</th>
-                <th className="text-right font-semibold px-5 py-3">Tarifa/pieza</th>
-                <th className="text-center font-semibold px-5 py-3">Estado</th>
-                <th className="px-5 py-3" />
+            <thead>
+              <tr className="border-b border-rapid-border bg-rapid-surface-soft">
+                <th className="table-header">Nombre</th>
+                <th className="table-header">Rol</th>
+                <th className="table-header text-right">Tarifa/pieza</th>
+                <th className="table-header text-center">Estado</th>
+                <th className="table-header w-12" />
               </tr>
             </thead>
             <tbody>
               {items.map((emp) => (
-                <tr key={emp.Id} className="border-t border-rapid-border hover:bg-rapid-bg/30">
-                  <td className="px-5 py-3 font-medium">
+                <tr key={emp.Id} className="table-row">
+                  <td className="table-cell font-medium text-rapid-text">
                     {emp.Name}
                     {emp.IsExternal && (
-                      <span className="ml-2 text-xs text-rapid-text-muted">(externo)</span>
+                      <span className="ml-2 text-[11px] text-rapid-text-muted">(externo)</span>
                     )}
                   </td>
-                  <td className="px-5 py-3">{emp.Role}</td>
-                  <td className="px-5 py-3 text-right font-mono">
+                  <td className="table-cell text-rapid-text-muted">{emp.Role}</td>
+                  <td className="table-cell text-right font-mono tabular-nums">
                     {formatMoney(toPlainNumber(emp.DefaultUnitPrice) ?? 0)}
                   </td>
-                  <td className="px-5 py-3 text-center">
+                  <td className="table-cell text-center">
                     <span
-                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      className={`inline-flex px-2 py-0.5 rounded-md text-[11px] font-medium border ${
                         emp.IsActive
-                          ? "bg-rapid-green-soft text-rapid-green-dark"
-                          : "bg-rapid-bg text-rapid-text-muted"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+                          : "bg-gray-50 text-gray-600 border-gray-200/80"
                       }`}
                     >
                       {emp.IsActive ? "Activo" : "Inactivo"}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-right">
+                  <td className="table-cell text-right">
                     <Link
                       href={`/employees/${emp.Id}`}
-                      className="text-xs font-semibold text-rapid-green-dark hover:underline"
+                      className="text-xs font-medium text-rapid-green-dark hover:underline"
                     >
                       Ver
                     </Link>

@@ -14,38 +14,38 @@ export function DashboardFinance({
   const grandTotal = totalMaterials + totalLaborAmount;
 
   return (
-    <section className="rounded-2xl bg-rapid-black text-white p-5 sm:p-6">
-      <p className="text-xs font-semibold uppercase tracking-widest text-white/45">
+    <section className="card p-4">
+      <p className="text-xs font-medium text-rapid-text-muted">
         Costos internos
       </p>
-      <p className="text-3xl sm:text-4xl font-bold tabular-nums mt-2 text-rapid-green">
+      <p className="text-2xl font-semibold tabular-nums mt-1.5 text-rapid-text">
         {formatMoney(grandTotal)}
       </p>
-      <p className="text-xs text-white/45 mt-1">
-        Materiales + mano de obra registrada
+      <p className="text-[11px] text-rapid-text-muted-soft mt-0.5">
+        Materiales + mano de obra
       </p>
 
-      <div className="mt-5 space-y-3">
+      <div className="mt-4 pt-3 border-t border-rapid-hairline space-y-2.5">
         <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="flex items-center gap-2 text-white/70">
-            <Wrench className="w-4 h-4 text-rapid-green" />
+          <span className="flex items-center gap-2 text-rapid-text-muted">
+            <Wrench className="w-3.5 h-3.5 text-rapid-green" />
             Mano de obra
           </span>
-          <span className="font-mono font-semibold tabular-nums">
+          <span className="font-mono font-medium tabular-nums text-rapid-text">
             {formatMoney(totalLaborAmount)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="flex items-center gap-2 text-white/70">
-            <Boxes className="w-4 h-4 text-white/50" />
+          <span className="flex items-center gap-2 text-rapid-text-muted">
+            <Boxes className="w-3.5 h-3.5 text-rapid-text-muted-soft" />
             Materiales
           </span>
-          <span className="font-mono font-semibold tabular-nums">
+          <span className="font-mono font-medium tabular-nums text-rapid-text">
             {formatMoney(totalMaterials)}
           </span>
         </div>
-        <div className="flex items-center justify-between gap-3 text-xs text-white/45 pt-1 border-t border-white/10">
-          <span>Piezas MO acumuladas</span>
+        <div className="flex items-center justify-between gap-3 text-xs text-rapid-text-muted pt-2 border-t border-rapid-hairline">
+          <span>Piezas MO</span>
           <span className="font-mono tabular-nums">
             {formatPieceCount(totalLaborPieces)}
           </span>

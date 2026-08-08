@@ -1,7 +1,6 @@
 "use client";
 
 import type { InventoryStockAlert } from "@/lib/inventory/alerts";
-import { PanelLeftClose, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "./Logo";
 import { SidebarNav } from "./SidebarNav";
@@ -30,79 +29,108 @@ export function AppSidebar({ alerts, total, session, workshop }: Props) {
   return (
     <aside
       className={cn(
-        "hidden lg:flex shrink-0 flex-col h-screen sticky top-0 border-r border-white/[0.06] bg-[#0c100f] text-white transition-[width] duration-200 ease-out",
-        collapsed ? "w-[76px]" : "w-[260px]",
-        !ready && "w-[260px]",
+        "hidden lg:flex shrink-0 h-screen sticky top-0",
+        "border-r border-rapid-border bg-white",
+        "transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        collapsed ? "w-[68px]" : "w-[240px]",
+        !ready && "w-[240px]",
       )}
     >
-      {collapsed ? (
-        <div className="shrink-0 flex flex-col items-center gap-3 px-2 py-5">
-          {workshop?.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={workshop.logoUrl}
-              alt={workshop.businessName ?? "Logo"}
-              className="w-9 h-9 rounded-xl object-contain"
-            />
-          ) : (
-            <Logo variant="dark" compact />
-          )}
-          <button
-            type="button"
-            onClick={toggle}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-white/50 hover:bg-white/[0.08] hover:text-white transition"
-            aria-label="Expandir menú"
-            title="Expandir menú"
-          >
-            <PanelLeft className="h-5 w-5" strokeWidth={2} />
-          </button>
-        </div>
-      ) : (
-        <div className="shrink-0 flex items-start justify-between gap-2 px-4 py-5">
-          <div className="min-w-0 flex items-center gap-2.5">
+      {/* Main sidebar content */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Header — Workshop logo & name */}
+        {collapsed ? (
+          <div className="shrink-0 flex flex-col items-center px-2 py-4 border-b border-rapid-border">
             {workshop?.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={workshop.logoUrl}
                 alt={workshop.businessName ?? "Logo"}
-                className="w-9 h-9 rounded-xl object-contain shrink-0"
+                className="w-10 h-10 rounded-lg object-contain"
               />
             ) : (
-              <Logo variant="dark" compact />
+              <Logo variant="light" compact />
             )}
-            <div className="min-w-0">
-              <span className="block font-bold tracking-tight text-base text-white truncate">
-                {workshop?.businessName || "Rapid"}
-              </span>
-              <span className="block text-[11px] text-white/40 font-medium truncate">
-                Gestión de taller
-              </span>
-            </div>
           </div>
-          <button
-            type="button"
-            onClick={toggle}
-            className="shrink-0 flex h-9 w-9 items-center justify-center rounded-xl text-white/50 hover:bg-white/[0.08] hover:text-white transition"
-            aria-label="Contraer menú"
-            title="Contraer menú"
-          >
-            <PanelLeftClose className="h-5 w-5" strokeWidth={2} />
-          </button>
-        </div>
-      )}
+        ) : (
+          <div className="shrink-0 flex flex-col items-center px-4 pt-5 pb-4 border-b border-rapid-border">
+            {/* Logo — full width, generous height */}
+            {workshop?.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={workshop.logoUrl}
+                alt={workshop.businessName ?? "Logo"}
+                className="w-full h-14 object-contain"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-xl bg-rapid-green flex items-center justify-center shadow-[0_2px_8px_rgba(0,200,83,0.25)]">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-6 h-6 text-white"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            )}
+            {/* Workshop name — below logo, left-aligned */}
+            <span className="mt-2.5 text-[13px] font-semibold text-rapid-text truncate w-full text-center">
+              {workshop?.businessName || "Rapid"}
+            </span>
+          </div>
+        )}
 
-      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain">
-        <SidebarNav stockAlertCount={total} />
-        <SidebarStockAlerts alerts={alerts} total={total} />
+        {/* Navigation */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain">
+          <SidebarNav stockAlertCount={total} />
+          <SidebarStockAlerts alerts={alerts} total={total} />
+        </div>
+
+        <SidebarFooter />
+        <SessionBar
+          email={session.email}
+          fullName={session.fullName}
+          companyName={session.companyName}
+          collapsed={collapsed}
+        />
       </div>
 
-      <SidebarFooter />
-      <SessionBar
-        email={session.email}
-        fullName={session.fullName}
-        companyName={session.companyName}
-        collapsed={collapsed}
-      />
+      {/* Collapse rail — full-height vertical strip on the right edge */}
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
+        title={collapsed ? "Expandir menú" : "Contraer menú"}
+        className={cn(
+          "group shrink-0 w-7 flex items-center justify-center",
+          "border-l border-rapid-border bg-rapid-surface-soft/50",
+          "transition-colors duration-150 cursor-pointer",
+          "hover:bg-rapid-surface-strong",
+        )}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={cn(
+            "w-4 h-4 text-rapid-text-muted transition-transform duration-200",
+            collapsed ? "rotate-0" : "rotate-180",
+          )}
+        >
+          <polyline points="13 17 18 12 13 7" />
+          <polyline points="6 17 11 12 6 7" />
+        </svg>
+      </button>
     </aside>
   );
 }

@@ -32,7 +32,7 @@ export default async function LaborOrdersPage() {
 
       {error && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-4">
-          <p className="text-sm font-semibold text-amber-800">
+          <p className="text-sm font-medium text-amber-800">
             No se pudo conectar a la base de datos
           </p>
           <p className="text-xs text-amber-700 mt-1 font-mono break-all">
@@ -43,12 +43,12 @@ export default async function LaborOrdersPage() {
 
       <div className="card overflow-hidden">
         {items.length === 0 ? (
-          <div className="p-14 text-center">
+          <div className="p-12 text-center">
             <div className="w-12 h-12 rounded-xl bg-rapid-green-soft text-rapid-green-dark flex items-center justify-center mx-auto mb-3">
               <Wrench className="w-6 h-6" />
             </div>
-            <p className="font-semibold text-rapid-text">Sin órdenes</p>
-            <p className="text-sm text-rapid-text-muted mt-1 max-w-sm mx-auto">
+            <p className="text-sm font-medium text-rapid-text">Sin órdenes</p>
+            <p className="text-xs text-rapid-text-muted mt-1 max-w-sm mx-auto">
               Crea una orden de mano de obra desde el detalle de una orden de
               recepción.
             </p>
@@ -59,78 +59,65 @@ export default async function LaborOrdersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-rapid-bg/60 text-xs uppercase tracking-wider text-rapid-text-muted">
-                <tr>
-                  <th className="text-left font-semibold px-5 py-3">Orden MO</th>
-                  <th className="text-left font-semibold px-5 py-3">
-                    Orden / Cliente
-                  </th>
-                  <th className="text-left font-semibold px-5 py-3">
-                    Vehículo
-                  </th>
-                  <th className="text-left font-semibold px-5 py-3">
-                    Técnico
-                  </th>
-                  <th className="text-center font-semibold px-5 py-3">Piezas</th>
-                  <th className="text-right font-semibold px-5 py-3">
-                    Total $
-                  </th>
-                  <th className="text-left font-semibold px-5 py-3">Fecha</th>
-                  <th className="px-5 py-3" />
+              <thead>
+                <tr className="border-b border-rapid-border bg-rapid-surface-soft">
+                  <th className="table-header">Orden MO</th>
+                  <th className="table-header">Orden / Cliente</th>
+                  <th className="table-header">Vehículo</th>
+                  <th className="table-header">Técnico</th>
+                  <th className="table-header text-center">Piezas</th>
+                  <th className="table-header text-right">Total</th>
+                  <th className="table-header">Fecha</th>
+                  <th className="table-header w-20" />
                 </tr>
               </thead>
               <tbody>
                 {items.map((it) => (
-                  <tr
-                    key={it.id}
-                    className="border-t border-rapid-border hover:bg-rapid-bg/30"
-                  >
-                    <td className="px-5 py-3 font-mono text-xs font-semibold">
+                  <tr key={it.id} className="table-row">
+                    <td className="table-cell font-mono text-[11px] font-medium text-rapid-text-muted">
                       MO-{String(it.id).padStart(5, "0")}
                     </td>
-                    <td className="px-5 py-3">
-                      <p className="font-medium">
+                    <td className="table-cell">
+                      <p className="font-medium text-rapid-text">
                         {it.workOrder.customerName ?? "—"}
                       </p>
-                      <p className="text-xs text-rapid-text-muted font-mono">
+                      <p className="text-[11px] text-rapid-text-muted font-mono">
                         #{String(it.workOrder.orderNumber).padStart(5, "0")}
                       </p>
                     </td>
-                    <td className="px-5 py-3 text-rapid-text-muted">
+                    <td className="table-cell text-rapid-text-muted">
                       {it.workOrder.brand ?? ""} {it.workOrder.model ?? ""}{" "}
-                      <span className="font-mono text-xs">
+                      <span className="font-mono text-[11px]">
                         · {it.workOrder.plate ?? "—"}
                       </span>
                     </td>
-                    <td className="px-5 py-3">{laborOrderWorkerName(it)}</td>
-                    <td className="px-5 py-3 text-center">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rapid-bg text-rapid-text font-mono text-xs">
+                    <td className="table-cell">{laborOrderWorkerName(it)}</td>
+                    <td className="table-cell text-center">
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-rapid-surface-strong text-rapid-text-muted font-mono text-[11px]">
                         {it.items.length}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-right tabular-nums font-bold text-rapid-green-dark">
+                    <td className="table-cell text-right tabular-nums font-semibold text-rapid-green-dark">
                       {formatMoney(sumLaborOrderAmount(it.items))}
                     </td>
-                    <td className="px-5 py-3 text-xs text-rapid-text-muted">
+                    <td className="table-cell text-[11px] text-rapid-text-muted">
                       {formatDateTime(it.createdAt)}
                     </td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="table-cell text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/labor-orders/${it.id}`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-rapid-text-muted hover:text-rapid-text"
+                          className="text-xs font-medium text-rapid-text-muted hover:text-rapid-text"
                           title="Ver"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          Ver
                         </Link>
                         <Link
                           href={`/labor-orders/${it.id}/edit`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-rapid-green-dark hover:underline"
+                          className="text-xs font-medium text-rapid-green-dark hover:underline"
                           title="Editar"
                         >
                           <Pencil className="w-3.5 h-3.5" />
-                          Editar
                         </Link>
                       </div>
                     </td>

@@ -18,9 +18,7 @@ interface ShareButtonsProps {
 }
 
 function cleanPhone(phone: string): string {
-  // Remove all non-digits
   let digits = phone.replace(/\D/g, "");
-  // If starts with 1 and has 10+ digits, assume US/DR format
   if (digits.length === 10) digits = "1" + digits;
   return digits;
 }
@@ -55,18 +53,17 @@ export function ShareButtons({
     ? `mailto:${email}?subject=${emailSubject}&body=${emailBody}`
     : `mailto:?subject=${emailSubject}&body=${emailBody}`;
 
-  /** Abre la vista de impresión con auto=1 para disparar print() automáticamente */
   const handleDownloadPdf = () => {
     const separator = printPath.includes("?") ? "&" : "?";
     window.open(`${printPath}${separator}auto=1`, "_blank");
   };
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1">
       <button
         type="button"
         onClick={handleDownloadPdf}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-rapid-surface-soft text-rapid-text hover:bg-rapid-surface transition"
+        className="btn-secondary h-8 px-2.5 text-xs gap-1.5"
         title="Descargar / Imprimir PDF"
       >
         <Download className="w-3.5 h-3.5" />
@@ -76,7 +73,7 @@ export function ShareButtons({
         href={whatsappHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition"
+        className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors"
         title={phone ? `WhatsApp a ${phone}` : "Enviar por WhatsApp"}
       >
         <MessageCircle className="w-3.5 h-3.5" />
@@ -84,7 +81,7 @@ export function ShareButtons({
       </a>
       <a
         href={emailHref}
-        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+        className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
         title={email ? `Correo a ${email}` : "Enviar por correo"}
       >
         <Mail className="w-3.5 h-3.5" />

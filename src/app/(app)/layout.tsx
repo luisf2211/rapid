@@ -61,7 +61,7 @@ export default async function AppLayout({
             alerts={stockAlerts.alerts}
             total={stockAlerts.total}
           />
-          <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6 lg:py-8 pb-28 lg:pb-10 max-w-[1400px] w-full mx-auto">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-5 lg:py-6 pb-28 lg:pb-8 max-w-[1280px] w-full mx-auto">
             {children}
           </main>
           <MobileBottomNav stockAlertCount={stockAlerts.total} />

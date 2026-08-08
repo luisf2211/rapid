@@ -57,12 +57,12 @@ export default async function QuotationDetailPage({
     : false;
 
   return (
-    <div className="space-y-5 max-w-4xl">
+    <div className="space-y-4 max-w-4xl">
       <Link
         href="/quotations"
-        className="inline-flex items-center gap-1.5 text-sm text-rapid-text-muted hover:text-rapid-text transition"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-rapid-text-muted hover:text-rapid-text transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-3.5 h-3.5" />
         Cotizaciones
       </Link>
 
@@ -78,35 +78,35 @@ export default async function QuotationDetailPage({
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h1 className="text-xl sm:text-2xl font-bold text-rapid-text">
+                  <h1 className="text-xl sm:text-2xl font-semibold text-rapid-text">
                     #{quotation.quotationNumber}
                   </h1>
                   <QuotationStatusBadge status={quotation.status} />
                 </div>
-                <p className="text-rapid-text font-medium truncate">
+                <p className="text-sm font-medium text-rapid-text truncate">
                   {quotation.customerName}
                 </p>
-                <p className="text-sm text-rapid-text-muted mt-0.5">
+                <p className="text-xs text-rapid-text-muted mt-0.5">
                   {typeLabel}
                   {quotation.plate ? ` · ${quotation.plate}` : ""}
                 </p>
                 {quotation.rejectionReason && (
-                  <p className="text-sm text-red-700 mt-2">
+                  <p className="text-xs text-red-600 mt-2">
                     {quotation.rejectionReason}
                   </p>
                 )}
               </div>
               <div className="sm:text-right shrink-0">
-                <p className="text-2xl sm:text-3xl font-bold tabular-nums">
+                <p className="text-2xl font-semibold tabular-nums text-rapid-text">
                   {formatMoney(toPlainNumber(quotation.grandTotal) ?? 0)}
                 </p>
-                <p className="text-xs text-rapid-text-muted">
+                <p className="text-[11px] text-rapid-text-muted">
                   {quotation.quotationType === "INSURANCE" ? "con ITBIS" : "total"}
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 pt-5 border-t border-rapid-border space-y-4">
+            <div className="mt-5 pt-5 border-t border-rapid-hairline space-y-4">
               <QuotationWorkflowActions
                 id={quotation.id}
                 status={quotation.status}
@@ -147,14 +147,14 @@ export default async function QuotationDetailPage({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="card p-4 text-sm space-y-1.5">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted mb-2">
+              <h2 className="text-xs font-medium text-rapid-text-muted mb-2">
                 Cliente
               </h2>
               <p className="font-medium">{quotation.customerName}</p>
               {quotation.phone && <p>{quotation.phone}</p>}
               {quotation.email && <p className="text-rapid-text-muted">{quotation.email}</p>}
               {quotation.quotationType === "INSURANCE" && (
-                <div className="pt-2 mt-2 border-t border-rapid-border space-y-1">
+                <div className="pt-2 mt-2 border-t border-rapid-hairline space-y-1">
                   {quotation.insuranceCompany && (
                     <p className="font-medium">{quotation.insuranceCompany}</p>
                   )}
@@ -182,7 +182,7 @@ export default async function QuotationDetailPage({
               )}
             </div>
             <div className="card p-4 text-sm space-y-1.5">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted mb-2">
+              <h2 className="text-xs font-medium text-rapid-text-muted mb-2">
                 Vehículo
               </h2>
               <p className="font-medium">
@@ -294,7 +294,7 @@ function LineTable({
 }) {
   return (
     <div className="card overflow-hidden">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted px-4 pt-4 pb-2">
+      <h2 className="text-xs font-medium text-rapid-text-muted px-4 pt-4 pb-2">
         {title}
       </h2>
       <div className="overflow-x-auto">

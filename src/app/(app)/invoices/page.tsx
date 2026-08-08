@@ -41,7 +41,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
     <>
       <PageHeader
         title="Facturación"
-        subtitle="Último paso: factura a partir de mano de obra y materiales de la orden."
+        subtitle="Facturas generadas a partir de mano de obra y materiales."
         actions={
           <Link href="/invoices/new" className="btn-primary">
             <Plus className="w-4 h-4" />
@@ -64,13 +64,13 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cliente, placa o número..."
-            className="form-input w-full pl-10"
+            className="form-input w-full pl-9"
           />
         </div>
         <select
           name="status"
           defaultValue={status ?? ""}
-          className="form-input sm:w-40"
+          className="form-input sm:w-36"
         >
           <option value="">Todos</option>
           {Object.entries(INVOICE_STATUS_LABELS).map(([k, v]) => (
@@ -79,22 +79,21 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
             </option>
           ))}
         </select>
-        <button type="submit" className="btn-dark sm:px-5">
+        <button type="submit" className="btn-dark">
           Buscar
         </button>
       </form>
 
       {error && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-4 text-sm text-amber-800">
-          No se pudo cargar el listado. Ejecuta el script SQL 004 y reinicia el
-          servidor (<code className="text-xs">npx prisma generate</code>).
+          No se pudo cargar el listado.
         </div>
       )}
 
       {!error && invoices.length === 0 && (
         <div className="card p-12 text-center">
-          <Receipt className="w-10 h-10 mx-auto text-rapid-text-muted/50 mb-3" />
-          <p className="font-medium text-rapid-text">No hay facturas</p>
+          <Receipt className="w-10 h-10 mx-auto text-rapid-text-muted-soft mb-3" />
+          <p className="text-sm font-medium text-rapid-text">No hay facturas</p>
           <Link href="/invoices/new" className="btn-primary inline-flex mt-4">
             <Plus className="w-4 h-4" />
             Generar la primera

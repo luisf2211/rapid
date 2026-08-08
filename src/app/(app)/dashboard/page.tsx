@@ -23,11 +23,11 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="-mt-1">
+    <>
       {error && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-6 text-sm text-amber-900">
-          <p className="font-semibold">Sin conexión a la base de datos</p>
-          <p className="text-xs font-mono mt-1 opacity-80 break-all">{error}</p>
+        <div className="card border-amber-200 bg-amber-50 p-4 mb-5 text-sm text-amber-800">
+          <p className="font-medium">Sin conexión a la base de datos</p>
+          <p className="text-xs font-mono mt-1 opacity-75 break-all">{error}</p>
         </div>
       )}
 
@@ -49,20 +49,20 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-5">
         <DashboardRecentOrders orders={stats?.recentOrders ?? []} />
 
-        <aside className="space-y-6">
+        <aside className="space-y-4">
           <DashboardFinance
             totalMaterials={stats?.totalMaterials ?? 0}
             totalLaborAmount={stats?.totalLaborAmount ?? 0}
             totalLaborPieces={stats?.totalLaborPieces ?? 0}
           />
-          <div className="card p-4">
+          <div className="card p-3">
             <DashboardQuickLinks />
           </div>
         </aside>
       </div>
-    </div>
+    </>
   );
 }

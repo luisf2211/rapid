@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, ChevronRight } from "lucide-react";
 import { logoutAction } from "@/app/(auth)/actions";
 
 type Props = {
@@ -15,18 +15,23 @@ export function SessionBar({ email, fullName, companyName, collapsed }: Props) {
     <div
       className={
         collapsed
-          ? "px-2 py-3 border-t border-white/[0.08]"
-          : "px-3 py-3 border-t border-white/[0.08] space-y-2"
+          ? "px-2 py-3 border-t border-rapid-border"
+          : "px-3 py-3 border-t border-rapid-border"
       }
     >
       {!collapsed && (
-        <div className="px-1">
-          <p className="text-xs text-white/45 truncate">
-            {companyName ?? "Taller"}
-          </p>
-          <p className="text-sm font-medium text-white truncate">
-            {fullName ?? email}
-          </p>
+        <div className="flex items-center gap-2.5 px-2 mb-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rapid-surface-strong text-rapid-text-muted text-xs font-semibold uppercase">
+            {(fullName ?? email).charAt(0)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-medium text-rapid-text truncate leading-tight">
+              {fullName ?? email}
+            </p>
+            <p className="text-[11px] text-rapid-text-muted truncate">
+              {companyName ?? "Taller"}
+            </p>
+          </div>
         </div>
       )}
       <form action={logoutAction}>
@@ -35,12 +40,12 @@ export function SessionBar({ email, fullName, companyName, collapsed }: Props) {
           title="Cerrar sesión"
           className={
             collapsed
-              ? "w-full flex justify-center p-2 rounded-lg text-white/55 hover:bg-white/[0.06] hover:text-white"
-              : "flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium bg-white/5 border border-white/10 text-white hover:bg-white/10"
+              ? "w-full flex justify-center p-2 rounded-lg text-rapid-text-muted hover:bg-rapid-surface-strong hover:text-rapid-text transition-colors"
+              : "flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-rapid-text-muted hover:bg-rapid-surface-strong hover:text-rapid-text transition-colors"
           }
         >
-          <LogOut className="w-4 h-4" />
-          {!collapsed && <span>Salir</span>}
+          <LogOut className="w-3.5 h-3.5" />
+          {!collapsed && <span>Cerrar sesión</span>}
         </button>
       </form>
     </div>

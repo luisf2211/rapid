@@ -13,7 +13,7 @@ interface Props {
 
 export function MobileTopBar({ stockAlertCount = 0, workshop }: Props) {
   return (
-    <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0c100f] px-4 py-3.5 text-white">
+    <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-rapid-border bg-white/95 backdrop-blur-md px-4 py-3">
       <div className="flex items-center gap-2.5 min-w-0">
         <MobileMenu />
         {workshop?.logoUrl ? (
@@ -21,12 +21,12 @@ export function MobileTopBar({ stockAlertCount = 0, workshop }: Props) {
           <img
             src={workshop.logoUrl}
             alt={workshop.businessName ?? "Logo"}
-            className="w-8 h-8 rounded-lg object-contain shrink-0"
+            className="w-7 h-7 rounded-lg object-contain shrink-0"
           />
         ) : (
-          <Logo variant="dark" compact />
+          <Logo variant="light" compact />
         )}
-        <span className="font-bold text-sm text-white truncate">
+        <span className="font-semibold text-sm text-rapid-text truncate">
           {workshop?.businessName || "Rapid"}
         </span>
       </div>
@@ -34,9 +34,9 @@ export function MobileTopBar({ stockAlertCount = 0, workshop }: Props) {
         {stockAlertCount > 0 && (
           <Link
             href="/inventory?filter=low"
-            className="flex h-10 items-center gap-1.5 rounded-xl bg-amber-500/15 px-3 text-amber-200 text-xs font-semibold ring-1 ring-amber-500/25"
+            className="flex h-8 items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 text-amber-700 text-xs font-semibold border border-amber-200"
           >
-            <AlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="w-3.5 h-3.5" />
             <span>{stockAlertCount > 99 ? "99+" : stockAlertCount}</span>
           </Link>
         )}

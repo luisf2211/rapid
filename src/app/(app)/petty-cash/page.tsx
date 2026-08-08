@@ -1,4 +1,4 @@
-import { Coins, Plus } from "lucide-react";
+import { Coins } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { listPettyCashFunds } from "@/services/petty-cash.service";
 import { toPlainNumber } from "@/lib/serialize";
@@ -35,18 +35,18 @@ export default async function PettyCashPage() {
     <>
       <PageHeader
         title="Caja chica"
-        subtitle="Fondos fijos para gastos menores: comida, tornillos, facturas misceláneas."
+        subtitle="Fondos fijos para gastos menores del día a día."
         actions={<CreateFundDialog />}
       />
 
       {totalBalance > 0 && (
         <div className="card p-4 mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50">
-            <Coins className="w-5 h-5 text-amber-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50">
+            <Coins className="w-4 h-4 text-amber-600" />
           </div>
           <div>
-            <p className="text-xs text-rapid-text-muted">Balance total disponible</p>
-            <p className="text-xl font-bold tabular-nums text-amber-600">
+            <p className="text-[11px] text-rapid-text-muted">Balance disponible</p>
+            <p className="text-lg font-semibold tabular-nums text-amber-600">
               {formatMoney(totalBalance)}
             </p>
           </div>
@@ -61,9 +61,9 @@ export default async function PettyCashPage() {
 
       {!error && funds.length === 0 && (
         <div className="card p-12 text-center">
-          <Coins className="w-10 h-10 mx-auto text-rapid-text-muted/50 mb-3" />
-          <p className="font-medium text-rapid-text">No hay fondos de caja chica</p>
-          <p className="text-sm text-rapid-text-muted mt-1">
+          <Coins className="w-10 h-10 mx-auto text-rapid-text-muted-soft mb-3" />
+          <p className="text-sm font-medium text-rapid-text">No hay fondos de caja chica</p>
+          <p className="text-xs text-rapid-text-muted mt-1">
             Crea un fondo para empezar a registrar gastos menores.
           </p>
         </div>

@@ -86,8 +86,8 @@ export function WorkshopSettingsForm({ defaults, fromDatabase }: Props) {
       )}
 
       <section className="card p-5 space-y-4">
-        <h2 className="font-bold text-lg">Datos del taller</h2>
-        <p className="text-sm text-rapid-text-muted">
+        <h2 className="text-sm font-semibold text-rapid-text">Datos del taller</h2>
+        <p className="text-xs text-rapid-text-muted">
           Aparecen en encabezados de cotizaciones, recepciones y facturas.
         </p>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -177,7 +177,7 @@ export function WorkshopSettingsForm({ defaults, fromDatabase }: Props) {
       </section>
 
       <section className="card p-5 space-y-4">
-        <h2 className="font-bold text-lg">Facturación e impresión</h2>
+        <h2 className="text-sm font-semibold text-rapid-text">Facturación e impresión</h2>
         <div className="grid sm:grid-cols-2 gap-4">
           <TextInput
             label="ITBIS por defecto (decimal, ej. 0.18)"

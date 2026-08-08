@@ -39,7 +39,7 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
     <>
       <PageHeader
         title="Cotizaciones"
-        subtitle="Antes de recibir el vehículo en el taller."
+        subtitle="Presupuestos antes de recibir el vehículo en el taller."
         actions={
           <Link href="/quotations/new" className="btn-primary">
             <Plus className="w-4 h-4" />
@@ -62,13 +62,13 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
             name="q"
             defaultValue={q ?? ""}
             placeholder="Cliente, placa o número..."
-            className="form-input w-full pl-10"
+            className="form-input w-full pl-9"
           />
         </div>
         <select
           name="status"
           defaultValue={status ?? ""}
-          className="form-input sm:w-40"
+          className="form-input sm:w-36"
         >
           <option value="">Todos</option>
           <option value="DRAFT">Borrador</option>
@@ -77,7 +77,7 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
           <option value="REJECTED">Rechazada</option>
           <option value="CONVERTED">Convertida</option>
         </select>
-        <button type="submit" className="btn-dark sm:px-5">
+        <button type="submit" className="btn-dark">
           Buscar
         </button>
       </form>
@@ -90,8 +90,8 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
 
       {!error && quotations.length === 0 && (
         <div className="card p-12 text-center">
-          <FileText className="w-10 h-10 mx-auto text-rapid-text-muted/50 mb-3" />
-          <p className="font-medium text-rapid-text">No hay cotizaciones</p>
+          <FileText className="w-10 h-10 mx-auto text-rapid-text-muted-soft mb-3" />
+          <p className="text-sm font-medium text-rapid-text">No hay cotizaciones</p>
           <Link href="/quotations/new" className="btn-primary inline-flex mt-4">
             <Plus className="w-4 h-4" />
             Crear la primera

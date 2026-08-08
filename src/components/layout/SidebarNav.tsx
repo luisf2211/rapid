@@ -31,7 +31,7 @@ export function SidebarNav({ stockAlertCount = 0 }: { stockAlertCount?: number }
   };
 
   return (
-    <nav className={cn("py-4 space-y-1", collapsed ? "px-2" : "px-3")}>
+    <nav className={cn("py-3 space-y-0.5", collapsed ? "px-2" : "px-3")}>
       {sidebarNavGroups.map((group) => (
         <SidebarGroup
           key={group.label}
@@ -62,10 +62,9 @@ function SidebarGroup({
   collapsed: boolean;
   stockAlertCount: number;
 }) {
-  // When collapsed, show all items without accordion
   if (collapsed) {
     return (
-      <div className="space-y-1">
+      <div className="space-y-0.5 mb-2">
         {group.items.map((item) => {
           const active = isNavActive(pathname, item.href);
           const Icon = item.icon;
@@ -77,23 +76,16 @@ function SidebarGroup({
               href={item.href}
               title={item.label}
               className={cn(
-                "group relative flex items-center justify-center rounded-xl p-2 transition-all duration-150",
+                "group relative flex items-center justify-center rounded-lg p-2 transition-all duration-150",
                 active
-                  ? "bg-rapid-green/15 text-white shadow-[inset_0_0_0_1px_rgba(0,200,83,0.25)]"
-                  : "text-white/55 hover:bg-white/[0.06] hover:text-white/90",
+                  ? "bg-rapid-green-soft text-rapid-green-dark"
+                  : "text-rapid-text-muted hover:bg-rapid-surface-strong hover:text-rapid-text",
               )}
             >
-              <span
-                className={cn(
-                  "relative flex shrink-0 items-center justify-center rounded-lg h-9 w-9 transition-colors",
-                  active
-                    ? "bg-rapid-green text-rapid-black"
-                    : "bg-white/[0.06] text-white/50 group-hover:bg-white/10 group-hover:text-white/80",
-                )}
-              >
-                <Icon className="h-4 w-4" strokeWidth={2.25} />
+              <span className="relative">
+                <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.25 : 1.75} />
                 {showBadge && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-[#0c100f]" />
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
                 )}
               </span>
             </Link>
@@ -106,21 +98,21 @@ function SidebarGroup({
   const hasActiveItem = group.items.some((item) => isNavActive(pathname, item.href));
 
   return (
-    <div>
+    <div className="mb-1">
       <button
         type="button"
         onClick={onToggle}
         className={cn(
-          "w-full flex items-center justify-between px-3 py-2 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors",
+          "w-full flex items-center justify-between px-2 py-1.5 rounded-md text-[11px] font-medium uppercase tracking-[0.04em] transition-colors",
           hasActiveItem
-            ? "text-white/60"
-            : "text-white/35 hover:text-white/50",
+            ? "text-rapid-text-muted"
+            : "text-rapid-text-muted-soft hover:text-rapid-text-muted",
         )}
       >
         <span>{group.label}</span>
         <ChevronDown
           className={cn(
-            "w-3.5 h-3.5 transition-transform duration-200",
+            "w-3 h-3 transition-transform duration-200",
             isOpen ? "rotate-0" : "-rotate-90",
           )}
         />
@@ -128,11 +120,11 @@ function SidebarGroup({
 
       <div
         className={cn(
-          "overflow-hidden transition-all duration-200 ease-in-out",
+          "overflow-hidden transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]",
           isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
-        <ul className="space-y-1 pt-1 pb-2">
+        <ul className="space-y-0.5 pt-0.5 pb-1">
           {group.items.map((item) => {
             const active = isNavActive(pathname, item.href);
             const Icon = item.icon;
@@ -143,25 +135,19 @@ function SidebarGroup({
                 <Link
                   href={item.href}
                   className={cn(
-                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
+                    "group relative flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-all duration-150",
                     active
-                      ? "bg-rapid-green/15 text-white shadow-[inset_0_0_0_1px_rgba(0,200,83,0.25)]"
-                      : "text-white/55 hover:bg-white/[0.06] hover:text-white/90",
+                      ? "bg-rapid-green-soft text-rapid-green-dark"
+                      : "text-rapid-text-muted hover:bg-rapid-surface-strong hover:text-rapid-text",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "relative flex shrink-0 items-center justify-center rounded-lg h-8 w-8 transition-colors",
-                      active
-                        ? "bg-rapid-green text-rapid-black"
-                        : "bg-white/[0.06] text-white/50 group-hover:bg-white/10 group-hover:text-white/80",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" strokeWidth={2.25} />
-                  </span>
+                  <Icon
+                    className="h-4 w-4 shrink-0"
+                    strokeWidth={active ? 2.25 : 1.75}
+                  />
                   <span className="truncate flex-1">{item.label}</span>
                   {showBadge && (
-                    <span className="shrink-0 min-h-5 min-w-5 px-1.5 rounded-full bg-amber-400 text-amber-950 text-[10px] font-bold flex items-center justify-center">
+                    <span className="shrink-0 min-h-[18px] min-w-[18px] px-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold flex items-center justify-center">
                       {stockAlertCount > 99 ? "99+" : stockAlertCount}
                     </span>
                   )}

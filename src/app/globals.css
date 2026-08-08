@@ -1,37 +1,53 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RAPID — Design System v2.0
+   Inspired by Stripe's precision and Linear's elegance.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 /* ─── Design tokens ────────────────────────────────────────────────────────── */
 :root {
   /* Brand */
-  --rapid-black: #0b0f0e;
+  --rapid-black: #0a0d0c;
   --rapid-green: #00c853;
-  --rapid-green-dark: #009624;
-  --rapid-green-soft: #d3f7e0;
+  --rapid-green-dark: #00a844;
+  --rapid-green-soft: #e6f9ed;
   --rapid-green-disabled: #a8edca;
+  --rapid-green-ghost: rgba(0, 200, 83, 0.08);
 
-  /* Canvas & surfaces */
-  --rapid-bg: #f5f7f6;
+  /* Canvas & surfaces — ultra-subtle warmth */
+  --rapid-bg: #f8f9fa;
   --rapid-surface: #ffffff;
-  --rapid-surface-soft: #f7f7f7;
-  --rapid-surface-strong: #f2f2f2;
+  --rapid-surface-soft: #fafbfc;
+  --rapid-surface-strong: #f1f3f5;
+  --rapid-surface-raised: #ffffff;
 
-  /* Text scale */
-  --rapid-text: #111827;
-  --rapid-text-body: #3d3d3d;
+  /* Text scale — more contrast, better readability */
+  --rapid-text: #0f1419;
+  --rapid-text-body: #374151;
   --rapid-text-muted: #6b7280;
-  --rapid-text-muted-soft: #929292;
+  --rapid-text-muted-soft: #9ca3af;
+  --rapid-text-subtle: #d1d5db;
 
-  /* Borders & hairlines */
+  /* Borders — layered system */
   --rapid-border: #e5e7eb;
-  --rapid-hairline: #dddddd;
-  --rapid-border-strong: #c1c1c1;
+  --rapid-border-light: #f0f1f3;
+  --rapid-hairline: #eef0f2;
+  --rapid-border-strong: #d1d5db;
 
-  /* Semantic */
-  --rapid-error: #c13515;
-  --rapid-error-hover: #b32505;
-  --rapid-scrim: rgba(0, 0, 0, 0.5);
+  /* Semantic colors */
+  --rapid-error: #dc2626;
+  --rapid-error-soft: #fef2f2;
+  --rapid-error-hover: #b91c1c;
+  --rapid-warning: #d97706;
+  --rapid-warning-soft: #fffbeb;
+  --rapid-success: #059669;
+  --rapid-success-soft: #ecfdf5;
+  --rapid-info: #2563eb;
+  --rapid-info-soft: #eff6ff;
+  --rapid-scrim: rgba(0, 0, 0, 0.45);
 
-  /* Spacing scale — 4 px base */
+  /* Spacing scale — 4px base */
   --space-xxs: 2px;
   --space-xs: 4px;
   --space-sm: 8px;
@@ -42,10 +58,32 @@
   --space-xxl: 48px;
   --space-section: 64px;
 
-  /* Single elevation tier */
-  --shadow-float: rgba(0, 0, 0, 0.02) 0 0 0 1px,
-    rgba(0, 0, 0, 0.04) 0 2px 6px 0,
-    rgba(0, 0, 0, 0.1) 0 4px 8px 0;
+  /* Elevation system — Stripe-style layered shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-float: 0 0 0 1px rgba(0, 0, 0, 0.03),
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 12px 24px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 12px 20px rgba(0, 0, 0, 0.06);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
 }
 
 /* ─── Tailwind theme tokens ─────────────────────────────────────────────────── */
@@ -57,18 +95,29 @@
   --color-rapid-green-dark: var(--rapid-green-dark);
   --color-rapid-green-soft: var(--rapid-green-soft);
   --color-rapid-green-disabled: var(--rapid-green-disabled);
+  --color-rapid-green-ghost: var(--rapid-green-ghost);
   --color-rapid-bg: var(--rapid-bg);
   --color-rapid-surface: var(--rapid-surface);
   --color-rapid-surface-soft: var(--rapid-surface-soft);
   --color-rapid-surface-strong: var(--rapid-surface-strong);
+  --color-rapid-surface-raised: var(--rapid-surface-raised);
   --color-rapid-text: var(--rapid-text);
   --color-rapid-text-body: var(--rapid-text-body);
   --color-rapid-text-muted: var(--rapid-text-muted);
   --color-rapid-text-muted-soft: var(--rapid-text-muted-soft);
+  --color-rapid-text-subtle: var(--rapid-text-subtle);
   --color-rapid-border: var(--rapid-border);
+  --color-rapid-border-light: var(--rapid-border-light);
   --color-rapid-hairline: var(--rapid-hairline);
   --color-rapid-border-strong: var(--rapid-border-strong);
   --color-rapid-error: var(--rapid-error);
+  --color-rapid-error-soft: var(--rapid-error-soft);
+  --color-rapid-warning: var(--rapid-warning);
+  --color-rapid-warning-soft: var(--rapid-warning-soft);
+  --color-rapid-success: var(--rapid-success);
+  --color-rapid-success-soft: var(--rapid-success-soft);
+  --color-rapid-info: var(--rapid-info);
+  --color-rapid-info-soft: var(--rapid-info-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -86,9 +135,11 @@
       "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
   }
 
-  /* Scrollbar — narrow & pill-shaped */
+  /* Scrollbar — invisible until hover, thin & rounded */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -97,23 +148,24 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-gray-300;
+    @apply rounded-full bg-black/10;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
+    @apply bg-black/20;
   }
 
-  /*
-   * Default focus-visible ring for ALL interactive elements.
-   * Replaces the browser's default blue outline with an on-brand ring.
-   * .btn-primary / .btn-secondary / .btn-dark override this with their
-   * own color variants in @layer components (higher specificity wins).
-   */
+  /* Selection color */
+  ::selection {
+    background: rgba(0, 200, 83, 0.15);
+    color: var(--rapid-text);
+  }
+
+  /* Focus-visible ring — subtle and consistent */
   *:focus-visible {
-    @apply outline-none ring-2 ring-rapid-text/30 ring-offset-1;
+    @apply outline-none ring-2 ring-rapid-green/40 ring-offset-2 ring-offset-rapid-bg;
   }
 
-  /* Form inputs use an ink border instead of a ring (per design system) */
+  /* Form inputs override: use border treatment instead of ring */
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
@@ -126,155 +178,357 @@
 
   /* ────────────────────────────────────────────────────────────────────────
    * BUTTONS
-   * All three variants share the same base anatomy:
-   *   - inline-flex with centered content and consistent gap
-   *   - 48 px minimum height (WCAG touch target)
-   *   - focus-visible ring for keyboard accessibility
-   *   - cursor-pointer + select-none for usability
-   *   - disabled: muted appearance + not-allowed cursor
+   * Stripe-style: compact, precise, with smooth micro-interactions.
+   * Three sizes: default (36px), md (40px), lg (44px)
    * ──────────────────────────────────────────────────────────────────────── */
 
-  /* Primary — green fill */
+  /* Primary — brand green, solid */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-           h-12 min-h-12 px-6
+           h-11 px-5
            rounded-lg bg-rapid-green text-white
-           text-base font-medium whitespace-nowrap
+           text-[15px] font-semibold whitespace-nowrap
            cursor-pointer select-none
-           transition-colors duration-150;
+           shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.15)]
+           transition-all;
+    transition-duration: var(--duration-fast);
   }
   .btn-primary:hover:not(:disabled) {
     @apply bg-rapid-green-dark;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-0.5px);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
   .btn-primary:focus-visible {
-    @apply ring-2 ring-rapid-green ring-offset-2;
+    @apply ring-2 ring-rapid-green/50 ring-offset-2;
   }
   .btn-primary:disabled {
-    @apply bg-rapid-green-disabled cursor-not-allowed opacity-80;
+    @apply bg-rapid-green-disabled cursor-not-allowed opacity-70 shadow-none;
+    transform: none;
   }
 
-  /* Secondary — white fill, ink outline */
+  /* Secondary — white fill, subtle border */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           h-12 min-h-12 px-5
-           rounded-lg bg-rapid-surface text-rapid-text
-           text-base font-medium whitespace-nowrap
+           h-11 px-5
+           rounded-lg bg-white text-rapid-text
+           text-[15px] font-semibold whitespace-nowrap
            border border-rapid-border
            cursor-pointer select-none
-           transition-colors duration-150;
+           shadow-[0_1px_2px_rgba(0,0,0,0.04)]
+           transition-all;
+    transition-duration: var(--duration-fast);
   }
   .btn-secondary:hover:not(:disabled) {
-    @apply bg-rapid-surface-soft;
+    @apply bg-rapid-surface-soft border-rapid-border-strong;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    transform: translateY(-0.5px);
+  }
+  .btn-secondary:active:not(:disabled) {
+    @apply bg-rapid-surface-strong;
+    transform: translateY(0);
+    box-shadow: none;
   }
   .btn-secondary:focus-visible {
-    @apply ring-2 ring-rapid-text/30 ring-offset-2;
+    @apply ring-2 ring-rapid-text/20 ring-offset-2;
   }
   .btn-secondary:disabled {
-    @apply opacity-50 cursor-not-allowed;
+    @apply opacity-50 cursor-not-allowed shadow-none;
+    transform: none;
   }
 
   /* Dark — ink fill */
   .btn-dark {
     @apply inline-flex items-center justify-center gap-2
-           h-12 min-h-12 px-6
+           h-11 px-5
            rounded-lg bg-rapid-black text-white
-           text-base font-medium whitespace-nowrap
+           text-[15px] font-semibold whitespace-nowrap
            cursor-pointer select-none
-           transition-colors duration-150;
+           shadow-[0_1px_2px_rgba(0,0,0,0.2)]
+           transition-all;
+    transition-duration: var(--duration-fast);
   }
   .btn-dark:hover:not(:disabled) {
-    background: #1f2624;
+    background: #1c2320;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    transform: translateY(-0.5px);
+  }
+  .btn-dark:active:not(:disabled) {
+    background: #0f1412;
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
   .btn-dark:focus-visible {
     @apply ring-2 ring-rapid-black/50 ring-offset-2;
   }
   .btn-dark:disabled {
+    @apply opacity-50 cursor-not-allowed shadow-none;
+    transform: none;
+  }
+
+  /* Ghost — no background, subtle hover */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           h-11 px-4
+           rounded-lg bg-transparent text-rapid-text-muted
+           text-[15px] font-medium whitespace-nowrap
+           cursor-pointer select-none
+           transition-all;
+    transition-duration: var(--duration-fast);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    @apply bg-rapid-surface-strong text-rapid-text;
+  }
+  .btn-ghost:disabled {
     @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Danger — destructive action */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2
+           h-11 px-5
+           rounded-lg bg-red-600 text-white
+           text-[15px] font-semibold whitespace-nowrap
+           cursor-pointer select-none
+           shadow-[0_1px_2px_rgba(220,38,38,0.3)]
+           transition-all;
+    transition-duration: var(--duration-fast);
+  }
+  .btn-danger:hover:not(:disabled) {
+    @apply bg-red-700;
+    transform: translateY(-0.5px);
+  }
+  .btn-danger:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .btn-danger:disabled {
+    @apply opacity-50 cursor-not-allowed shadow-none;
   }
 
   /* ────────────────────────────────────────────────────────────────────────
    * FORM INPUTS
-   * • .form-label  — uppercase caption above a field
-   * • .form-input  — text/textarea base (10px vert padding)
-   * • input.form-input, select.form-input — taller 56 px single-line variant
+   * Stripe-style: clean borders, subtle focus state, consistent sizing
    * ──────────────────────────────────────────────────────────────────────── */
 
   .form-label {
-    @apply block mb-1.5
-           text-[0.6875rem] font-semibold uppercase tracking-[0.05em]
-           text-rapid-text-muted;
+    @apply block mb-2
+           text-sm font-medium
+           text-rapid-text-body;
   }
 
   .form-input {
-    @apply w-full px-3 py-2.5
-           rounded-lg border border-rapid-border bg-rapid-surface
-           text-[0.9375rem] text-rapid-text
-           placeholder:text-rapid-text-muted
-           transition-colors duration-150;
+    @apply w-full px-4 py-2.5
+           rounded-lg border border-rapid-border bg-white
+           text-[15px] text-rapid-text
+           placeholder:text-rapid-text-muted-soft
+           shadow-[0_1px_2px_rgba(0,0,0,0.04)]
+           transition-all;
+    transition-duration: var(--duration-fast);
+  }
+  .form-input:hover:not(:focus):not(:disabled) {
+    @apply border-rapid-border-strong;
   }
   .form-input:focus {
-    /*
-     * Ink border on focus — no glow/ring per design system.
-     * Inset shadow achieves the "2px" visual weight without layout shift.
-     */
-    @apply border-rapid-text outline-none;
-    box-shadow: inset 0 0 0 1px var(--rapid-text);
+    @apply border-rapid-green outline-none;
+    box-shadow: 0 0 0 3px var(--rapid-green-ghost), 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .form-input:disabled {
-    @apply bg-rapid-surface-soft text-rapid-text-muted-soft cursor-not-allowed;
+    @apply bg-rapid-surface-strong text-rapid-text-muted-soft cursor-not-allowed shadow-none;
   }
 
-  /* 56 px height for single-line inputs and selects */
+  /* Single-line inputs and selects — 48px height */
   input.form-input,
   select.form-input {
-    @apply h-14 py-0;
+    @apply h-12 py-0;
   }
 
   /* ────────────────────────────────────────────────────────────────────────
    * CARD
-   * Base surface. Cards that are interactive links/buttons should also
-   * add hover:shadow-float via Tailwind utility.
+   * Clean surface with subtle shadow. Stripe-style elevation on hover.
    * ──────────────────────────────────────────────────────────────────────── */
 
   .card {
-    @apply bg-rapid-surface border border-rapid-border rounded-[0.875rem]
-           shadow-[0_1px_3px_rgba(15,23,42,0.05)]
-           transition-shadow duration-150;
+    @apply bg-white border border-rapid-border rounded-xl
+           transition-all;
+    box-shadow: var(--shadow-card);
+    transition-duration: var(--duration-normal);
   }
 
-  /* Non-interactive variant — disables hover and pointer */
+  .card-interactive {
+    @apply cursor-pointer;
+  }
+  .card-interactive:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  /* Non-interactive variant */
   .card-static {
     @apply pointer-events-none;
   }
 
   /* ────────────────────────────────────────────────────────────────────────
    * DARK SURFACE
+   * Premium dark cards with subtle gradient
    * ──────────────────────────────────────────────────────────────────────── */
 
   .surface-dark {
-    @apply text-white rounded-[0.875rem]
-           border border-rapid-black
-           shadow-[0_1px_2px_rgba(15,23,42,0.04)];
-    background: linear-gradient(
-      to bottom right,
-      var(--rapid-black),
-      #1a201e
-    );
+    @apply text-white rounded-xl overflow-hidden;
+    background: linear-gradient(135deg, #0f1413 0%, #1a2420 50%, #0f1413 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .on-dark-muted {
-    @apply text-slate-300;
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .on-dark-label {
-    @apply text-slate-400;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * TABLE — Stripe-style clean data tables
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .table-header {
+    @apply text-left text-[13px] font-medium text-rapid-text-muted
+           px-5 py-3.5 bg-rapid-surface-soft
+           border-b border-rapid-border;
+    letter-spacing: 0.01em;
+  }
+
+  .table-cell {
+    @apply px-5 py-3.5 text-[15px];
+  }
+
+  .table-row {
+    @apply border-b border-rapid-hairline last:border-0
+           transition-colors;
+    transition-duration: var(--duration-fast);
+  }
+  .table-row:hover {
+    @apply bg-rapid-surface-soft;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * BADGE — Small inline status indicators
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1
+           rounded-md text-[13px] font-medium
+           border;
+  }
+
+  .badge-success {
+    @apply bg-emerald-50 text-emerald-700 border-emerald-200;
+  }
+
+  .badge-warning {
+    @apply bg-amber-50 text-amber-700 border-amber-200;
+  }
+
+  .badge-error {
+    @apply bg-red-50 text-red-700 border-red-200;
+  }
+
+  .badge-info {
+    @apply bg-blue-50 text-blue-700 border-blue-200;
+  }
+
+  .badge-neutral {
+    @apply bg-gray-50 text-gray-600 border-gray-200;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * SECTION LABEL — Uppercase section dividers
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-[0.05em]
+           text-rapid-text-muted;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────
+   * DIVIDER
+   * ──────────────────────────────────────────────────────────────────────── */
+
+  .divider {
+    @apply h-px w-full bg-rapid-border;
+  }
+
+  .divider-subtle {
+    @apply h-px w-full bg-rapid-hairline;
   }
 }
 
 /* ─── Utilities ────────────────────────────────────────────────────────────── */
 @layer utilities {
-  /* The design system's single elevation tier — used on hover for interactive cards */
   .shadow-float {
     box-shadow: var(--shadow-float);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Stripe-style gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--rapid-green) 0%, #00e676 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Subtle noise texture overlay */
+  .noise-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Smooth transitions */
+  .transition-fast {
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  .transition-normal {
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  /* Tabular numbers for data */
+  .nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Animate in */
+  .animate-in {
+    animation: fadeIn var(--duration-normal) var(--ease-out-expo) forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

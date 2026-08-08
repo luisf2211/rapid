@@ -72,16 +72,16 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
 
       {totalAmount > 0 && (
         <div className="card p-4 mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50">
-            <TrendingDown className="w-5 h-5 text-red-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
+            <TrendingDown className="w-4 h-4 text-red-600" />
           </div>
           <div>
-            <p className="text-xs text-rapid-text-muted">Total del período</p>
-            <p className="text-xl font-bold tabular-nums text-red-600">
+            <p className="text-[11px] text-rapid-text-muted">Total del período</p>
+            <p className="text-lg font-semibold tabular-nums text-red-600">
               {formatMoney(totalAmount)}
             </p>
           </div>
-          <p className="ml-auto text-sm text-rapid-text-muted">
+          <p className="ml-auto text-xs text-rapid-text-muted">
             {expenses.length} gasto{expenses.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -101,7 +101,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
             name="q"
             defaultValue={q ?? ""}
             placeholder="Descripción, proveedor..."
-            className="form-input w-full pl-10"
+            className="form-input w-full pl-9"
           />
         </div>
         <select
@@ -130,7 +130,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
           className="form-input w-full"
           placeholder="Hasta"
         />
-        <button type="submit" className="btn-dark w-full lg:w-auto lg:px-5">
+        <button type="submit" className="btn-dark w-full lg:w-auto">
           Buscar
         </button>
       </form>
@@ -143,9 +143,9 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
 
       {!error && expenses.length === 0 && (
         <div className="card p-12 text-center">
-          <TrendingDown className="w-10 h-10 mx-auto text-rapid-text-muted/50 mb-3" />
-          <p className="font-medium text-rapid-text">No hay gastos registrados</p>
-          <p className="text-sm text-rapid-text-muted mt-1">
+          <TrendingDown className="w-10 h-10 mx-auto text-rapid-text-muted-soft mb-3" />
+          <p className="text-sm font-medium text-rapid-text">No hay gastos registrados</p>
+          <p className="text-xs text-rapid-text-muted mt-1">
             Registra comida, tornillos, facturas misceláneas y más.
           </p>
           <Link href="/expenses/new" className="btn-primary inline-flex mt-4">

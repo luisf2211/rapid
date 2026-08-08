@@ -37,25 +37,25 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
       {/* Filter bar */}
       <form
         method="get"
-        className="mb-5 flex flex-col sm:flex-row gap-2.5"
+        className="mb-4 flex flex-col sm:flex-row gap-2"
       >
         <div className="relative flex-1 min-w-0">
           <Search
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-rapid-text-muted"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rapid-text-muted"
             aria-hidden
           />
           <input
             type="text"
             name="q"
             defaultValue={q ?? ""}
-            placeholder="Buscar por cliente, placa, marca, modelo…"
-            className="form-input w-full pl-10 h-12"
+            placeholder="Buscar por cliente, placa, marca, modelo..."
+            className="form-input w-full pl-9"
           />
         </div>
         <select
           name="status"
           defaultValue={status ?? ""}
-          className="form-input h-12 sm:w-52 shrink-0 pr-9 appearance-none bg-no-repeat bg-[length:16px_16px] bg-[right_0.75rem_center] bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22></polyline></svg>')]"
+          className="form-input sm:w-44 shrink-0"
         >
           <option value="">Todos los estados</option>
           <option value="RECEIVED">Recibida</option>
@@ -64,14 +64,14 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
           <option value="DELIVERED">Entregada</option>
           <option value="CANCELLED">Cancelada</option>
         </select>
-        <button type="submit" className="btn-dark h-12 px-5 shrink-0">
+        <button type="submit" className="btn-dark shrink-0">
           Filtrar
         </button>
       </form>
 
       {error && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-4">
-          <p className="text-sm font-semibold text-amber-800">
+          <p className="text-sm font-medium text-amber-800">
             No se pudo conectar a la base de datos
           </p>
           <p className="text-xs text-amber-700 mt-1 font-mono break-all">
@@ -81,12 +81,12 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
       )}
 
       {orders.length === 0 ? (
-        <div className="card p-14 text-center">
+        <div className="card p-12 text-center">
           <div className="w-12 h-12 rounded-xl bg-rapid-green-soft text-rapid-green-dark flex items-center justify-center mx-auto mb-3">
             <ClipboardList className="w-6 h-6" />
           </div>
-          <p className="font-semibold text-rapid-text">Sin órdenes</p>
-          <p className="text-sm text-rapid-text-muted mt-1 max-w-sm mx-auto">
+          <p className="text-sm font-medium text-rapid-text">Sin órdenes</p>
+          <p className="text-xs text-rapid-text-muted mt-1 max-w-sm mx-auto">
             No hay órdenes que coincidan con los filtros. Crea una nueva
             orden de recepción para comenzar.
           </p>
@@ -99,62 +99,43 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-rapid-surface-soft border-b border-rapid-border">
-                  <th className="text-left text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-5 py-3">
-                    Orden
-                  </th>
-                  <th className="text-left text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-5 py-3">
-                    Cliente
-                  </th>
-                  <th className="text-left text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-5 py-3 hidden md:table-cell">
-                    Vehículo
-                  </th>
-                  <th className="text-left text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-5 py-3">
-                    Estado
-                  </th>
-                  <th className="text-center text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-4 py-3 hidden lg:table-cell">
-                    Mat.
-                  </th>
-                  <th className="text-center text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-4 py-3 hidden lg:table-cell">
-                    MO
-                  </th>
-                  <th className="text-left text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted px-5 py-3 hidden xl:table-cell">
-                    Recibida
-                  </th>
-                  <th className="px-5 py-3" />
+                <tr className="border-b border-rapid-border bg-rapid-surface-soft">
+                  <th className="table-header">Orden</th>
+                  <th className="table-header">Cliente</th>
+                  <th className="table-header hidden md:table-cell">Vehículo</th>
+                  <th className="table-header">Estado</th>
+                  <th className="table-header text-center hidden lg:table-cell">Mat.</th>
+                  <th className="table-header text-center hidden lg:table-cell">MO</th>
+                  <th className="table-header hidden xl:table-cell">Recibida</th>
+                  <th className="table-header w-12" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-rapid-border">
+              <tbody>
                 {orders.map((o) => (
                   <tr
                     key={o.id}
-                    className="group hover:bg-rapid-surface-soft transition-colors"
+                    className="table-row group"
                   >
-                    {/* Order number */}
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="font-mono text-xs font-bold bg-rapid-black text-rapid-green px-2 py-1 rounded-md">
+                    <td className="table-cell whitespace-nowrap">
+                      <span className="font-mono text-[11px] font-semibold bg-rapid-surface-strong text-rapid-text-muted px-1.5 py-0.5 rounded">
                         #{String(o.orderNumber).padStart(5, "0")}
                       </span>
                     </td>
-
-                    {/* Customer */}
-                    <td className="px-5 py-4 min-w-[140px]">
-                      <p className="font-semibold text-rapid-text leading-tight">
+                    <td className="table-cell min-w-[130px]">
+                      <p className="font-medium text-rapid-text leading-tight">
                         {o.customerName ?? "—"}
                       </p>
                       {o.phone && (
-                        <p className="text-xs text-rapid-text-muted mt-0.5">
+                        <p className="text-[11px] text-rapid-text-muted mt-0.5">
                           {o.phone}
                         </p>
                       )}
                     </td>
-
-                    {/* Vehicle */}
-                    <td className="px-5 py-4 hidden md:table-cell min-w-[160px]">
+                    <td className="table-cell hidden md:table-cell min-w-[140px]">
                       <p className="font-medium text-rapid-text">
                         {[o.brand, o.model].filter(Boolean).join(" ") || "—"}
                       </p>
-                      <p className="text-xs text-rapid-text-muted mt-0.5">
+                      <p className="text-[11px] text-rapid-text-muted mt-0.5">
                         {[
                           o.vehicleYear ? String(o.vehicleYear) : null,
                           o.plate ?? null,
@@ -163,41 +144,31 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
                           .join(" · ") || "—"}
                       </p>
                     </td>
-
-                    {/* Status */}
-                    <td className="px-5 py-4 whitespace-nowrap">
+                    <td className="table-cell whitespace-nowrap">
                       <StatusBadge status={o.status} />
                     </td>
-
-                    {/* Material count */}
-                    <td className="px-4 py-4 text-center hidden lg:table-cell">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-rapid-surface-strong text-rapid-text-muted text-xs font-bold tabular-nums">
+                    <td className="table-cell text-center hidden lg:table-cell">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-rapid-surface-strong text-rapid-text-muted text-[11px] font-medium tabular-nums">
                         {o._count.materialRequisitions}
                       </span>
                     </td>
-
-                    {/* Labor count */}
-                    <td className="px-4 py-4 text-center hidden lg:table-cell">
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-rapid-surface-strong text-rapid-text-muted text-xs font-bold tabular-nums">
+                    <td className="table-cell text-center hidden lg:table-cell">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-rapid-surface-strong text-rapid-text-muted text-[11px] font-medium tabular-nums">
                         {o._count.laborOrders}
                       </span>
                     </td>
-
-                    {/* Created at */}
-                    <td className="px-5 py-4 hidden xl:table-cell whitespace-nowrap">
-                      <p className="text-xs text-rapid-text-muted">
+                    <td className="table-cell hidden xl:table-cell whitespace-nowrap">
+                      <p className="text-[11px] text-rapid-text-muted">
                         {formatDateTime(o.createdAt)}
                       </p>
                     </td>
-
-                    {/* CTA */}
-                    <td className="px-4 py-4 text-right whitespace-nowrap">
+                    <td className="table-cell text-right whitespace-nowrap">
                       <Link
                         href={`/work-orders/${o.id}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rapid-border text-xs font-semibold text-rapid-text hover:bg-rapid-surface-soft hover:shadow-float transition"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-rapid-text-muted hover:text-rapid-text transition-colors"
                       >
                         Ver
-                        <ArrowRight className="w-3.5 h-3.5 text-rapid-text-muted group-hover:text-rapid-text transition" />
+                        <ArrowRight className="w-3 h-3" />
                       </Link>
                     </td>
                   </tr>
@@ -206,9 +177,8 @@ export default async function WorkOrdersPage({ searchParams }: PageProps) {
             </table>
           </div>
 
-          {/* Footer count */}
-          <div className="px-5 py-2.5 border-t border-rapid-border bg-rapid-surface-soft">
-            <p className="text-xs text-rapid-text-muted">
+          <div className="px-4 py-2.5 border-t border-rapid-border bg-rapid-surface-soft">
+            <p className="text-[11px] text-rapid-text-muted">
               {orders.length} orden{orders.length !== 1 ? "es" : ""}
               {q || status ? " (filtradas)" : ""}
             </p>

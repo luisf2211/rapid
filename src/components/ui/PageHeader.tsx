@@ -17,29 +17,29 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <header className="mb-6">
-      <div className="min-w-0">
-        {breadcrumb && (
-          <p className="text-[11px] uppercase tracking-[0.05em] font-semibold text-rapid-text-muted mb-1.5">
-            {breadcrumb}
-          </p>
-        )}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3 flex-wrap min-w-0">
-            <h1 className="text-[22px] sm:text-[28px] font-bold text-rapid-text tracking-tight leading-[1.2]">
+      {breadcrumb && (
+        <div className="mb-2">
+          {breadcrumb}
+        </div>
+      )}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-semibold text-rapid-text tracking-[-0.02em] leading-tight">
               {title}
             </h1>
             {badge}
           </div>
-          {actions && (
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              {actions}
-            </div>
+          {subtitle && (
+            <p className="text-sm text-rapid-text-muted mt-1 max-w-2xl">
+              {subtitle}
+            </p>
           )}
         </div>
-        {subtitle && (
-          <p className="text-sm text-rapid-text-muted mt-1.5 max-w-2xl leading-relaxed">
-            {subtitle}
-          </p>
+        {actions && (
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {actions}
+          </div>
         )}
       </div>
     </header>

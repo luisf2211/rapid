@@ -54,7 +54,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
               Inventario pintura
             </Link>
             <Link href="/inventory/new" className="btn-primary">
-            <Plus className="w-4 h-4" /> Nueva pieza
+              <Plus className="w-4 h-4" /> Nueva pieza
             </Link>
           </>
         }
@@ -62,16 +62,11 @@ export default async function InventoryPage({ searchParams }: PageProps) {
 
       {error && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-4">
-          <p className="text-sm font-semibold text-amber-800">
+          <p className="text-sm font-medium text-amber-800">
             No se pudo conectar a la base de datos
           </p>
           <p className="text-xs text-amber-700 mt-1 font-mono break-all">
             {error}
-          </p>
-          <p className="text-xs text-amber-700 mt-2">
-            Ejecuta el script{" "}
-            <code className="font-mono">scripts/sql/create-inventory-tables.sql</code>{" "}
-            y luego <code className="font-mono">npx prisma generate</code>.
           </p>
         </div>
       )}
@@ -107,7 +102,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
       <div className="card overflow-hidden">
         {parts.length === 0 ? (
           <div className="p-12 text-center">
-            <Package className="w-10 h-10 text-rapid-text-muted mx-auto mb-3" />
+            <Package className="w-10 h-10 text-rapid-text-muted-soft mx-auto mb-3" />
             <p className="text-sm text-rapid-text-muted">
               {filterValue === "low"
                 ? "No hay piezas sin stock o bajo el mínimo."
@@ -120,15 +115,15 @@ export default async function InventoryPage({ searchParams }: PageProps) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-rapid-bg/60 text-xs text-rapid-text-muted">
-                <tr>
-                  <th className="text-left font-medium px-5 py-3">Pieza</th>
-                  <th className="text-left font-medium px-5 py-3">Categoría</th>
-                  <th className="text-right font-medium px-5 py-3">Existencia</th>
-                  <th className="text-right font-medium px-5 py-3">Disponible</th>
-                  <th className="text-left font-medium px-5 py-3">Ubicación</th>
-                  <th className="text-right font-medium px-5 py-3">Costo</th>
-                  <th className="px-5 py-3" />
+              <thead>
+                <tr className="border-b border-rapid-border bg-rapid-surface-soft">
+                  <th className="table-header">Pieza</th>
+                  <th className="table-header">Categoría</th>
+                  <th className="table-header text-right">Existencia</th>
+                  <th className="table-header text-right">Disponible</th>
+                  <th className="table-header">Ubicación</th>
+                  <th className="table-header text-right">Costo</th>
+                  <th className="table-header w-12" />
                 </tr>
               </thead>
               <tbody>
@@ -143,63 +138,63 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                   return (
                     <tr
                       key={p.id}
-                      className="border-t border-rapid-border hover:bg-rapid-bg/40"
+                      className="table-row"
                     >
-                      <td className="px-5 py-3">
-                        <p className="font-medium">
+                      <td className="table-cell">
+                        <p className="font-medium text-rapid-text">
                           {p.name}
                           {!p.isActive && (
-                            <span className="ml-2 text-xs text-rapid-text-muted">
+                            <span className="ml-2 text-[11px] text-rapid-text-muted">
                               (inactiva)
                             </span>
                           )}
                         </p>
-                        <p className="text-xs font-mono text-rapid-text-muted">
+                        <p className="text-[11px] font-mono text-rapid-text-muted">
                           {p.sku}
                         </p>
                       </td>
-                      <td className="px-5 py-3 text-rapid-text-muted">
+                      <td className="table-cell text-rapid-text-muted">
                         {p.category ?? "—"}
                       </td>
-                      <td className="px-5 py-3 text-right">
+                      <td className="table-cell text-right">
                         <span
                           className={
                             low
-                              ? "inline-flex items-center gap-1 font-semibold text-amber-700"
-                              : "tabular-nums font-semibold"
+                              ? "inline-flex items-center gap-1 font-medium text-amber-700"
+                              : "tabular-nums font-medium"
                           }
                         >
                           {low && (
-                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                            <AlertTriangle className="w-3 h-3 shrink-0" />
                           )}
                           {formatFractionQuantity(p.quantityOnHand)} {p.unit}
                         </span>
                         {Number(p.reservedQuantity) > 0 && (
-                          <p className="text-xs text-rapid-text-muted">
+                          <p className="text-[11px] text-rapid-text-muted">
                             reserv. {formatFractionQuantity(p.reservedQuantity)}
                           </p>
                         )}
                       </td>
-                      <td className="px-5 py-3 text-right tabular-nums">
+                      <td className="table-cell text-right tabular-nums">
                         {formatFractionQuantity(available)} {p.unit}
                         {p.minQuantity != null && (
-                          <p className="text-xs text-rapid-text-muted">
+                          <p className="text-[11px] text-rapid-text-muted">
                             mín. {formatFractionQuantity(p.minQuantity)}
                           </p>
                         )}
                       </td>
-                      <td className="px-5 py-3 text-rapid-text-muted">
+                      <td className="table-cell text-rapid-text-muted">
                         {p.location ?? "—"}
                       </td>
-                      <td className="px-5 py-3 text-right tabular-nums text-rapid-text-muted">
+                      <td className="table-cell text-right tabular-nums text-rapid-text-muted">
                         {p.unitCost != null
                           ? formatMoney(Number(p.unitCost))
                           : "—"}
                       </td>
-                      <td className="px-5 py-3 text-right">
+                      <td className="table-cell text-right">
                         <Link
                           href={`/inventory/${p.id}`}
-                          className="text-xs font-semibold text-rapid-green-dark hover:underline"
+                          className="text-xs font-medium text-rapid-green-dark hover:underline"
                         >
                           Ver →
                         </Link>

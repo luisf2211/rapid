@@ -122,7 +122,7 @@ export function UserForm({ mode, userId, defaultValues }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pb-12 max-w-3xl">
-      <div className="card sticky top-0 z-10 px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 backdrop-blur bg-white/95">
+      <div className="card sticky top-0 z-10 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 backdrop-blur-md bg-white/90 border-b border-rapid-border">
         <Link href="/users" className="btn-secondary">
           <ArrowLeft className="w-4 h-4" />
           Usuarios
@@ -133,7 +133,7 @@ export function UserForm({ mode, userId, defaultValues }: Props) {
               type="button"
               onClick={handleDelete}
               disabled={isPending}
-              className="text-xs text-red-600 hover:text-red-800 font-medium px-3 py-2"
+              className="text-xs text-red-600 hover:text-red-700 font-medium px-3 py-2 rounded-lg hover:bg-red-50 transition-colors"
             >
               Desactivar
             </button>
@@ -160,7 +160,7 @@ export function UserForm({ mode, userId, defaultValues }: Props) {
 
       {/* Basic info */}
       <section className="card p-5">
-        <h2 className="font-bold text-lg mb-4">Información del usuario</h2>
+        <h2 className="text-sm font-semibold text-rapid-text mb-4">Información del usuario</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="form-label">Nombre completo *</label>
@@ -229,8 +229,8 @@ export function UserForm({ mode, userId, defaultValues }: Props) {
       <section className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="font-bold text-lg">Permisos de acceso</h2>
-              <p className="text-sm text-rapid-text-muted">
+              <h2 className="text-sm font-semibold text-rapid-text">Permisos de acceso</h2>
+              <p className="text-xs text-rapid-text-muted mt-0.5">
                 Selecciona los módulos a los que este usuario podrá acceder.
               </p>
             </div>
@@ -277,7 +277,7 @@ export function UserForm({ mode, userId, defaultValues }: Props) {
       {/* Reset password (edit mode only) */}
       {mode === "edit" && (
         <section className="card p-5">
-          <h2 className="font-bold text-lg mb-2">Seguridad</h2>
+          <h2 className="text-sm font-semibold text-rapid-text mb-2">Seguridad</h2>
           {showResetPassword ? (
             <div className="flex items-end gap-3">
               <div className="flex-1">

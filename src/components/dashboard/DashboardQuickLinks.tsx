@@ -13,7 +13,7 @@ const links = [
   {
     href: "/quotations",
     label: "Cotizaciones",
-    desc: "Presupuestos y aprobaciones",
+    desc: "Presupuestos",
     icon: FileText,
   },
   {
@@ -31,7 +31,7 @@ const links = [
   {
     href: "/material-requisitions",
     label: "Materiales",
-    desc: "Requisiciones de taller",
+    desc: "Requisiciones",
     icon: Boxes,
   },
   {
@@ -51,28 +51,28 @@ const links = [
 export function DashboardQuickLinks() {
   return (
     <section>
-      <h2 className="font-bold text-rapid-text mb-3">Accesos</h2>
-      <ul className="space-y-1">
+      <h2 className="text-sm font-semibold text-rapid-text mb-2">Accesos rápidos</h2>
+      <ul className="space-y-0.5">
         {links.map((item) => {
           const Icon = item.icon;
           return (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="group flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-rapid-bg transition"
+                className="group flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-rapid-surface-soft transition-colors"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rapid-bg group-hover:bg-white border border-rapid-border transition">
-                  <Icon className="w-4 h-4 text-rapid-text-muted group-hover:text-rapid-text" />
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-rapid-surface-strong group-hover:bg-white border border-rapid-border transition-colors">
+                  <Icon className="w-3.5 h-3.5 text-rapid-text-muted group-hover:text-rapid-text" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-rapid-text">
+                  <span className="block text-[13px] font-medium text-rapid-text">
                     {item.label}
                   </span>
-                  <span className="block text-xs text-rapid-text-muted truncate">
+                  <span className="block text-[11px] text-rapid-text-muted truncate">
                     {item.desc}
                   </span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-rapid-text-muted/50 group-hover:text-rapid-text shrink-0" />
+                <ChevronRight className="w-3.5 h-3.5 text-rapid-text-muted-soft group-hover:text-rapid-text-muted shrink-0 transition-colors" />
               </Link>
             </li>
           );

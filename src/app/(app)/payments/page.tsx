@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Wallet, CalendarRange } from "lucide-react";
+import { Wallet, CalendarRange } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
   getOrCreateCurrentPayrollPeriod,
@@ -54,57 +54,62 @@ export default async function PaymentsPage() {
       />
 
       {error && (
-        <div className="card border-amber-200 bg-amber-50 p-4 mb-4 text-sm text-amber-900">
+        <div className="card border-amber-200 bg-amber-50 p-4 mb-4 text-sm text-amber-800">
           {error}
         </div>
       )}
 
       {currentPeriod && (
-        <div className="surface-dark p-5 mb-4">
-          <p className="text-xs uppercase tracking-wider on-dark-label font-semibold">
-            Quincena en curso
-          </p>
-          <p className="text-xl font-bold mt-1">
-            {payrollPeriodLabel(currentPeriod)}
-          </p>
-          <p className="text-sm on-dark-muted mt-2">
-            Estado:{" "}
-            {PAYROLL_PERIOD_STATUS_LABELS[currentPeriod.Status] ?? currentPeriod.Status}
-          </p>
-          <Link
-            href={`/payments/periods/${currentPeriod.Id}`}
-            className="btn-primary mt-4 inline-flex text-sm"
-          >
-            Ver corte quincenal
-          </Link>
+        <div className="card p-5 mb-4 border-l-4 border-l-rapid-green">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-xs font-medium text-rapid-text-muted">
+                Quincena en curso
+              </p>
+              <p className="text-lg font-semibold mt-0.5 text-rapid-text">
+                {payrollPeriodLabel(currentPeriod)}
+              </p>
+              <p className="text-xs text-rapid-text-muted mt-1">
+                Estado:{" "}
+                {PAYROLL_PERIOD_STATUS_LABELS[currentPeriod.Status] ?? currentPeriod.Status}
+              </p>
+            </div>
+            <Link
+              href={`/payments/periods/${currentPeriod.Id}`}
+              className="btn-primary"
+            >
+              Ver corte
+            </Link>
+          </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Recent payments */}
         <div className="card overflow-hidden">
-          <div className="px-5 py-3 border-b border-rapid-border flex justify-between items-center">
-            <h2 className="font-bold">Pagos recientes</h2>
-            <Link href="/payments/advances/new" className="text-xs font-semibold text-rapid-green-dark">
-              <Plus className="w-3.5 h-3.5 inline" /> Anticipo
+          <div className="px-4 py-3 border-b border-rapid-border flex justify-between items-center">
+            <h2 className="text-sm font-semibold text-rapid-text">Pagos recientes</h2>
+            <Link href="/payments/advances/new" className="text-xs font-medium text-rapid-green-dark hover:underline">
+              + Anticipo
             </Link>
           </div>
           {recentPayments.length === 0 ? (
-            <p className="p-5 text-sm text-rapid-text-muted">Sin pagos registrados.</p>
+            <p className="p-4 text-sm text-rapid-text-muted">Sin pagos registrados.</p>
           ) : (
             <table className="w-full text-sm">
               <tbody>
                 {recentPayments.map((p) => (
-                  <tr key={p.Id} className="border-t border-rapid-border">
-                    <td className="px-5 py-3">
-                      <p className="font-medium">{employeeDisplayName(p.Employee)}</p>
-                      <p className="text-xs text-rapid-text-muted">
+                  <tr key={p.Id} className="table-row">
+                    <td className="table-cell">
+                      <p className="font-medium text-rapid-text">{employeeDisplayName(p.Employee)}</p>
+                      <p className="text-[11px] text-rapid-text-muted">
                         {EMPLOYEE_PAYMENT_TYPE_LABELS[p.Type]} · {formatDate(p.PaymentDate)}
                       </p>
                     </td>
-                    <td className="px-5 py-3 text-right font-mono font-semibold">
+                    <td className="table-cell text-right font-mono font-medium tabular-nums">
                       {formatMoney(Number(p.Amount))}
                     </td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="table-cell text-right">
                       <Link
                         href={`/print/payments/${p.Id}`}
                         target="_blank"
@@ -120,26 +125,27 @@ export default async function PaymentsPage() {
           )}
         </div>
 
+        {/* Period history */}
         <div className="card overflow-hidden">
-          <div className="px-5 py-3 border-b border-rapid-border">
-            <h2 className="font-bold">Historial de quincenas</h2>
+          <div className="px-4 py-3 border-b border-rapid-border">
+            <h2 className="text-sm font-semibold text-rapid-text">Historial de quincenas</h2>
           </div>
           {periods.length === 0 ? (
-            <p className="p-5 text-sm text-rapid-text-muted">Sin períodos.</p>
+            <p className="p-4 text-sm text-rapid-text-muted">Sin períodos.</p>
           ) : (
-            <ul className="divide-y divide-rapid-border">
+            <ul className="divide-y divide-rapid-hairline">
               {periods.slice(0, 8).map((per) => (
-                <li key={per.Id} className="px-5 py-3 flex justify-between items-center">
+                <li key={per.Id} className="px-4 py-3 flex justify-between items-center hover:bg-rapid-surface-soft transition-colors">
                   <div>
-                    <p className="font-medium">{payrollPeriodLabel(per)}</p>
-                    <p className="text-xs text-rapid-text-muted">
+                    <p className="text-sm font-medium text-rapid-text">{payrollPeriodLabel(per)}</p>
+                    <p className="text-[11px] text-rapid-text-muted">
                       {PAYROLL_PERIOD_STATUS_LABELS[per.Status]} ·{" "}
                       {per._count.PayrollSettlement} empleado(s)
                     </p>
                   </div>
                   <Link
                     href={`/payments/periods/${per.Id}`}
-                    className="text-xs font-semibold text-rapid-green-dark hover:underline"
+                    className="text-xs font-medium text-rapid-green-dark hover:underline"
                   >
                     Ver
                   </Link>

@@ -29,7 +29,7 @@ export function MobileBottomNav({
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-30 px-3 pb-3 pt-0 pointer-events-none">
-      <div className="pointer-events-auto flex items-stretch justify-around gap-1 rounded-2xl border border-rapid-border/80 bg-white/95 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.08)] px-1 py-2">
+      <div className="pointer-events-auto flex items-stretch justify-around gap-0.5 rounded-2xl border border-rapid-border bg-white/95 backdrop-blur-xl shadow-lg px-1 py-1.5">
         {items.map((it) => {
           const Icon = it.icon;
           const active = isNavActive(pathname, it.href);
@@ -47,20 +47,17 @@ export function MobileBottomNav({
             >
               {active && (
                 <span
-                  className="absolute inset-x-2 top-1 bottom-1 rounded-lg bg-rapid-green-soft -z-10"
+                  className="absolute inset-x-1 top-0.5 bottom-0.5 rounded-lg bg-rapid-green-soft -z-10"
                   aria-hidden
                 />
               )}
               <span className="relative">
                 <Icon
-                  className={cn(
-                    "w-5 h-5",
-                    active && "stroke-[2.5]",
-                  )}
-                  strokeWidth={active ? 2.5 : 2}
+                  className="w-5 h-5"
+                  strokeWidth={active ? 2.25 : 1.75}
                 />
                 {badge && (
-                  <span className="absolute -top-0.5 -right-1.5 min-w-[14px] h-3.5 px-0.5 rounded-full bg-amber-500 text-[8px] font-bold text-amber-950 flex items-center justify-center ring-2 ring-white">
+                  <span className="absolute -top-0.5 -right-1.5 min-w-[14px] h-3.5 px-0.5 rounded-full bg-amber-500 text-[8px] font-bold text-white flex items-center justify-center ring-2 ring-white">
                     {stockAlertCount > 9 ? "9+" : stockAlertCount}
                   </span>
                 )}
