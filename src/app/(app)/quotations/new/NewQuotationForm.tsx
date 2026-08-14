@@ -319,7 +319,6 @@ export function NewQuotationForm({
           <p className="text-xs text-red-600">{String(errors.laborLines.message)}</p>
         )}
         {laborFields.fields.map((field, idx) => {
-          const areaValue = watchedLabor?.[idx]?.area;
           return (
           <div
             key={field.id}
@@ -327,35 +326,43 @@ export function NewQuotationForm({
           >
             <div>
               <label className="form-label">Tarea</label>
-              <select
-                {...register(`laborLines.${idx}.area`, {
-                  onChange: (e) => {
-                    if (e.target.value === ADD_TASK_VALUE) {
-                      // Revertir al valor anterior y abrir el modal de nueva tarea.
-                      form.setValue(
-                        `laborLines.${idx}.area`,
-                        typeof areaValue === "string" ? areaValue : "REPAIR_PAINT",
-                      );
-                      setAddTaskForIdx(idx);
-                    }
-                  },
-                })}
-                className="form-input w-full"
-              >
-                {taskOptions.map((a) => (
-                  <option key={a.value} value={a.value}>
-                    {a.label}
-                  </option>
-                ))}
-                {typeof areaValue === "string" &&
-                  areaValue &&
-                  !taskOptions.some((o) => o.value === areaValue) && (
-                    <option value={areaValue}>
-                      {quotationLaborAreaLabel(areaValue)}
-                    </option>
-                  )}
-                <option value={ADD_TASK_VALUE}>+ Agregar tarea…</option>
-              </select>
+              {/* Controlado: las opciones llegan async (catálogo) y un select
+                  no controlado pierde la selección al reconstruirse la lista. */}
+              <Controller
+                control={control}
+                name={`laborLines.${idx}.area`}
+                render={({ field }) => (
+                  <select
+                    name={field.name}
+                    ref={field.ref}
+                    value={typeof field.value === "string" ? field.value : "REPAIR_PAINT"}
+                    onBlur={field.onBlur}
+                    onChange={(e) => {
+                      if (e.target.value === ADD_TASK_VALUE) {
+                        // No cambiar el valor; solo abrir el modal de nueva tarea.
+                        setAddTaskForIdx(idx);
+                        return;
+                      }
+                      field.onChange(e.target.value);
+                    }}
+                    className="form-input w-full"
+                  >
+                    {taskOptions.map((a) => (
+                      <option key={a.value} value={a.value}>
+                        {a.label}
+                      </option>
+                    ))}
+                    {typeof field.value === "string" &&
+                      field.value &&
+                      !taskOptions.some((o) => o.value === field.value) && (
+                        <option value={field.value}>
+                          {quotationLaborAreaLabel(field.value)}
+                        </option>
+                      )}
+                    <option value={ADD_TASK_VALUE}>+ Agregar tarea…</option>
+                  </select>
+                )}
+              />
             </div>
             <TextInput
               label="Detalle (opcional)"
