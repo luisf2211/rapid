@@ -26,6 +26,7 @@ model Company {
   bankAccounts       BankAccount[]
   pettyCashFunds     PettyCashFund[]
   insuranceCompanies InsuranceCompany[]
+  quotationTaskTypes QuotationTaskType[]
 
   @@map("Company")
 }
@@ -816,4 +817,19 @@ model InsuranceCompany {
 
   @@unique([CompanyId, Name], map: "UQ_InsuranceCompany_Company_Name")
   @@index([CompanyId, IsActive], map: "IX_InsuranceCompany_Company")
+}
+
+// ─── Catálogo de tareas de mano de obra (cotizaciones) ──────────────────────
+
+model QuotationTaskType {
+  Id        Int       @id(map: "PK_QuotationTaskType") @default(autoincrement())
+  CompanyId Int       @default(1) @map("CompanyId")
+  Name      String    @db.VarChar(50)
+  IsActive  Boolean   @default(true)
+  CreatedAt DateTime  @default(now())
+  UpdatedAt DateTime?
+  company   Company   @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_QuotationTaskType_Company")
+
+  @@unique([CompanyId, Name], map: "UQ_QuotationTaskType_Company_Name")
+  @@index([CompanyId, IsActive], map: "IX_QuotationTaskType_Company")
 }

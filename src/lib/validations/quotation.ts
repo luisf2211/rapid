@@ -1,15 +1,12 @@
 import { z } from "zod";
-import {
-  DAMAGE_SIDES,
-  DAMAGE_TYPES,
-  QUOTATION_LABOR_AREA_VALUES,
-} from "@/lib/constants";
+import { DAMAGE_SIDES, DAMAGE_TYPES } from "@/lib/constants";
 
 const optionalStr = (max: number) =>
   z.string().max(max).optional().or(z.literal(""));
 
 export const quotationLaborLineSchema = z.object({
-  area: z.enum(QUOTATION_LABOR_AREA_VALUES),
+  // Valores estándar (REPAIR_PAINT, ...) o nombre de tarea personalizada del catálogo del taller.
+  area: z.string().min(1, "Tarea requerida").max(50),
   description: optionalStr(250),
   lineTotal: z.coerce.number().min(0).default(0),
   billingTarget: z.enum(["INSURANCE", "CLIENT"]).default("INSURANCE"),

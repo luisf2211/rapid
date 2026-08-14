@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,8 @@ import {
   type QuotationFormValues,
 } from "@/lib/validations/quotation";
 import {
-  quotationLaborAreaOptions,
+  QUOTATION_LABOR_AREAS,
+  quotationLaborAreaLabel,
   QUOTATION_TYPES,
   DAMAGE_SIDES,
   DAMAGE_TYPES,
@@ -44,6 +45,9 @@ const emptyPart = () => ({
   unitPrice: 0,
 });
 
+/** Valor sentinela del select de tarea: abre el modal para agregar una nueva. */
+const ADD_TASK_VALUE = "__ADD_TASK__";
+
 function appendPreservingScroll(append: () => void) {
   const currentY = window.scrollY;
   append();
@@ -71,6 +75,25 @@ export function NewQuotationForm({
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showVinScanner, setShowVinScanner] = useState(false);
+  const [customTasks, setCustomTasks] = useState<{ id: number; name: string }[]>([]);
+  const [addTaskForIdx, setAddTaskForIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/quotation-task-types")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => { if (Array.isArray(data)) setCustomTasks(data); })
+      .catch(() => { /* sin catálogo, quedan las tareas estándar */ });
+  }, []);
+
+  const taskOptions = useMemo(() => {
+    const options: { value: string; label: string }[] = [...QUOTATION_LABOR_AREAS];
+    for (const t of customTasks) {
+      if (!options.some((o) => o.value === t.name)) {
+        options.push({ value: t.name, label: t.name });
+      }
+    }
+    return options;
+  }, [customTasks]);
 
   const form = useForm<QuotationFormValues, unknown, QuotationInput>({
     resolver: zodResolver(quotationSchema),
@@ -261,6 +284,24 @@ export function NewQuotationForm({
         />
       )}
 
+      {addTaskForIdx != null && (
+        <AddTaskModal
+          existing={taskOptions}
+          onClose={() => setAddTaskForIdx(null)}
+          onCreated={({ id, name, created }) => {
+            if (created) {
+              setCustomTasks((prev) =>
+                [...prev, { id, name }].sort((a, b) =>
+                  a.name.localeCompare(b.name, "es"),
+                ),
+              );
+            }
+            form.setValue(`laborLines.${addTaskForIdx}.area`, name);
+            setAddTaskForIdx(null);
+          }}
+        />
+      )}
+
       <section className="card p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
@@ -278,7 +319,6 @@ export function NewQuotationForm({
           <p className="text-xs text-red-600">{String(errors.laborLines.message)}</p>
         )}
         {laborFields.fields.map((field, idx) => {
-          const areaValue = watchedLabor?.[idx]?.area;
           return (
           <div
             key={field.id}
@@ -286,18 +326,43 @@ export function NewQuotationForm({
           >
             <div>
               <label className="form-label">Tarea</label>
-              <select
-                {...register(`laborLines.${idx}.area`)}
-                className="form-input w-full"
-              >
-                {quotationLaborAreaOptions(
-                  typeof areaValue === "string" ? areaValue : undefined,
-                ).map((a) => (
-                  <option key={a.value} value={a.value}>
-                    {a.label}
-                  </option>
-                ))}
-              </select>
+              {/* Controlado: las opciones llegan async (catálogo) y un select
+                  no controlado pierde la selección al reconstruirse la lista. */}
+              <Controller
+                control={control}
+                name={`laborLines.${idx}.area`}
+                render={({ field }) => (
+                  <select
+                    name={field.name}
+                    ref={field.ref}
+                    value={typeof field.value === "string" ? field.value : "REPAIR_PAINT"}
+                    onBlur={field.onBlur}
+                    onChange={(e) => {
+                      if (e.target.value === ADD_TASK_VALUE) {
+                        // No cambiar el valor; solo abrir el modal de nueva tarea.
+                        setAddTaskForIdx(idx);
+                        return;
+                      }
+                      field.onChange(e.target.value);
+                    }}
+                    className="form-input w-full"
+                  >
+                    {taskOptions.map((a) => (
+                      <option key={a.value} value={a.value}>
+                        {a.label}
+                      </option>
+                    ))}
+                    {typeof field.value === "string" &&
+                      field.value &&
+                      !taskOptions.some((o) => o.value === field.value) && (
+                        <option value={field.value}>
+                          {quotationLaborAreaLabel(field.value)}
+                        </option>
+                      )}
+                    <option value={ADD_TASK_VALUE}>+ Agregar tarea…</option>
+                  </select>
+                )}
+              />
             </div>
             <TextInput
               label="Detalle (opcional)"
@@ -512,6 +577,113 @@ export function NewQuotationForm({
         </div>
       </div>
     </form>
+  );
+}
+
+/**
+ * Modal para agregar una tarea de mano de obra al catálogo del taller.
+ * Mobile first: bottom sheet en pantallas chicas, diálogo centrado en desktop.
+ */
+function AddTaskModal({
+  existing,
+  onCreated,
+  onClose,
+}: {
+  existing: { value: string; label: string }[];
+  onCreated: (task: { id: number; name: string; created: boolean }) => void;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    const trimmed = name.trim();
+    if (trimmed.length < 2) {
+      setError("Escribe el nombre de la tarea");
+      return;
+    }
+    // Si ya existe (estándar o personalizada), solo seleccionarla.
+    const match = existing.find(
+      (o) => o.label.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (match) {
+      onCreated({ id: 0, name: match.value, created: false });
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/quotation-task-types", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmed }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Error al guardar");
+        setSaving(false);
+        return;
+      }
+      onCreated({ id: data.id, name: data.name, created: true });
+    } catch {
+      setError("Error de conexión");
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-xl shadow-2xl p-5 pb-8 sm:pb-5 space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div>
+          <h3 className="font-bold text-lg">Nueva tarea</h3>
+          <p className="text-xs text-rapid-text-muted mt-1">
+            Queda guardada para futuras cotizaciones.
+          </p>
+        </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <input
+          autoFocus
+          className="form-input w-full"
+          placeholder="Ej. Pulido de faros"
+          value={name}
+          maxLength={50}
+          enterKeyHint="done"
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submit();
+            }
+          }}
+        />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/settings/labor-tasks"
+            className="text-xs text-rapid-text-muted hover:text-rapid-text mr-auto"
+          >
+            Gestionar catálogo
+          </Link>
+          <button type="button" className="btn-secondary" onClick={onClose}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={submit}
+            disabled={saving}
+          >
+            {saving ? "Guardando..." : "Agregar"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
