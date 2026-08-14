@@ -16,6 +16,7 @@ import {
   Coins,
   Shield,
   Building2,
+  ListChecks,
 } from "lucide-react";
 
 export type NavItem = {
@@ -60,6 +61,7 @@ export const sidebarNavGroups: NavGroup[] = [
       },
       { href: "/inventory/paint", label: "Pintura", icon: Droplets },
       { href: "/settings/insurance-companies", label: "Aseguradoras", icon: Building2 },
+      { href: "/settings/labor-tasks", label: "Tareas M.O.", icon: ListChecks },
     ],
   },
   {

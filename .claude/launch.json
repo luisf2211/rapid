@@ -5,7 +5,7 @@
       "name": "rapid-dev",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
-      "port": 3000
+      "port": 8000
     }
   ]
 }
