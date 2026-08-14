@@ -8,7 +8,11 @@ import { toDateInputValue, toTimeInputValue } from "@/lib/formatters/date";
 import { getWorkshopTodayDateInput } from "@/lib/formatters/today";
 import { toPlainNumber } from "@/lib/serialize";
 import { parseMileage } from "@/lib/work-order/mileage";
-import type { PhotoInput, WorkOrderFormValues } from "@/lib/validations/work-order";
+import type {
+  DamageInput,
+  PhotoInput,
+  WorkOrderFormValues,
+} from "@/lib/validations/work-order";
 import type { getWorkOrderById } from "@/services/work-orders.service";
 
 export type WorkOrderDetail = NonNullable<
@@ -33,6 +37,23 @@ function normalizePhotoType(value: string | null | undefined): PhotoInput["photo
     return value as PhotoInput["photoType"];
   }
   return "RECEPTION";
+}
+
+const ANNOTATION_TOOL_VALUES = new Set([
+  "crossMark",
+  "circle",
+  "scratch",
+  "arrow",
+  "crack",
+  "text",
+]);
+
+function normalizeAnnotationTool(
+  value: string | null | undefined,
+): DamageInput["annotationTool"] {
+  return value && ANNOTATION_TOOL_VALUES.has(value)
+    ? (value as DamageInput["annotationTool"])
+    : undefined;
 }
 
 export function makeDefaultWorkOrderFormValues(): WorkOrderFormValues {
@@ -129,10 +150,13 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
         | "PAINT_DAMAGE"
         | "BROKEN"
         | "OTHER",
+      annotationTool: normalizeAnnotationTool(d.annotationTool),
       description: d.description ?? "",
       zoneNumber: d.zoneNumber ?? undefined,
       positionX: toPlainNumber(d.positionX) ?? undefined,
       positionY: toPlainNumber(d.positionY) ?? undefined,
+      positionX2: toPlainNumber(d.positionX2) ?? undefined,
+      positionY2: toPlainNumber(d.positionY2) ?? undefined,
     })),
     photos: order.photos.map((p) => ({
       photoUrl: p.photoUrl,

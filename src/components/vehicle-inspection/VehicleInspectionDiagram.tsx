@@ -74,10 +74,16 @@ export function VehicleInspectionDiagram({
         number: nextNumber,
       };
 
-      // Para scratches y arrows, calcular un endpoint por defecto
-      if (activeTool === "scratch" || activeTool === "arrow") {
+      // Endpoints por defecto: la flecha APUNTA al punto tocado (la punta
+      // queda en el clic y la cola se desplaza); el rayón parte del clic.
+      if (activeTool === "arrow") {
+        annotation.x2 = x;
+        annotation.y2 = y;
+        annotation.x = Math.max(0, x - 8);
+        annotation.y = Math.min(100, y + 6);
+      } else if (activeTool === "scratch") {
         annotation.x2 = Math.min(100, x + 8);
-        annotation.y2 = activeTool === "arrow" ? Math.max(0, y - 6) : y;
+        annotation.y2 = y;
       }
 
       onChange([...annotations, annotation]);
@@ -203,23 +209,23 @@ export function VehicleInspectionDiagram({
           </svg>
         )}
 
-        {/* Text input popup */}
+        {/* Marcador del punto donde quedará la nota de texto */}
         {pendingText && (
-          <div
-            className="absolute z-10"
-            style={{
-              left: `${pendingText.x}%`,
-              top: `${pendingText.y}%`,
-              transform: "translate(-50%, -120%)",
-            }}
-          >
-            <TextInputPopup
-              onSubmit={handleTextSubmit}
-              onCancel={() => setPendingText(null)}
-            />
-          </div>
+          <span
+            className="absolute z-10 w-3 h-3 -ml-1.5 -mt-1.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse pointer-events-none"
+            style={{ left: `${pendingText.x}%`, top: `${pendingText.y}%` }}
+          />
         )}
       </div>
+
+      {/* Entrada de texto bajo el canvas: en móvil un popup flotante se
+          recorta por el overflow del lienzo y bloquea la escritura. */}
+      {pendingText && (
+        <TextInputPopup
+          onSubmit={handleTextSubmit}
+          onCancel={() => setPendingText(null)}
+        />
+      )}
 
       {/* Annotation count */}
       <p className="text-xs text-rapid-text-muted">
@@ -242,37 +248,44 @@ function TextInputPopup({
   const [text, setText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sin <form>: este popup vive dentro del formulario de la orden y un
+  // form anidado es HTML inválido (error de hidratación). Enter confirma
+  // sin disparar el submit del formulario padre; Escape cancela.
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit(text);
-      }}
-      className="flex items-center gap-1 bg-white border border-rapid-border rounded-lg shadow-lg p-1.5"
-    >
+    <div className="flex items-center gap-2 bg-white border border-rapid-border rounded-lg shadow-sm p-2">
       <input
         ref={inputRef}
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Nota..."
-        className="w-28 px-2 py-1 text-xs border border-rapid-border rounded"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            onSubmit(text);
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            onCancel();
+          }
+        }}
+        placeholder="Escribe la nota del daño…"
+        className="flex-1 min-w-0 px-3 py-2 text-sm border border-rapid-border rounded"
         autoFocus
         maxLength={40}
       />
       <button
-        type="submit"
-        className="px-2 py-1 text-xs font-medium bg-rapid-green text-white rounded"
+        type="button"
+        onClick={() => onSubmit(text)}
+        className="px-4 py-2 text-sm font-medium bg-rapid-green text-white rounded"
       >
         OK
       </button>
       <button
         type="button"
         onClick={onCancel}
-        className="px-2 py-1 text-xs text-rapid-text-muted hover:text-rapid-text"
+        className="px-3 py-2 text-sm text-rapid-text-muted hover:text-rapid-text"
       >
         ✕
       </button>
-    </form>
+    </div>
   );
 }

@@ -49,8 +49,13 @@ export interface VehicleAnnotation {
   text?: string;
   /** Descripción opcional del daño */
   description?: string;
-  /** Número secuencial para referencia en la tabla */
+  /** Número secuencial interno (orden de captura); no se muestra al usuario */
   number: number;
+  /**
+   * Zona legacy (catálogo 1-32) cuando el daño proviene del antiguo marcado
+   * por zonas. Passthrough: el diagrama lo preserva pero no lo usa.
+   */
+  zoneNumber?: number;
 }
 
 /** Estado completo del diagrama de inspección */

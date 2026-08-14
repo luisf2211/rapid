@@ -282,20 +282,27 @@
   color: #000;
 }
 
-/* Fila de 3 vistas (Frente, Atrás, Techo) */
-.idoc-inspection-row-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 4mm;
+/* Rejilla compacta tipo hoja tradicional: TODAS las vistas comparten la
+   misma altura (--idoc-view-h) y el ancho lo dicta su proporción, así
+   ninguna domina a las demás. Columna izquierda: frente y atrás;
+   columna derecha: laterales y superior. */
+.idoc-inspection-grid {
+  --idoc-view-h: 32mm;
+  display: flex;
+  gap: 3mm;
+  align-items: flex-start;
+  justify-content: center;
   margin-bottom: 4mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
-/* Fila de vistas de ancho completo (Izquierda, Derecha) */
-.idoc-inspection-row-full {
+.idoc-inspection-col--faces,
+.idoc-inspection-col--body {
   display: flex;
   flex-direction: column;
-  gap: 3mm;
-  margin-bottom: 4mm;
+  gap: 2.5mm;
+  flex: none;
 }
 
 .idoc-inspection-view {
@@ -306,7 +313,9 @@
 
 .idoc-inspection-svg-wrap {
   position: relative;
-  width: 100%;
+  /* Altura común a todas las vistas; el ancho lo define su proporción. */
+  height: var(--idoc-view-h);
+  width: auto;
   border: 0.5px solid #ccc;
   border-radius: 2px;
   background: #fff;

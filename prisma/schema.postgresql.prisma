@@ -187,16 +187,19 @@ model WorkOrderPhoto {
 }
 
 model WorkOrderDamage {
-  id          Int       @id(map: "PK__WorkOrde__3214EC0797756682") @default(autoincrement()) @map("Id")
-  workOrderId Int       @map("WorkOrderId")
-  vehicleSide String?   @map("VehicleSide") @db.VarChar(30)
-  damageType  String?   @map("DamageType") @db.VarChar(50)
-  positionX   Decimal?  @map("PositionX") @db.Decimal(10, 4)
-  positionY   Decimal?  @map("PositionY") @db.Decimal(10, 4)
-  zoneNumber  Int?      @map("ZoneNumber")
-  description String?   @map("Description") @db.VarChar(250)
-  PartName    String?   @db.VarChar(150)
-  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderDamage_WorkOrder")
+  id             Int       @id(map: "PK__WorkOrde__3214EC0797756682") @default(autoincrement()) @map("Id")
+  workOrderId    Int       @map("WorkOrderId")
+  vehicleSide    String?   @map("VehicleSide") @db.VarChar(30)
+  damageType     String?   @map("DamageType") @db.VarChar(50)
+  annotationTool String?   @map("AnnotationTool") @db.VarChar(20)
+  positionX      Decimal?  @map("PositionX") @db.Decimal(10, 4)
+  positionY      Decimal?  @map("PositionY") @db.Decimal(10, 4)
+  positionX2     Decimal?  @map("PositionX2") @db.Decimal(10, 4)
+  positionY2     Decimal?  @map("PositionY2") @db.Decimal(10, 4)
+  zoneNumber     Int?      @map("ZoneNumber")
+  description    String?   @map("Description") @db.VarChar(250)
+  PartName       String?   @db.VarChar(150)
+  workOrder      WorkOrder @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderDamage_WorkOrder")
 
   @@map("WorkOrderDamage")
 }

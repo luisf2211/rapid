@@ -1,7 +1,8 @@
 /**
  * Página dedicada de daños señalizados para impresión.
- * Se renderiza como una hoja separada con las 5 vistas del vehículo
- * y las anotaciones posicionadas libremente, seguida de una tabla resumen.
+ * Se renderiza como una hoja separada con las 5 vistas del vehículo y las
+ * anotaciones posicionadas libremente: el marcado sobre el dibujo es la
+ * información, sin tabla resumen que la duplique.
  */
 
 import {
@@ -13,10 +14,10 @@ import {
 import { AnnotationLayer } from "@/components/vehicle-inspection/AnnotationLayer";
 import type { VehicleAnnotation } from "@/components/vehicle-inspection/types";
 import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
-import { ANNOTATION_TOOLS } from "@/components/vehicle-inspection/types";
 
-const VIEWS_ROW1: VehicleView[] = ["front", "back", "top"];
-const VIEWS_ROW2: VehicleView[] = ["left", "right"];
+/* Columnas de la rejilla compacta (todas las vistas con alturas parecidas) */
+const VIEWS_FACES: VehicleView[] = ["front", "back"];
+const VIEWS_BODY: VehicleView[] = ["left", "right", "top"];
 
 interface DamageInspectionPageProps {
   data: ReceptionPrintData;
@@ -29,22 +30,19 @@ function damageToAnnotation(
   d: ReceptionPrintData["damages"][number],
   index: number,
 ): VehicleAnnotation | null {
+  // print-data ya rellenó la posición aproximada para daños legacy solo-zona.
   if (d.positionX == null || d.positionY == null) return null;
   return {
     id: `print_${index}`,
-    view: (d.side?.toLowerCase() ?? "left") as VehicleView,
+    view: (d.sideCode ?? "left") as VehicleView,
     tool: (d.annotationTool ?? "crossMark") as VehicleAnnotation["tool"],
     x: d.positionX,
     y: d.positionY,
     x2: d.positionX2 ?? undefined,
     y2: d.positionY2 ?? undefined,
-    text: d.description || undefined,
+    text: d.description !== "—" ? d.description || undefined : undefined,
     number: index + 1,
   };
-}
-
-function toolLabel(tool: string): string {
-  return ANNOTATION_TOOLS.find((t) => t.tool === tool)?.label ?? tool;
 }
 
 /** Renderiza una vista del vehículo con sus anotaciones para impresión */
@@ -107,43 +105,19 @@ export function DamageInspectionPage({
         </div>
       </div>
 
-      {/* Vistas Fila 1: Frente, Atrás, Techo */}
-      <div className="idoc-inspection-row-3">
-        {VIEWS_ROW1.map((view) => (
-          <PrintView key={view} view={view} annotations={annotations} />
-        ))}
+      {/* Rejilla compacta: frente/atrás a la izquierda; laterales y techo a la derecha */}
+      <div className="idoc-inspection-grid">
+        <div className="idoc-inspection-col--faces">
+          {VIEWS_FACES.map((view) => (
+            <PrintView key={view} view={view} annotations={annotations} />
+          ))}
+        </div>
+        <div className="idoc-inspection-col--body">
+          {VIEWS_BODY.map((view) => (
+            <PrintView key={view} view={view} annotations={annotations} />
+          ))}
+        </div>
       </div>
-
-      {/* Vistas Fila 2: Izquierda, Derecha (ancho completo) */}
-      <div className="idoc-inspection-row-full">
-        {VIEWS_ROW2.map((view) => (
-          <PrintView key={view} view={view} annotations={annotations} />
-        ))}
-      </div>
-
-      {/* Tabla de daños */}
-      {data.damages.length > 0 && (
-        <table className="idoc-table idoc-table--compact" style={{ marginTop: 10 }}>
-          <thead>
-            <tr>
-              <th className="num">#</th>
-              <th>Vista</th>
-              <th>Tipo</th>
-              <th>Descripción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.damages.map((d, i) => (
-              <tr key={i}>
-                <td className="num">{i + 1}</td>
-                <td>{d.side}</td>
-                <td>{d.annotationTool ? toolLabel(d.annotationTool) : d.type}</td>
-                <td>{d.description || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
     </div>
   );
 }

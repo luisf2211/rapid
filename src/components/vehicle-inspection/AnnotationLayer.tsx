@@ -32,23 +32,16 @@ export function AnnotationLayer({ annotations, viewBoxW, viewBoxH }: AnnotationL
                   x1={cx + 8} y1={cy - 8} x2={cx - 8} y2={cy + 8}
                   stroke="#dc2626" strokeWidth={2.5} strokeLinecap="round"
                 />
-                <text x={cx + 10} y={cy - 6} fontSize={9} fontWeight={700} fill="#dc2626">
-                  {ann.number}
-                </text>
               </g>
             );
 
           case "circle":
             return (
-              <g key={key}>
-                <circle
-                  cx={cx} cy={cy} r={10}
-                  fill="none" stroke="#dc2626" strokeWidth={2}
-                />
-                <text x={cx + 12} y={cy - 6} fontSize={9} fontWeight={700} fill="#dc2626">
-                  {ann.number}
-                </text>
-              </g>
+              <circle
+                key={key}
+                cx={cx} cy={cy} r={10}
+                fill="none" stroke="#dc2626" strokeWidth={2}
+              />
             );
 
           case "scratch": {
@@ -58,16 +51,12 @@ export function AnnotationLayer({ annotations, viewBoxW, viewBoxH }: AnnotationL
             const midY = (cy + y2) / 2;
             const offset = 6;
             return (
-              <g key={key}>
-                <path
-                  d={`M ${cx} ${cy} Q ${midX} ${midY - offset} ${x2} ${y2}`}
-                  fill="none" stroke="#dc2626" strokeWidth={2} strokeLinecap="round"
-                  strokeDasharray="3 2"
-                />
-                <text x={cx - 4} y={cy - 8} fontSize={9} fontWeight={700} fill="#dc2626">
-                  {ann.number}
-                </text>
-              </g>
+              <path
+                key={key}
+                d={`M ${cx} ${cy} Q ${midX} ${midY - offset} ${x2} ${y2}`}
+                fill="none" stroke="#dc2626" strokeWidth={2} strokeLinecap="round"
+                strokeDasharray="3 2"
+              />
             );
           }
 
@@ -90,38 +79,39 @@ export function AnnotationLayer({ annotations, viewBoxW, viewBoxH }: AnnotationL
                   points={`${x2},${y2} ${ax1},${ay1} ${ax2},${ay2}`}
                   fill="#dc2626"
                 />
-                <text x={cx + 10} y={cy - 8} fontSize={9} fontWeight={700} fill="#dc2626">
-                  {ann.number}
-                </text>
               </g>
             );
           }
 
           case "crack":
             return (
-              <g key={key}>
-                <path
-                  d={`M ${cx} ${cy - 10} L ${cx + 3} ${cy - 4} L ${cx + 9} ${cy - 3} L ${cx + 5} ${cy + 2} L ${cx + 7} ${cy + 10} L ${cx} ${cy + 5} L ${cx - 7} ${cy + 10} L ${cx - 5} ${cy + 2} L ${cx - 9} ${cy - 3} L ${cx - 3} ${cy - 4} Z`}
-                  fill="none" stroke="#dc2626" strokeWidth={1.8} strokeLinejoin="round"
-                />
-                <text x={cx + 11} y={cy - 6} fontSize={9} fontWeight={700} fill="#dc2626">
-                  {ann.number}
-                </text>
-              </g>
+              <path
+                key={key}
+                d={`M ${cx} ${cy - 10} L ${cx + 3} ${cy - 4} L ${cx + 9} ${cy - 3} L ${cx + 5} ${cy + 2} L ${cx + 7} ${cy + 10} L ${cx} ${cy + 5} L ${cx - 7} ${cy + 10} L ${cx - 5} ${cy + 2} L ${cx - 9} ${cy - 3} L ${cx - 3} ${cy - 4} Z`}
+                fill="none" stroke="#dc2626" strokeWidth={1.8} strokeLinejoin="round"
+              />
             );
 
-          case "text":
+          case "text": {
+            // Los números son internos: una anotación de texto sin contenido
+            // se marca como un punto discreto en vez de mostrar "#n".
+            if (!ann.text) {
+              return (
+                <circle key={key} cx={cx} cy={cy} r={3} fill="#dc2626" />
+              );
+            }
             return (
               <g key={key}>
                 <rect
-                  x={cx - 2} y={cy - 10} width={Math.max((ann.text?.length ?? 3) * 6, 20)} height={14}
+                  x={cx - 2} y={cy - 10} width={Math.max(ann.text.length * 6, 20)} height={14}
                   fill="white" fillOpacity={0.85} stroke="#dc2626" strokeWidth={0.8} rx={2}
                 />
                 <text x={cx + 1} y={cy + 1} fontSize={9} fontWeight={600} fill="#dc2626">
-                  {ann.text || `#${ann.number}`}
+                  {ann.text}
                 </text>
               </g>
             );
+          }
 
           default:
             return null;
