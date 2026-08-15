@@ -1,6 +1,7 @@
 import { formatDate } from "@/lib/formatters/date";
 import { toPlainNumber } from "@/lib/serialize";
 import { computeQuotationTotals } from "@/lib/quotation/totals";
+import { computeInsuranceTotals } from "@/lib/quotation/insurance-calc-templates";
 import { DAMAGE_SIDES, DAMAGE_TYPES, quotationLaborAreaLabel } from "@/lib/constants";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getQuotationById } from "@/services/quotations.service";
@@ -99,11 +100,16 @@ export type QuotationPrintData = {
   /** Fotos solo para vista digital; no se usan en impresión. */
   photos: Array<{ url: string; description: string | null }>;
   conditions: string[];
+  /** Desglose de cálculo de la aseguradora (si tiene plantilla configurada) */
+  insuranceBreakdown: Array<{ label: string; amount: number }> | null;
+  /** Nombre de la plantilla de cálculo usada */
+  calcTemplateName: string | null;
 };
 
 export function buildQuotationPrintData(
   q: QuotationRow,
   workshop: WorkshopPrintInfo,
+  options?: { calcTemplate?: string | null },
 ): QuotationPrintData {
   const isInsurance = q.quotationType === "INSURANCE";
 
@@ -188,13 +194,30 @@ export function buildQuotationPrintData(
   const laborSubtotal = laborRows.reduce((s, l) => s + l.total, 0);
   const partsSubtotal = partRows.reduce((s, p) => s + p.total, 0);
   const materialSubtotal = 0;
-  const totals = computeQuotationTotals({
-    laborLines: laborRows.map((l) => ({ lineTotal: l.total })),
-    materialLines: [],
-    partLines: partRows.map((p) => ({ lineTotal: p.total })),
-    discountAmount,
-    taxRate,
-  });
+
+  const calcTemplate = options?.calcTemplate ?? null;
+  let taxAmount: number;
+  let grandTotal: number;
+  let insuranceBreakdown: Array<{ label: string; amount: number }> | null = null;
+
+  if (isInsurance && calcTemplate) {
+    const subtotal = laborSubtotal + partsSubtotal - discountAmount;
+    const deductible = toPlainNumber(q.deductibleAmount) ?? 0;
+    const result = computeInsuranceTotals(calcTemplate, { subtotal, deductible });
+    taxAmount = result.taxAmount;
+    grandTotal = result.grandTotal;
+    insuranceBreakdown = result.breakdown;
+  } else {
+    const totals = computeQuotationTotals({
+      laborLines: laborRows.map((l) => ({ lineTotal: l.total })),
+      materialLines: [],
+      partLines: partRows.map((p) => ({ lineTotal: p.total })),
+      discountAmount,
+      taxRate,
+    });
+    taxAmount = totals.taxAmount;
+    grandTotal = totals.grandTotal;
+  }
 
   return {
     id: q.id,
@@ -227,8 +250,8 @@ export function buildQuotationPrintData(
     partsSubtotal,
     discountAmount,
     taxRate,
-    taxAmount: totals.taxAmount,
-    grandTotal: totals.grandTotal,
+    taxAmount,
+    grandTotal,
     estimatedDays: q.estimatedDays,
     warrantyNotes: warrantyText,
     termsNotes: q.termsNotes,
@@ -239,5 +262,7 @@ export function buildQuotationPrintData(
     damageRows,
     photos,
     conditions,
+    insuranceBreakdown,
+    calcTemplateName: calcTemplate,
   };
 }

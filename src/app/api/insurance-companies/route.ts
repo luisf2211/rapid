@@ -16,6 +16,7 @@ export async function GET() {
       phone: c.Phone,
       email: c.Email,
       contactName: c.ContactName,
+      calcTemplate: c.CalcTemplate,
     }));
     return NextResponse.json(mapped);
   } catch (e) {

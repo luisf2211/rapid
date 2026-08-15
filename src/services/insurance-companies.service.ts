@@ -36,6 +36,7 @@ export async function createInsuranceCompany(input: InsuranceCompanyInput) {
       Email: emptyToNull(input.email),
       ContactName: emptyToNull(input.contactName),
       Address: emptyToNull(input.address),
+      CalcTemplate: emptyToNull(input.calcTemplate),
     },
   });
 }
@@ -51,6 +52,7 @@ export async function updateInsuranceCompany(id: number, input: InsuranceCompany
       Email: emptyToNull(input.email),
       ContactName: emptyToNull(input.contactName),
       Address: emptyToNull(input.address),
+      CalcTemplate: emptyToNull(input.calcTemplate),
       UpdatedAt: new Date(),
     },
   });
@@ -62,4 +64,16 @@ export async function toggleInsuranceCompany(id: number, isActive: boolean) {
     where: { Id: id, CompanyId: companyId },
     data: { IsActive: isActive, UpdatedAt: new Date() },
   });
+}
+
+/**
+ * Busca la plantilla de cálculo de una aseguradora por nombre.
+ * Usado en el flujo de impresión donde no hay sesión activa (ruta pública).
+ */
+export async function getInsuranceCalcTemplate(insuranceCompanyName: string): Promise<string | null> {
+  const row = await prisma.insuranceCompany.findFirst({
+    where: { Name: insuranceCompanyName, IsActive: true },
+    select: { CalcTemplate: true },
+  });
+  return row?.CalcTemplate ?? null;
 }

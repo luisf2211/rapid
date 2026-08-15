@@ -802,18 +802,19 @@ model PayrollSettlement {
 // ─── Módulo de Aseguradoras ─────────────────────────────────────────────────
 
 model InsuranceCompany {
-  Id          Int      @id(map: "PK_InsuranceCompany") @default(autoincrement())
-  CompanyId   Int      @default(1) @map("CompanyId")
-  Name        String   @db.VarChar(150)
-  Rnc         String?  @db.VarChar(30)
-  Phone       String?  @db.VarChar(50)
-  Email       String?  @db.VarChar(150)
-  ContactName String?  @db.VarChar(150)
-  Address     String?  @db.VarChar(250)
-  IsActive    Boolean  @default(true)
-  CreatedAt   DateTime @default(now())
-  UpdatedAt   DateTime?
-  company     Company  @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_InsuranceCompany_Company")
+  Id           Int      @id(map: "PK_InsuranceCompany") @default(autoincrement())
+  CompanyId    Int      @default(1) @map("CompanyId")
+  Name         String   @db.VarChar(150)
+  Rnc          String?  @db.VarChar(30)
+  Phone        String?  @db.VarChar(50)
+  Email        String?  @db.VarChar(150)
+  ContactName  String?  @db.VarChar(150)
+  Address      String?  @db.VarChar(250)
+  CalcTemplate String?  @db.VarChar(50)
+  IsActive     Boolean  @default(true)
+  CreatedAt    DateTime @default(now())
+  UpdatedAt    DateTime?
+  company      Company  @relation(fields: [CompanyId], references: [id], onUpdate: NoAction, map: "FK_InsuranceCompany_Company")
 
   @@unique([CompanyId, Name], map: "UQ_InsuranceCompany_Company_Name")
   @@index([CompanyId, IsActive], map: "IX_InsuranceCompany_Company")

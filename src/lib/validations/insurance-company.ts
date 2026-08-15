@@ -13,6 +13,7 @@ export const insuranceCompanySchema = z.object({
     .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Email inválido"),
   contactName: z.string().trim().max(150).optional().or(z.literal("")),
   address: z.string().trim().max(250).optional().or(z.literal("")),
+  calcTemplate: z.string().trim().max(50).optional().or(z.literal("")),
 });
 
 export type InsuranceCompanyInput = z.infer<typeof insuranceCompanySchema>;

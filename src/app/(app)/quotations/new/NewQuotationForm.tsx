@@ -24,6 +24,7 @@ import {
   lineTotalFromQtyPrice,
   quotationTaxRate,
 } from "@/lib/quotation/totals";
+import { computeInsuranceTotals } from "@/lib/quotation/insurance-calc-templates";
 import { TextInput } from "@/components/forms/TextInput";
 import { MoneyInput } from "@/components/forms/MoneyInput";
 import { MileageInput } from "@/components/forms/MileageInput";
@@ -75,6 +76,7 @@ export function NewQuotationForm({
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showVinScanner, setShowVinScanner] = useState(false);
+  const [selectedCalcTemplate, setSelectedCalcTemplate] = useState<string | null>(null);
   const [customTasks, setCustomTasks] = useState<{ id: number; name: string }[]>([]);
   const [addTaskForIdx, setAddTaskForIdx] = useState<number | null>(null);
 
@@ -126,6 +128,7 @@ export function NewQuotationForm({
   const watchedLabor = useWatch({ control, name: "laborLines" });
   const watchedParts = useWatch({ control, name: "partLines" });
   const discountAmount = Number(watch("discountAmount")) || 0;
+  const deductibleAmount = Number(watch("deductibleAmount")) || 0;
 
   const previewTotals = useMemo(() => {
     const labor = (watchedLabor ?? []).map((l) => ({
@@ -137,14 +140,32 @@ export function NewQuotationForm({
         Number(p?.unitPrice) || 0,
       ),
     }));
-    return computeQuotationTotals({
+    const baseTotals = computeQuotationTotals({
       laborLines: labor,
       materialLines: [],
       partLines: parts,
       discountAmount,
       taxRate: quotationTaxRate(quotationType ?? "PRIVATE"),
     });
-  }, [watchedLabor, watchedParts, discountAmount, quotationType]);
+
+    // Si hay una plantilla de cálculo de aseguradora, usarla para el total
+    if (quotationType === "INSURANCE" && selectedCalcTemplate) {
+      const subtotal = baseTotals.laborSubtotal + baseTotals.partsSubtotal - discountAmount;
+      const insuranceResult = computeInsuranceTotals(selectedCalcTemplate, {
+        subtotal,
+        deductible: deductibleAmount,
+      });
+      return {
+        ...baseTotals,
+        taxAmount: insuranceResult.taxAmount,
+        grandTotal: insuranceResult.grandTotal,
+        insuranceBreakdown: insuranceResult.breakdown,
+        deductibleApplied: insuranceResult.deductibleApplied,
+      };
+    }
+
+    return { ...baseTotals, insuranceBreakdown: null, deductibleApplied: 0 };
+  }, [watchedLabor, watchedParts, discountAmount, deductibleAmount, quotationType, selectedCalcTemplate]);
 
   const save = (
     submitStatus: "DRAFT" | "PENDING",
@@ -226,7 +247,7 @@ export function NewQuotationForm({
       </section>
 
       {quotationType === "INSURANCE" && (
-        <InsuranceSection register={register} errors={errors} setValue={form.setValue} />
+        <InsuranceSection register={register} errors={errors} setValue={form.setValue} initialInsuranceCompany={watch("insuranceCompany")} onCalcTemplateChange={setSelectedCalcTemplate} />
       )}
 
       <section className="card p-5 space-y-4">
@@ -507,12 +528,21 @@ export function NewQuotationForm({
             <span>Repuestos</span>
             <span>{formatMoney(previewTotals.partsSubtotal)}</span>
           </div>
-          {quotationType === "INSURANCE" && (
+          {quotationType === "INSURANCE" && previewTotals.insuranceBreakdown ? (
+            <>
+              {previewTotals.insuranceBreakdown.slice(1).map((step, i) => (
+                <div key={i} className="flex justify-between text-rapid-text-muted">
+                  <span>{step.label}</span>
+                  <span>{formatMoney(step.amount)}</span>
+                </div>
+              ))}
+            </>
+          ) : quotationType === "INSURANCE" ? (
             <div className="flex justify-between text-rapid-text-muted">
               <span>ITBIS 18%</span>
               <span>{formatMoney(previewTotals.taxAmount)}</span>
             </div>
-          )}
+          ) : null}
           <div className="flex justify-between font-semibold text-base pt-2 border-t border-rapid-border">
             <span>Total</span>
             <span>{formatMoney(previewTotals.grandTotal)}</span>
@@ -692,15 +722,20 @@ function InsuranceSection({
   register,
   errors,
   setValue,
+  initialInsuranceCompany,
+  onCalcTemplateChange,
 }: {
   register: ReturnType<typeof useForm<QuotationFormValues>>["register"];
   errors: ReturnType<typeof useForm<QuotationFormValues>>["formState"]["errors"];
   setValue: ReturnType<typeof useForm<QuotationFormValues>>["setValue"];
+  initialInsuranceCompany?: string;
+  onCalcTemplateChange?: (template: string | null) => void;
 }) {
   const [companies, setCompanies] = useState<
-    { id: number; name: string; rnc: string | null; phone: string | null; contactName: string | null }[]
+    { id: number; name: string; rnc: string | null; phone: string | null; contactName: string | null; calcTemplate: string | null }[]
   >([]);
   const [loaded, setLoaded] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [newRnc, setNewRnc] = useState("");
@@ -716,6 +751,14 @@ function InsuranceSection({
       const data = await res.json();
       setCompanies(data);
       setLoaded(true);
+      // Auto-select the matching company if we have an initial value
+      if (initialInsuranceCompany) {
+        const match = data.find((c: { id: number; name: string }) => c.name === initialInsuranceCompany);
+        if (match) {
+          setSelectedId(String(match.id));
+          onCalcTemplateChange?.(match.calcTemplate ?? null);
+        }
+      }
     } catch { /* ignore */ }
   };
 
@@ -724,12 +767,14 @@ function InsuranceSection({
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = Number(e.target.value);
+    setSelectedId(e.target.value);
     const company = companies.find((c) => c.id === id);
     if (company) {
       setValue("insuranceCompany", company.name);
       setValue("insurerRnc", company.rnc ?? "");
       setValue("adjusterName", company.contactName ?? "");
       setValue("adjusterPhone", company.phone ?? "");
+      onCalcTemplateChange?.(company.calcTemplate ?? null);
     }
   };
 
@@ -752,6 +797,7 @@ function InsuranceSection({
       const created = await res.json();
       // Reload list and select the new one
       await loadCompanies();
+      setSelectedId(String(created.id));
       setValue("insuranceCompany", created.name);
       setValue("insurerRnc", created.rnc ?? "");
       setValue("adjusterName", created.contactName ?? "");
@@ -776,7 +822,7 @@ function InsuranceSection({
             <select
               className="form-input flex-1"
               onChange={handleSelect}
-              defaultValue=""
+              value={selectedId}
             >
               <option value="" disabled>Seleccionar aseguradora...</option>
               {companies.map((c) => (

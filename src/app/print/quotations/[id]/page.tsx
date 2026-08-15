@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getQuotationForPrint } from "@/services/quotations.service";
 import { getWorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { buildQuotationPrintData } from "@/lib/quotation/print-data";
+import { getInsuranceCalcTemplate } from "@/services/insurance-companies.service";
 import { PrivateQuotationDocument } from "@/components/quotation/print/PrivateQuotationDocument";
 import { InsuranceQuotationDocument } from "@/components/quotation/print/InsuranceQuotationDocument";
 import { ClientExtrasQuotationDocument } from "@/components/quotation/print/ClientExtrasQuotationDocument";
@@ -25,7 +26,14 @@ export default async function QuotationPrintPage({
   if (!quotation) notFound();
 
   const workshop = await getWorkshopPrintInfo();
-  const data = buildQuotationPrintData(quotation, workshop);
+
+  // Look up the insurance company's calculation template if applicable
+  let calcTemplate: string | null = null;
+  if (quotation.quotationType === "INSURANCE" && quotation.insuranceCompany) {
+    calcTemplate = await getInsuranceCalcTemplate(quotation.insuranceCompany);
+  }
+
+  const data = buildQuotationPrintData(quotation, workshop, { calcTemplate });
   const backHref = `/quotations/${id}`;
   const autoPrint = auto === "1";
   const brandColor = workshop.brandColor ?? "#c41e3a";

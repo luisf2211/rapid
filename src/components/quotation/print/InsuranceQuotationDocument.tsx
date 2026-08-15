@@ -75,60 +75,92 @@ export function InsuranceQuotationDocument({
       <div className="qdoc-summary-box">
         <table>
           <tbody>
-            <tr>
-              <td>Partes a trabajar (seguro)</td>
-              <td>{formatMoney(data.laborRows.filter((l) => l.billingTarget === "INSURANCE").reduce((s, l) => s + l.total, 0))}</td>
-            </tr>
-            <tr>
-              <td>Piezas a sustituir (seguro)</td>
-              <td>{formatMoney(data.partRows.filter((p) => p.billingTarget === "INSURANCE").reduce((s, p) => s + p.total, 0))}</td>
-            </tr>
-            {data.discountAmount > 0 && (
-              <tr>
-                <td>Descuento</td>
-                <td>-{formatMoney(data.discountAmount)}</td>
-              </tr>
-            )}
-            <tr>
-              <td>Subtotal</td>
-              <td>
-                {formatMoney(
-                  data.laborRows.filter((l) => l.billingTarget === "INSURANCE").reduce((s, l) => s + l.total, 0) +
-                    data.partRows.filter((p) => p.billingTarget === "INSURANCE").reduce((s, p) => s + p.total, 0) -
-                    data.discountAmount,
-                )}
-              </td>
-            </tr>
-            <tr>
-              <td>ITBIS ({Math.round(data.taxRate * 100)}%)</td>
-              <td>{formatMoney(data.taxAmount)}</td>
-            </tr>
-            <tr>
-              <td>
-                <strong className="qdoc-red" style={{ fontSize: "11pt" }}>
-                  TOTAL ASEGURADORA
-                </strong>
-              </td>
-              <td>
-                <strong className="qdoc-red" style={{ fontSize: "11pt" }}>
-                  {formatMoney(data.grandTotal)}
-                </strong>
-              </td>
-            </tr>
-            {data.deductibleAmount != null && data.deductibleAmount > 0 && (
+            {data.insuranceBreakdown ? (
+              <>
+                {data.insuranceBreakdown.map((step, i) => {
+                  const isLast = i === data.insuranceBreakdown!.length - 1;
+                  return (
+                    <tr key={i}>
+                      <td>
+                        {isLast ? (
+                          <strong className="qdoc-red" style={{ fontSize: "11pt" }}>
+                            {step.label.toUpperCase()}
+                          </strong>
+                        ) : (
+                          step.label
+                        )}
+                      </td>
+                      <td>
+                        {isLast ? (
+                          <strong className="qdoc-red" style={{ fontSize: "11pt" }}>
+                            {formatMoney(step.amount)}
+                          </strong>
+                        ) : (
+                          formatMoney(step.amount)
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </>
+            ) : (
               <>
                 <tr>
-                  <td>Deducible (cliente)</td>
-                  <td>{formatMoney(data.deductibleAmount)}</td>
+                  <td>Partes a trabajar (seguro)</td>
+                  <td>{formatMoney(data.laborRows.filter((l) => l.billingTarget === "INSURANCE").reduce((s, l) => s + l.total, 0))}</td>
                 </tr>
                 <tr>
-                  <td>A cargo de aseguradora</td>
+                  <td>Piezas a sustituir (seguro)</td>
+                  <td>{formatMoney(data.partRows.filter((p) => p.billingTarget === "INSURANCE").reduce((s, p) => s + p.total, 0))}</td>
+                </tr>
+                {data.discountAmount > 0 && (
+                  <tr>
+                    <td>Descuento</td>
+                    <td>-{formatMoney(data.discountAmount)}</td>
+                  </tr>
+                )}
+                <tr>
+                  <td>Subtotal</td>
                   <td>
                     {formatMoney(
-                      Math.max(0, data.grandTotal - data.deductibleAmount),
+                      data.laborRows.filter((l) => l.billingTarget === "INSURANCE").reduce((s, l) => s + l.total, 0) +
+                        data.partRows.filter((p) => p.billingTarget === "INSURANCE").reduce((s, p) => s + p.total, 0) -
+                        data.discountAmount,
                     )}
                   </td>
                 </tr>
+                <tr>
+                  <td>ITBIS ({Math.round(data.taxRate * 100)}%)</td>
+                  <td>{formatMoney(data.taxAmount)}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <strong className="qdoc-red" style={{ fontSize: "11pt" }}>
+                      TOTAL ASEGURADORA
+                    </strong>
+                  </td>
+                  <td>
+                    <strong className="qdoc-red" style={{ fontSize: "11pt" }}>
+                      {formatMoney(data.grandTotal)}
+                    </strong>
+                  </td>
+                </tr>
+                {data.deductibleAmount != null && data.deductibleAmount > 0 && (
+                  <>
+                    <tr>
+                      <td>Deducible (cliente)</td>
+                      <td>{formatMoney(data.deductibleAmount)}</td>
+                    </tr>
+                    <tr>
+                      <td>A cargo de aseguradora</td>
+                      <td>
+                        {formatMoney(
+                          Math.max(0, data.grandTotal - data.deductibleAmount),
+                        )}
+                      </td>
+                    </tr>
+                  </>
+                )}
               </>
             )}
           </tbody>

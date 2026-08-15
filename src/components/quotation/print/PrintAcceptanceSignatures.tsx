@@ -19,7 +19,6 @@ export function PrintAcceptanceSignatures({
         <div className="qdoc-sig-cell">
           <div className="qdoc-sig-space" aria-hidden />
           <p className="qdoc-sig-label">Firma del cliente</p>
-          <p className="qdoc-sig-name">{customerName}</p>
         </div>
         <PrintQuotationWorkshopSignature workshop={workshop} />
       </div>

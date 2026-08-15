@@ -6,9 +6,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Pencil, ToggleLeft, ToggleRight } from "lucide-react";
 import { TextInput } from "@/components/forms/TextInput";
 import { insuranceCompanySchema, type InsuranceCompanyInput } from "@/lib/validations/insurance-company";
+import { INSURANCE_CALC_TEMPLATE_OPTIONS } from "@/lib/quotation/insurance-calc-templates";
 import { createInsuranceCompanyAction, updateInsuranceCompanyAction, toggleInsuranceCompanyAction } from "./actions";
 
-type CompanyRow = { Id: number; Name: string; Rnc: string | null; Phone: string | null; Email: string | null; ContactName: string | null; Address: string | null; IsActive: boolean };
+type CompanyRow = { Id: number; Name: string; Rnc: string | null; Phone: string | null; Email: string | null; ContactName: string | null; Address: string | null; CalcTemplate: string | null; IsActive: boolean };
+
+function templateLabel(key: string | null): string {
+  if (!key) return "\u2014";
+  const opt = INSURANCE_CALC_TEMPLATE_OPTIONS.find((o) => o.value === key);
+  return opt ? opt.label : key;
+}
 
 export function InsuranceCompaniesClient({ companies }: { companies: CompanyRow[] }) {
   const [editing, setEditing] = useState<number | "new" | null>(null);
@@ -19,12 +26,12 @@ export function InsuranceCompaniesClient({ companies }: { companies: CompanyRow[
   const { register, handleSubmit, reset, formState: { errors } } = useForm<InsuranceCompanyInput>({
     resolver: zodResolver(insuranceCompanySchema),
     defaultValues: editingRow
-      ? { name: editingRow.Name, rnc: editingRow.Rnc ?? "", phone: editingRow.Phone ?? "", email: editingRow.Email ?? "", contactName: editingRow.ContactName ?? "", address: editingRow.Address ?? "" }
-      : { name: "", rnc: "", phone: "", email: "", contactName: "", address: "" },
+      ? { name: editingRow.Name, rnc: editingRow.Rnc ?? "", phone: editingRow.Phone ?? "", email: editingRow.Email ?? "", contactName: editingRow.ContactName ?? "", address: editingRow.Address ?? "", calcTemplate: editingRow.CalcTemplate ?? "" }
+      : { name: "", rnc: "", phone: "", email: "", contactName: "", address: "", calcTemplate: "" },
   });
 
-  const openNew = () => { reset({ name: "", rnc: "", phone: "", email: "", contactName: "", address: "" }); setEditing("new"); setError(null); };
-  const openEdit = (row: CompanyRow) => { reset({ name: row.Name, rnc: row.Rnc ?? "", phone: row.Phone ?? "", email: row.Email ?? "", contactName: row.ContactName ?? "", address: row.Address ?? "" }); setEditing(row.Id); setError(null); };
+  const openNew = () => { reset({ name: "", rnc: "", phone: "", email: "", contactName: "", address: "", calcTemplate: "" }); setEditing("new"); setError(null); };
+  const openEdit = (row: CompanyRow) => { reset({ name: row.Name, rnc: row.Rnc ?? "", phone: row.Phone ?? "", email: row.Email ?? "", contactName: row.ContactName ?? "", address: row.Address ?? "", calcTemplate: row.CalcTemplate ?? "" }); setEditing(row.Id); setError(null); };
 
   const onSubmit = handleSubmit((data) => {
     setError(null);
@@ -51,6 +58,19 @@ export function InsuranceCompaniesClient({ companies }: { companies: CompanyRow[
               <TextInput label="Contacto" {...register("contactName")} error={errors.contactName?.message} />
               <TextInput label="Direccion" {...register("address")} error={errors.address?.message} />
             </div>
+            {/* Plantilla de cálculo */}
+            <div className="space-y-1">
+              <label className="form-label">Plantilla de cálculo</label>
+              <select className="form-input w-full sm:w-auto" {...register("calcTemplate")}>
+                <option value="">Sin plantilla (estándar)</option>
+                {INSURANCE_CALC_TEMPLATE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label} — {opt.description}</option>
+                ))}
+              </select>
+              <p className="text-xs text-rapid-text-muted">
+                Define cómo se calcula el total autorizado para esta aseguradora.
+              </p>
+            </div>
             <div className="flex gap-2">
               <button type="submit" className="btn-primary" disabled={isPending}>{isPending ? "Guardando..." : "Guardar"}</button>
               <button type="button" className="btn-secondary" onClick={() => setEditing(null)}>Cancelar</button>
@@ -72,7 +92,7 @@ export function InsuranceCompaniesClient({ companies }: { companies: CompanyRow[
                 <tr>
                   <th className="text-left font-semibold px-5 py-3">Nombre</th>
                   <th className="text-left font-semibold px-5 py-3">RNC</th>
-                  <th className="text-left font-semibold px-5 py-3 hidden md:table-cell">Telefono</th>
+                  <th className="text-left font-semibold px-5 py-3 hidden md:table-cell">Plantilla</th>
                   <th className="text-left font-semibold px-5 py-3 hidden lg:table-cell">Contacto</th>
                   <th className="text-center font-semibold px-5 py-3">Estado</th>
                   <th className="px-5 py-3 w-20" />
@@ -83,7 +103,7 @@ export function InsuranceCompaniesClient({ companies }: { companies: CompanyRow[
                   <tr key={c.Id} className="border-t border-rapid-border">
                     <td className="px-5 py-3 font-medium">{c.Name}</td>
                     <td className="px-5 py-3 text-rapid-text-muted font-mono text-xs">{c.Rnc || "\u2014"}</td>
-                    <td className="px-5 py-3 text-rapid-text-muted hidden md:table-cell">{c.Phone || "\u2014"}</td>
+                    <td className="px-5 py-3 text-rapid-text-muted text-xs hidden md:table-cell">{templateLabel(c.CalcTemplate)}</td>
                     <td className="px-5 py-3 text-rapid-text-muted hidden lg:table-cell">{c.ContactName || "\u2014"}</td>
                     <td className="px-5 py-3 text-center">
                       <button type="button" onClick={() => handleToggle(c.Id, c.IsActive)} disabled={isPending} title={c.IsActive ? "Desactivar" : "Activar"}>

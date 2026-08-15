@@ -11,12 +11,6 @@ export function PrintDocumentHeader({
   return (
     <header className="qdoc-header">
       <div className="qdoc-logo-block">
-        {workshop.logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={workshop.logoUrl} alt="" className="qdoc-logo-img" />
-        ) : (
-          <div className="qdoc-logo-mark">R</div>
-        )}
         <div>
           <div className="qdoc-brand-name">{workshop.businessName}</div>
           <div className="qdoc-brand-tag">{workshop.tagline}</div>
