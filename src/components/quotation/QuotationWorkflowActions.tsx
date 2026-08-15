@@ -76,7 +76,7 @@ export function QuotationWorkflowActions({
           <>
             <button
               type="button"
-              className="btn-primary"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
               disabled={pending}
               onClick={() => run(() => approveQuotationAction(id))}
             >
@@ -86,7 +86,7 @@ export function QuotationWorkflowActions({
             {!rejectOpen ? (
               <button
                 type="button"
-                className="btn-secondary"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-rapid-text-muted border border-rapid-border hover:bg-rapid-surface transition-colors"
                 disabled={pending}
                 onClick={() => setRejectOpen(true)}
               >
@@ -99,7 +99,7 @@ export function QuotationWorkflowActions({
         {status === "APPROVED" && (
           <button
             type="button"
-            className="btn-primary"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
             disabled={pending}
             onClick={() => run(() => convertQuotationAction(id))}
           >

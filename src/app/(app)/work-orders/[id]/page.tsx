@@ -18,7 +18,6 @@ import {
   Pencil,
   FileText,
 } from "lucide-react";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   getWorkOrderById,
@@ -61,7 +60,7 @@ import {
 import { Tabs } from "./Tabs";
 import { changeWorkOrderStatusAction } from "../actions";
 import { PhotoPreview } from "@/components/ui/PhotoPreview";
-import { ShareButtons } from "@/components/ui/ShareButtons";
+import { PrintSelect, ShareSelect } from "@/components/quotation/QuotationActionSelects";
 
 export const dynamic = "force-dynamic";
 
@@ -107,110 +106,149 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
   const quotationEditable =
     linkedQuotation != null && canEditQuotation(linkedQuotation.status);
 
+  const orderNumber = `ORD-${String(order.orderNumber).padStart(5, "0")}`;
+  const vehicleTitle = `${order.brand ?? ""} ${order.model ?? ""} ${order.vehicleYear ?? ""}`.trim() || "Vehículo";
+
   return (
-    <>
-      {/* ── Page header ──────────────────────────────────────────── */}
-      <PageHeader
-        breadcrumb={
-          <Link
-            href="/work-orders"
-            className="inline-flex items-center gap-1 hover:text-rapid-text transition"
-          >
-            <ArrowLeft className="w-3 h-3" /> Órdenes de recepción
-          </Link>
-        }
-        title={
-          `${order.brand ?? ""} ${order.model ?? ""} ${order.vehicleYear ?? ""}`.trim() ||
-          "Orden de trabajo"
-        }
-        subtitle={`Orden #${String(order.orderNumber).padStart(5, "0")} · ${order.customerName ?? "Sin cliente"} · ${formatDateTime(order.createdAt)}`}
-        badge={<StatusBadge status={order.status} />}
-      />
+    <div className="space-y-5">
+      {/* Breadcrumb */}
+      <Link
+        href="/work-orders"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-rapid-text-muted hover:text-rapid-text transition-colors"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" />
+        Órdenes de recepción
+      </Link>
 
-      {/* ── Action bar ───────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-1.5 mb-5 pb-5 border-b border-rapid-hairline">
-        {/* Utility: print + share + quotation */}
-        <Link
-          href={`/print/work-orders/${order.id}`}
-          target="_blank"
-          className="btn-secondary"
-        >
-          <Printer className="w-4 h-4" /> Imprimir
-        </Link>
-        <ShareButtons
-          documentType="orden de recepción"
-          documentNumber={`ORD-${String(order.orderNumber).padStart(5, "0")}`}
-          customerName={order.customerName ?? "Cliente"}
-          phone={order.phone}
-          email={order.email}
-          printPath={`/print/work-orders/${order.id}`}
-        />
-        {linkedQuotation && (
-          <Link
-            href={`/quotations/${linkedQuotation.id}`}
-            className="btn-secondary"
-          >
-            <FileText className="w-4 h-4" />{" "}
-            {formatDocNumber(
-              linkedQuotation.quotationType,
-              linkedQuotation.quotationNumber,
+      {/* ─── Header card ──────────────────────────────────────────── */}
+      <div className="card p-5">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Left: identity */}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-semibold text-rapid-text">
+                {vehicleTitle}
+              </h1>
+              <StatusBadge status={order.status} />
+            </div>
+            <p className="text-sm text-rapid-text-muted mt-0.5">
+              {orderNumber}
+              <span className="mx-1.5 text-rapid-border">·</span>
+              {order.customerName ?? "Sin cliente"}
+              {order.plate && (
+                <>
+                  <span className="mx-1.5 text-rapid-border">·</span>
+                  <span className="font-mono text-xs font-semibold">{order.plate}</span>
+                </>
+              )}
+              <span className="mx-1.5 text-rapid-border">·</span>
+              {formatDateTime(order.createdAt)}
+            </p>
+          </div>
+
+          {/* Right: financial + status */}
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="text-right">
+              <p className="text-2xl font-semibold tabular-nums text-rapid-text">
+                {formatMoney(financial.grandTotal)}
+              </p>
+              <p className="text-[11px] text-rapid-text-muted">costo interno</p>
+            </div>
+            <form
+              action={changeWorkOrderStatusAction}
+              className="flex items-center gap-1.5"
+            >
+              <input type="hidden" name="id" value={order.id} />
+              <select
+                name="status"
+                defaultValue={order.status}
+                className="form-input h-9 text-sm min-w-[130px]"
+              >
+                {Object.entries(WORK_ORDER_STATUS_LABELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                aria-label="Guardar estado"
+                className="h-9 w-9 flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Action bar */}
+        <div className="mt-4 pt-4 border-t border-rapid-hairline flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          {/* Left: document actions */}
+          <div className="flex items-center">
+            {receptionEditable && (
+              <Link
+                href={`/work-orders/${order.id}/edit`}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-surface rounded-lg transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Editar
+              </Link>
             )}
-          </Link>
-        )}
-        {linkedQuotation && quotationEditable && (
-          <Link
-            href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
-            className="btn-secondary"
-          >
-            <Pencil className="w-4 h-4" /> Editar cotización
-          </Link>
-        )}
+            <WorkOrderPrintSelect orderId={order.id} />
+            <ShareSelect
+              phone={order.phone}
+              customerName={order.customerName ?? "Cliente"}
+              printPath={`/print/work-orders/${order.id}`}
+            />
+            {linkedQuotation && (
+              <Link
+                href={`/quotations/${linkedQuotation.id}`}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-surface rounded-lg transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Cotización
+              </Link>
+            )}
+          </div>
 
-        {/* Separator */}
-        <span className="hidden sm:block w-px h-5 bg-rapid-border mx-1" aria-hidden />
-
-        {/* Workflow */}
-        {receptionEditable && (
-          <Link
-            href={`/work-orders/${order.id}/edit`}
-            className="btn-secondary"
-          >
-            <Pencil className="w-4 h-4" /> Editar recepción
-          </Link>
-        )}
-        <Link
-          href={`/material-requisitions/new?workOrderId=${order.id}`}
-          className="btn-secondary"
-        >
-          <Boxes className="w-4 h-4" /> Materiales
-        </Link>
-        <Link
-          href={`/labor-orders/new?workOrderId=${order.id}`}
-          className="btn-primary"
-        >
-          <Wrench className="w-4 h-4" /> Mano de obra
-        </Link>
-        {latestInvoice ? (
-          <Link
-            href={`/invoices/${latestInvoice.id}`}
-            className="btn-secondary"
-          >
-            <Receipt className="w-4 h-4" /> FAC-
-            {String(latestInvoice.invoiceNumber).padStart(5, "0")}
-          </Link>
-        ) : (
-          <Link
-            href={`/invoices/new?workOrderId=${order.id}`}
-            className="btn-primary"
-          >
-            <Receipt className="w-4 h-4" /> Facturar
-          </Link>
-        )}
+          {/* Right: workflow actions */}
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/material-requisitions/new?workOrderId=${order.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-rapid-text-muted border border-rapid-border hover:bg-rapid-surface transition-colors"
+            >
+              <Boxes className="w-3.5 h-3.5" />
+              Materiales
+            </Link>
+            <Link
+              href={`/labor-orders/new?workOrderId=${order.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-rapid-text-muted border border-rapid-border hover:bg-rapid-surface transition-colors"
+            >
+              <Wrench className="w-3.5 h-3.5" />
+              Mano de obra
+            </Link>
+            {latestInvoice ? (
+              <Link
+                href={`/invoices/${latestInvoice.id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-rapid-text-muted border border-rapid-border hover:bg-rapid-surface transition-colors"
+              >
+                <Receipt className="w-3.5 h-3.5" />
+                FAC-{String(latestInvoice.invoiceNumber).padStart(5, "0")}
+              </Link>
+            ) : (
+              <Link
+                href={`/invoices/new?workOrderId=${order.id}`}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+              >
+                <Receipt className="w-3.5 h-3.5" />
+                Facturar
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* ── Checklist alert ──────────────────────────────────────── */}
+      {/* ─── Checklist alert ──────────────────────────────────────── */}
       {receptionEditable && checklistPending && (
-        <div className="card border-amber-200 bg-amber-50 p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="card border-amber-200 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-amber-800">
             <p className="font-medium">Checklist de recepción pendiente</p>
             <p className="mt-0.5 text-xs text-amber-700">
@@ -219,112 +257,14 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           </div>
           <Link
             href={`/work-orders/${order.id}/edit#checklist`}
-            className="btn-primary shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 transition-colors shrink-0"
           >
-            Completar
+            Completar checklist
           </Link>
         </div>
       )}
 
-      {/* ── Top summary panels ───────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        {/* Vehicle info */}
-        <div className="card p-5 lg:col-span-2">
-          <div className="flex items-start justify-between mb-3">
-            <p className="text-xs font-medium text-rapid-text-muted">
-              Vehículo
-            </p>
-            <span className="font-mono text-[11px] uppercase px-2 py-0.5 rounded-md bg-rapid-surface-strong text-rapid-text-muted font-semibold">
-              {order.plate ?? "—"}
-            </span>
-          </div>
-          <p className="text-xl font-semibold text-rapid-text leading-tight">
-            {order.brand ?? ""} {order.model ?? ""}
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-            <InfoMini
-              label="Año"
-              value={order.vehicleYear ? String(order.vehicleYear) : "—"}
-            />
-            <InfoMini label="Color" value={order.color ?? "—"} />
-            <InfoMini label="Motor" value={order.engine ?? "—"} />
-            <InfoMini
-              label="Millaje"
-              value={formatMileage(order.mileage, order.mileageUnit) ?? "—"}
-            />
-          </div>
-        </div>
-
-        {/* Financial summary + status changer combined */}
-        <div className="card p-5 flex flex-col gap-4 border-l-4 border-l-rapid-green">
-          <div>
-            <p className="text-xs font-medium text-rapid-text-muted">
-              Costos internos
-            </p>
-            <p className="text-2xl font-semibold mt-1.5 text-rapid-text leading-none tabular-nums">
-              {formatMoney(financial.grandTotal)}
-            </p>
-            <div className="mt-3 space-y-1.5 text-xs text-rapid-text-muted">
-              <div className="flex justify-between">
-                <span>Materiales</span>
-                <span className="font-mono text-rapid-text">
-                  {formatMoney(financial.totalMaterials)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Pintura</span>
-                <span className="font-mono text-rapid-text">
-                  {formatMoney(financial.totalPaint)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Mano de obra</span>
-                <span className="font-mono text-rapid-text">
-                  {formatMoney(financial.totalLaborAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between border-t border-rapid-hairline pt-1.5">
-                <span>Piezas MO</span>
-                <span className="font-mono text-rapid-text">
-                  {formatPieceCount(financial.totalLaborPieces)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Status changer */}
-          <div className="border-t border-rapid-hairline pt-3">
-            <p className="text-xs font-medium text-rapid-text-muted mb-2">
-              Estado
-            </p>
-            <form
-              action={changeWorkOrderStatusAction}
-              className="flex items-center gap-2"
-            >
-              <input type="hidden" name="id" value={order.id} />
-              <select
-                name="status"
-                defaultValue={order.status}
-                className="form-input flex-1 min-w-0 h-9 text-sm"
-              >
-                {Object.entries(WORK_ORDER_STATUS_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                aria-label="Guardar estado"
-                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-lg bg-rapid-green text-white text-xs font-bold hover:bg-rapid-green-dark transition"
-              >
-                <Check className="w-4 h-4" />
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
+      {/* ─── Tabs (main content focus) ────────────────────────────── */}
       <Tabs
         tabs={[
           {
@@ -379,7 +319,7 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           },
           {
             id: "summary",
-            label: "Resumen financiero",
+            label: "Resumen",
             content: (
               <FinancialTab
                 order={order}
@@ -390,9 +330,11 @@ export default async function WorkOrderDetailPage({ params }: PageProps) {
           },
         ]}
       />
-    </>
+    </div>
   );
 }
+
+// ─── Helpers & sub-components ─────────────────────────────────────────────────
 
 type WorkOrder = NonNullable<Awaited<ReturnType<typeof getWorkOrderById>>>;
 type Reception = WorkOrder["receptions"][number];
@@ -410,14 +352,16 @@ function getLinkedQuotation(order: WorkOrder): LinkedQuotation | null {
   return fromConversion ?? null;
 }
 
-function InfoMini({ label, value }: { label: string; value: string }) {
+function WorkOrderPrintSelect({ orderId }: { orderId: number }) {
   return (
-    <div>
-      <p className="text-[11px] font-medium text-rapid-text-muted">
-        {label}
-      </p>
-      <p className="text-sm font-medium text-rapid-text mt-0.5">{value}</p>
-    </div>
+    <Link
+      href={`/print/work-orders/${orderId}`}
+      target="_blank"
+      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-surface rounded-lg transition-colors"
+    >
+      <Printer className="w-3.5 h-3.5" />
+      Imprimir
+    </Link>
   );
 }
 
@@ -436,16 +380,14 @@ function InfoRow({
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium text-rapid-text-muted">
-          {label}
-        </p>
-        <p className="text-sm font-medium text-rapid-text break-words">
-          {value}
-        </p>
+        <p className="text-[11px] font-medium text-rapid-text-muted">{label}</p>
+        <p className="text-sm font-medium text-rapid-text break-words">{value}</p>
       </div>
     </div>
   );
 }
+
+// ─── Tab content components ───────────────────────────────────────────────────
 
 function ReceptionTab({
   order,
@@ -460,106 +402,30 @@ function ReceptionTab({
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {linkedQuotation && (
-        <div className="card p-5 lg:col-span-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h3 className="font-bold text-lg mb-1">Cotización de origen</h3>
-            <p className="text-sm text-rapid-text-muted">
-              Presupuesto vinculado a esta hoja de recepción
-            </p>
-            <p className="font-mono text-sm font-semibold mt-2">
-              {formatDocNumber(
-                linkedQuotation.quotationType,
-                linkedQuotation.quotationNumber,
-              )}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 min-w-0">
-            <Link
-              href={`/quotations/${linkedQuotation.id}`}
-              className="btn-primary"
-            >
-              <Eye className="w-4 h-4" /> Ver cotización
-            </Link>
-            {quotationEditable && (
-              <Link
-                href={`/quotations/${linkedQuotation.id}/edit?returnTo=/work-orders/${order.id}`}
-                className="btn-secondary"
-              >
-                <Pencil className="w-4 h-4" /> Editar cotización
-              </Link>
-            )}
-            <Link
-              href={`/print/quotations/${linkedQuotation.id}?auto=1`}
-              target="_blank"
-              className="btn-secondary"
-            >
-              <Printer className="w-4 h-4" /> Imprimir
-            </Link>
-          </div>
-        </div>
-      )}
-
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-rapid-text mb-1">Cliente</h3>
-        <p className="text-xs text-rapid-text-muted mb-3">
-          Información de contacto
-        </p>
-        <InfoRow
-          icon={<User className="w-4 h-4" />}
-          label="Nombre"
-          value={order.customerName ?? "—"}
-        />
-        <InfoRow
-          icon={<Phone className="w-4 h-4" />}
-          label="Teléfono"
-          value={order.phone ?? "—"}
-        />
-        <InfoRow
-          icon={<Mail className="w-4 h-4" />}
-          label="Email"
-          value={order.email ?? "—"}
-        />
-        <InfoRow
-          icon={<MapPin className="w-4 h-4" />}
-          label="Dirección"
-          value={order.address ?? "—"}
-        />
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted mb-3">Cliente</h3>
+        <InfoRow icon={<User className="w-4 h-4" />} label="Nombre" value={order.customerName ?? "—"} />
+        <InfoRow icon={<Phone className="w-4 h-4" />} label="Teléfono" value={order.phone ?? "—"} />
+        <InfoRow icon={<Mail className="w-4 h-4" />} label="Email" value={order.email ?? "—"} />
+        <InfoRow icon={<MapPin className="w-4 h-4" />} label="Dirección" value={order.address ?? "—"} />
       </div>
 
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-rapid-text mb-1">Recepción</h3>
-        <p className="text-xs text-rapid-text-muted mb-3">Datos de entrada</p>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted mb-3">Vehículo y recepción</h3>
         <InfoRow
           icon={<Calendar className="w-4 h-4" />}
-          label="Fecha y hora de entrada"
-          value={
-            reception
-              ? `${formatDate(reception.deliveryDate)} · ${formatTime(
-                  reception.deliveryTime,
-                )}`
-              : "—"
-          }
+          label="Entrada"
+          value={reception ? `${formatDate(reception.deliveryDate)} · ${formatTime(reception.deliveryTime)}` : "—"}
         />
         <InfoRow
           icon={<Calendar className="w-4 h-4" />}
-          label="Fecha y hora de salida"
-          value={
-            reception && reception.exitDate
-              ? `${formatDate(reception.exitDate)} · ${formatTime(
-                  reception.exitTime,
-                )}`
-              : "—"
-          }
+          label="Salida"
+          value={reception?.exitDate ? `${formatDate(reception.exitDate)} · ${formatTime(reception.exitTime)}` : "—"}
         />
         <InfoRow
           icon={<Fuel className="w-4 h-4" />}
-          label="Nivel de combustible"
-          value={
-            reception?.fuelLevel != null
-              ? `${reception.fuelLevel}%`
-              : "—"
-          }
+          label="Combustible"
+          value={reception?.fuelLevel != null ? `${reception.fuelLevel}%` : "—"}
         />
         <InfoRow
           icon={<User className="w-4 h-4" />}
@@ -568,43 +434,37 @@ function ReceptionTab({
         />
       </div>
 
-      <div className="card p-5 lg:col-span-2">
-        <h3 className="text-sm font-semibold text-rapid-text mb-3">Observaciones</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-[11px] font-medium text-rapid-text-muted">
-              Daños solicitados
-            </p>
-            <p className="text-sm mt-1 whitespace-pre-wrap">
-              {reception?.requestedDamages || "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[11px] font-medium text-rapid-text-muted">
-              Observaciones
-            </p>
-            <p className="text-sm mt-1 whitespace-pre-wrap">
-              {reception?.observations || "—"}
-            </p>
+      {(reception?.requestedDamages || reception?.observations || order.notes) && (
+        <div className="card p-5 lg:col-span-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted mb-3">Observaciones</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {reception?.requestedDamages && (
+              <div>
+                <p className="text-[11px] font-medium text-rapid-text-muted mb-1">Daños solicitados</p>
+                <p className="whitespace-pre-wrap">{reception.requestedDamages}</p>
+              </div>
+            )}
+            {reception?.observations && (
+              <div>
+                <p className="text-[11px] font-medium text-rapid-text-muted mb-1">Observaciones</p>
+                <p className="whitespace-pre-wrap">{reception.observations}</p>
+              </div>
+            )}
+            {order.notes && (
+              <div className="md:col-span-2">
+                <p className="text-[11px] font-medium text-rapid-text-muted mb-1">Notas internas</p>
+                <p className="whitespace-pre-wrap">{order.notes}</p>
+              </div>
+            )}
           </div>
         </div>
-        {order.notes && (
-          <div className="mt-4 pt-4 border-t border-rapid-border">
-            <p className="text-[11px] font-medium text-rapid-text-muted">
-              Notas internas
-            </p>
-            <p className="text-sm mt-1 whitespace-pre-wrap">{order.notes}</p>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
 
 function ChecklistTab({ reception }: { reception: Reception | null }) {
-  const { checked, comments, present } = checklistRowsToDetails(
-    reception?.checklist,
-  );
+  const { checked, comments, present } = checklistRowsToDetails(reception?.checklist);
   const items = checklistDisplayItems(present);
   const total = items.length;
   const checkedCount = items.filter((it) => checked[it.field]).length;
@@ -620,11 +480,9 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
             {commentCount > 0 && ` · ${commentCount} con comentario`}
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-xl font-semibold text-rapid-green-dark">
-            {Math.round((checkedCount / total) * 100)}%
-          </p>
-        </div>
+        <p className="text-xl font-semibold text-emerald-600">
+          {total > 0 ? Math.round((checkedCount / total) * 100) : 0}%
+        </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
         {items.map((item) => {
@@ -635,7 +493,7 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
               key={item.field}
               className={`rounded-lg border p-3 text-sm ${
                 ok
-                  ? "border-rapid-green/30 bg-rapid-green-soft/40"
+                  ? "border-emerald-200 bg-emerald-50/50"
                   : comment
                     ? "border-amber-200 bg-amber-50/50"
                     : "border-rapid-border bg-rapid-bg/40 text-rapid-text-muted"
@@ -644,15 +502,15 @@ function ChecklistTab({ reception }: { reception: Reception | null }) {
               <div className="flex items-center gap-2">
                 <span
                   className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
-                    ok ? "bg-rapid-green text-white" : "bg-gray-200"
+                    ok ? "bg-emerald-500 text-white" : "bg-gray-200"
                   }`}
                 >
                   {ok && <Check className="w-3 h-3" strokeWidth={3} />}
                 </span>
-                <span className="font-semibold text-rapid-text">{item.label}</span>
+                <span className="font-medium text-rapid-text">{item.label}</span>
               </div>
               {comment && (
-                <p className="mt-2 text-xs text-rapid-text leading-relaxed pl-6 border-l-2 border-rapid-green/40">
+                <p className="mt-2 text-xs text-rapid-text leading-relaxed pl-6 border-l-2 border-emerald-300">
                   {comment}
                 </p>
               )}
@@ -668,51 +526,30 @@ function DamagesTab({ order }: { order: WorkOrder }) {
   if (order.damages.length === 0) {
     return (
       <div className="card p-10 text-center">
-        <p className="text-sm text-rapid-text-muted">
-          No se registraron daños en esta orden.
-        </p>
+        <p className="text-sm text-rapid-text-muted">No se registraron daños en esta orden.</p>
       </div>
     );
   }
   return (
     <div className="card overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-rapid-bg/60 text-xs uppercase tracking-wider text-rapid-text-muted">
+        <thead className="bg-rapid-surface-soft text-xs uppercase tracking-wider text-rapid-text-muted">
           <tr>
             <th className="text-left font-semibold px-5 py-3">Lado</th>
             <th className="text-left font-semibold px-5 py-3">Tipo</th>
             <th className="text-left font-semibold px-5 py-3">Descripción</th>
-            <th className="text-right font-semibold px-5 py-3">Pos. X</th>
-            <th className="text-right font-semibold px-5 py-3">Pos. Y</th>
           </tr>
         </thead>
         <tbody>
           {order.damages.map((d) => (
-            <tr
-              key={d.id}
-              className="border-t border-rapid-border hover:bg-rapid-bg/30"
-            >
+            <tr key={d.id} className="border-t border-rapid-border">
               <td className="px-5 py-3 font-medium">
-                {d.vehicleSide
-                  ? sideMap[d.vehicleSide] ?? d.vehicleSide
-                  : "—"}
+                {d.vehicleSide ? sideMap[d.vehicleSide] ?? d.vehicleSide : "—"}
               </td>
               <td className="px-5 py-3">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-rapid-bg text-rapid-text text-xs font-semibold">
-                  {d.damageType
-                    ? damageTypeMap[d.damageType] ?? d.damageType
-                    : "—"}
-                </span>
+                {d.damageType ? damageTypeMap[d.damageType] ?? d.damageType : "—"}
               </td>
-              <td className="px-5 py-3 text-rapid-text-muted">
-                {d.description || "—"}
-              </td>
-              <td className="px-5 py-3 text-right font-mono tabular-nums">
-                {d.positionX != null ? Number(d.positionX) : "—"}
-              </td>
-              <td className="px-5 py-3 text-right font-mono tabular-nums">
-                {d.positionY != null ? Number(d.positionY) : "—"}
-              </td>
+              <td className="px-5 py-3 text-rapid-text-muted">{d.description || "—"}</td>
             </tr>
           ))}
         </tbody>
@@ -725,9 +562,7 @@ function PhotosTab({ order }: { order: WorkOrder }) {
   if (order.photos.length === 0) {
     return (
       <div className="card p-10 text-center">
-        <p className="text-sm text-rapid-text-muted">
-          No hay fotos registradas para esta orden.
-        </p>
+        <p className="text-sm text-rapid-text-muted">No hay fotos registradas para esta orden.</p>
       </div>
     );
   }
@@ -744,14 +579,12 @@ function PhotosTab({ order }: { order: WorkOrder }) {
             />
           </div>
           <div className="p-3">
-            <p className="text-xs uppercase font-semibold text-rapid-green-dark">
-              {p.photoType
-                ? photoTypeMap[p.photoType] ?? p.photoType
-                : "Foto"}
+            <p className="text-xs font-medium text-rapid-text">
+              {p.photoType ? photoTypeMap[p.photoType] ?? p.photoType : "Foto"}
             </p>
-            <p className="text-xs text-rapid-text-muted mt-1 truncate">
-              {p.description || p.photoUrl}
-            </p>
+            {p.description && (
+              <p className="text-xs text-rapid-text-muted mt-0.5 truncate">{p.description}</p>
+            )}
           </div>
         </div>
       ))}
@@ -771,10 +604,8 @@ function RequisitionItemsTable({
 
   return (
     <>
-      <div className="px-5 py-2 bg-rapid-bg/30 border-b border-rapid-border">
-        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">
-          {title}
-        </p>
+      <div className="px-5 py-2 bg-rapid-surface-soft border-b border-rapid-border">
+        <p className="text-xs uppercase tracking-wider font-semibold text-rapid-text-muted">{title}</p>
       </div>
       <table className="w-full text-sm">
         <thead className="text-xs uppercase tracking-wider text-rapid-text-muted">
@@ -791,33 +622,21 @@ function RequisitionItemsTable({
             <tr key={it.id} className="border-t border-rapid-border">
               <td className="px-5 py-2 font-medium">{it.productName}</td>
               <td className="px-5 py-2 text-right tabular-nums">
-                {it.quantity != null
-                  ? formatFractionQuantity(Number(it.quantity))
-                  : "—"}
+                {it.quantity != null ? formatFractionQuantity(Number(it.quantity)) : "—"}
               </td>
-              <td className="px-5 py-2 text-right tabular-nums">
-                {formatMoney(Number(it.unitPrice ?? 0))}
-              </td>
-              <td className="px-5 py-2 text-right tabular-nums font-semibold">
-                {formatMoney(Number(it.total ?? 0))}
-              </td>
-              <td className="px-5 py-2 text-rapid-text-muted">
-                {it.assignedEmployee || "—"}
-              </td>
+              <td className="px-5 py-2 text-right tabular-nums">{formatMoney(Number(it.unitPrice ?? 0))}</td>
+              <td className="px-5 py-2 text-right tabular-nums font-semibold">{formatMoney(Number(it.total ?? 0))}</td>
+              <td className="px-5 py-2 text-rapid-text-muted">{it.assignedEmployee || "—"}</td>
             </tr>
           ))}
         </tbody>
         <tfoot>
-          <tr className="border-t border-rapid-border bg-rapid-bg/20">
-            <td
-              colSpan={4}
-              className="px-5 py-2 text-right text-xs font-semibold text-rapid-text-muted"
-            >
+          <tr className="border-t border-rapid-border bg-rapid-surface-soft">
+            <td colSpan={3} className="px-5 py-2 text-right text-xs font-semibold text-rapid-text-muted">
               Subtotal {title.toLowerCase()}
             </td>
-            <td className="px-5 py-2 text-right font-bold tabular-nums">
-              {formatMoney(subtotal)}
-            </td>
+            <td className="px-5 py-2 text-right font-bold tabular-nums">{formatMoney(subtotal)}</td>
+            <td />
           </tr>
         </tfoot>
       </table>
@@ -829,13 +648,8 @@ function MaterialsTab({ order }: { order: WorkOrder }) {
   if (order.materialRequisitions.length === 0) {
     return (
       <div className="card p-10 text-center">
-        <p className="text-sm text-rapid-text-muted mb-3">
-          Aún no hay requisiciones de materiales para esta orden.
-        </p>
-        <Link
-          href={`/material-requisitions/new?workOrderId=${order.id}`}
-          className="btn-primary inline-flex"
-        >
+        <p className="text-sm text-rapid-text-muted mb-3">Aún no hay requisiciones de materiales.</p>
+        <Link href={`/material-requisitions/new?workOrderId=${order.id}`} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">
           <Plus className="w-4 h-4" /> Crear requisición
         </Link>
       </div>
@@ -844,58 +658,33 @@ function MaterialsTab({ order }: { order: WorkOrder }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Link
-          href={`/material-requisitions/new?workOrderId=${order.id}`}
-          className="btn-primary"
-        >
-          <Plus className="w-4 h-4" /> Nueva requisición
-        </Link>
-      </div>
       {order.materialRequisitions.map((req) => {
         const { materialItems, paintItems } = splitRequisitionItems(req.items);
         return (
-        <div key={req.id} className="card overflow-hidden">
-          <div className="px-5 py-3 bg-rapid-bg/50 border-b border-rapid-border flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <p className="font-mono text-xs font-semibold">
-                Requisición #{String(req.id).padStart(5, "0")}
-              </p>
-              <p className="text-xs text-rapid-text-muted">
-                {formatDateTime(req.createdAt)}
-              </p>
+          <div key={req.id} className="card overflow-hidden">
+            <div className="px-5 py-3 border-b border-rapid-border flex items-center justify-between">
+              <div>
+                <p className="font-mono text-xs font-semibold">Requisición #{String(req.id).padStart(5, "0")}</p>
+                <p className="text-xs text-rapid-text-muted">{formatDateTime(req.createdAt)}</p>
+              </div>
+              <p className="font-semibold tabular-nums">{formatMoney(Number(req.total ?? 0))}</p>
             </div>
-            <p className="font-bold text-rapid-green-dark text-lg">
-              {formatMoney(Number(req.total ?? 0))}
-            </p>
+            <RequisitionItemsTable title="Materiales" items={materialItems} />
+            <RequisitionItemsTable title="Pintura" items={paintItems} />
           </div>
-          <RequisitionItemsTable title="Materiales" items={materialItems} />
-          <RequisitionItemsTable title="Pintura" items={paintItems} />
-        </div>
         );
       })}
     </div>
   );
 }
 
-function LaborTab({
-  order,
-  invoiceStatus,
-}: {
-  order: WorkOrder;
-  invoiceStatus?: string | null;
-}) {
+function LaborTab({ order, invoiceStatus }: { order: WorkOrder; invoiceStatus?: string | null }) {
   const laborEditable = canEditLaborOrder(invoiceStatus);
   if (order.laborOrders.length === 0) {
     return (
       <div className="card p-10 text-center">
-        <p className="text-sm text-rapid-text-muted mb-3">
-          Aún no hay órdenes de mano de obra para esta orden.
-        </p>
-        <Link
-          href={`/labor-orders/new?workOrderId=${order.id}`}
-          className="btn-primary inline-flex"
-        >
+        <p className="text-sm text-rapid-text-muted mb-3">Aún no hay órdenes de mano de obra.</p>
+        <Link href={`/labor-orders/new?workOrderId=${order.id}`} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">
           <Plus className="w-4 h-4" /> Crear mano de obra
         </Link>
       </div>
@@ -904,52 +693,28 @@ function LaborTab({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Link
-          href={`/labor-orders/new?workOrderId=${order.id}`}
-          className="btn-primary"
-        >
-          <Plus className="w-4 h-4" /> Nueva mano de obra
-        </Link>
-      </div>
       {order.laborOrders.map((lo) => (
         <div key={lo.id} className="card overflow-hidden">
-          <div className="px-5 py-3 bg-rapid-bg/50 border-b border-rapid-border flex items-center justify-between flex-wrap gap-2">
+          <div className="px-5 py-3 border-b border-rapid-border flex items-center justify-between">
             <div>
-              <p className="font-mono text-xs font-semibold">
-                MO-{String(lo.id).padStart(5, "0")}
-              </p>
-              <p className="text-sm font-medium mt-0.5">
-                {laborOrderWorkerName(lo)}
-              </p>
-              <p className="text-xs text-rapid-text-muted">
-                {formatDateTime(lo.createdAt)}
-              </p>
+              <p className="font-mono text-xs font-semibold">MO-{String(lo.id).padStart(5, "0")}</p>
+              <p className="text-sm font-medium mt-0.5">{laborOrderWorkerName(lo)}</p>
+              <p className="text-xs text-rapid-text-muted">{formatDateTime(lo.createdAt)}</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Link
-                  href={`/labor-orders/${lo.id}`}
-                  className="btn-secondary text-xs py-1.5"
-                >
+              <div className="flex items-center gap-1">
+                <Link href={`/labor-orders/${lo.id}`} className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-surface rounded-lg transition-colors">
                   <Eye className="w-3.5 h-3.5" /> Ver
                 </Link>
                 {laborEditable && (
-                  <Link
-                    href={`/labor-orders/${lo.id}/edit`}
-                    className="btn-secondary text-xs py-1.5"
-                  >
+                  <Link href={`/labor-orders/${lo.id}/edit`} className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-surface rounded-lg transition-colors">
                     <Pencil className="w-3.5 h-3.5" /> Editar
                   </Link>
                 )}
               </div>
               <div className="text-right">
-                <p className="font-bold text-rapid-green-dark text-lg tabular-nums">
-                  {formatMoney(sumLaborOrderAmount(lo.items))}
-                </p>
-                <p className="text-xs text-rapid-text-muted">
-                  {formatPieceCount(sumLaborOrderPieces(lo.items))} pzas.
-                </p>
+                <p className="font-semibold tabular-nums">{formatMoney(sumLaborOrderAmount(lo.items))}</p>
+                <p className="text-xs text-rapid-text-muted">{formatPieceCount(sumLaborOrderPieces(lo.items))} pzas.</p>
               </div>
             </div>
           </div>
@@ -957,33 +722,19 @@ function LaborTab({
             <table className="w-full text-sm">
               <thead className="text-xs uppercase tracking-wider text-rapid-text-muted">
                 <tr>
-                  <th className="text-left font-semibold px-5 py-2">
-                    Pieza o encuadre
-                  </th>
-                  <th className="text-right font-semibold px-5 py-2">
-                    Cantidad
-                  </th>
-                  <th className="text-right font-semibold px-5 py-2">
-                    Precio/pieza
-                  </th>
-                  <th className="text-right font-semibold px-5 py-2">
-                    Total
-                  </th>
+                  <th className="text-left font-semibold px-5 py-2">Pieza</th>
+                  <th className="text-right font-semibold px-5 py-2">Cant.</th>
+                  <th className="text-right font-semibold px-5 py-2">Precio</th>
+                  <th className="text-right font-semibold px-5 py-2">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {lo.items.map((it) => (
                   <tr key={it.id} className="border-t border-rapid-border">
                     <td className="px-5 py-2 font-medium">{it.partName}</td>
-                    <td className="px-5 py-2 text-right tabular-nums">
-                      {formatPieceCount(laborItemQuantity(it))}
-                    </td>
-                    <td className="px-5 py-2 text-right tabular-nums">
-                      {formatMoney(laborItemUnitPrice(it))}
-                    </td>
-                    <td className="px-5 py-2 text-right tabular-nums font-semibold">
-                      {formatMoney(laborItemLineAmount(it))}
-                    </td>
+                    <td className="px-5 py-2 text-right tabular-nums">{formatPieceCount(laborItemQuantity(it))}</td>
+                    <td className="px-5 py-2 text-right tabular-nums">{formatMoney(laborItemUnitPrice(it))}</td>
+                    <td className="px-5 py-2 text-right tabular-nums font-semibold">{formatMoney(laborItemLineAmount(it))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -995,9 +746,7 @@ function LaborTab({
   );
 }
 
-type LatestInvoice = Awaited<
-  ReturnType<typeof getLatestInvoiceForWorkOrder>
->;
+type LatestInvoice = Awaited<ReturnType<typeof getLatestInvoiceForWorkOrder>>;
 
 function FinancialTab({
   order,
@@ -1013,83 +762,43 @@ function FinancialTab({
       {latestInvoice && (
         <div className="card p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-xs font-medium text-rapid-text-muted">
-              Facturación
-            </p>
-            <p className="text-lg font-semibold mt-1">
-              FAC-{String(latestInvoice.invoiceNumber).padStart(5, "0")}
-            </p>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">Factura</p>
+            <p className="text-lg font-semibold mt-1">FAC-{String(latestInvoice.invoiceNumber).padStart(5, "0")}</p>
+            <div className="flex items-center gap-2 mt-1">
               <InvoiceStatusBadge status={latestInvoice.status} />
-              <span className="text-sm text-rapid-text-muted">
-                {formatDate(latestInvoice.invoiceDate)}
-              </span>
+              <span className="text-xs text-rapid-text-muted">{formatDate(latestInvoice.invoiceDate)}</span>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/invoices/${latestInvoice.id}`}
-              className="btn-primary"
-            >
+          <div className="flex items-center gap-2">
+            <Link href={`/invoices/${latestInvoice.id}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-rapid-text-muted border border-rapid-border hover:bg-rapid-surface transition-colors">
               Ver factura
             </Link>
-            <Link
-              href={`/print/invoices/${latestInvoice.id}`}
-              target="_blank"
-              className="btn-secondary"
-            >
-              Imprimir
+            <Link href={`/print/invoices/${latestInvoice.id}`} target="_blank" className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm text-rapid-text-muted hover:text-rapid-text hover:bg-rapid-surface rounded-lg transition-colors">
+              <Printer className="w-3.5 h-3.5" /> Imprimir
             </Link>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-      <div className="card p-4">
-        <p className="text-xs font-medium text-rapid-text-muted">
-          Materiales
-        </p>
-        <p className="text-2xl font-semibold mt-1.5 tabular-nums">
-          {formatMoney(financial.totalMaterials)}
-        </p>
-        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
-          {order.materialRequisitions.length} requisición(es)
-        </p>
-      </div>
-      <div className="card p-4">
-        <p className="text-xs font-medium text-rapid-text-muted">
-          Pintura
-        </p>
-        <p className="text-2xl font-semibold mt-1.5 tabular-nums">
-          {formatMoney(financial.totalPaint)}
-        </p>
-        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
-          Inventario separado
-        </p>
-      </div>
-      <div className="card p-4">
-        <p className="text-xs font-medium text-rapid-text-muted">
-          Mano de obra
-        </p>
-        <p className="text-2xl font-semibold mt-1.5 tabular-nums">
-          {formatMoney(financial.totalLaborAmount)}
-        </p>
-        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
-          {formatPieceCount(financial.totalLaborPieces)} piezas ·{" "}
-          {order.laborOrders.length} técnico(s)
-        </p>
-      </div>
-      <div className="card p-4 border-l-4 border-l-rapid-green">
-        <p className="text-xs font-medium text-rapid-text-muted">
-          Total interno
-        </p>
-        <p className="text-2xl font-semibold mt-1.5 tabular-nums text-rapid-green-dark">
-          {formatMoney(financial.grandTotal)}
-        </p>
-        <p className="text-[11px] text-rapid-text-muted-soft mt-1">
-          Materiales + mano de obra
-        </p>
-      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="card p-4">
+          <p className="text-xs font-medium text-rapid-text-muted">Materiales</p>
+          <p className="text-xl font-semibold mt-1.5 tabular-nums">{formatMoney(financial.totalMaterials)}</p>
+          <p className="text-[11px] text-rapid-text-muted mt-1">{order.materialRequisitions.length} requisición(es)</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs font-medium text-rapid-text-muted">Pintura</p>
+          <p className="text-xl font-semibold mt-1.5 tabular-nums">{formatMoney(financial.totalPaint)}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs font-medium text-rapid-text-muted">Mano de obra</p>
+          <p className="text-xl font-semibold mt-1.5 tabular-nums">{formatMoney(financial.totalLaborAmount)}</p>
+          <p className="text-[11px] text-rapid-text-muted mt-1">{formatPieceCount(financial.totalLaborPieces)} piezas</p>
+        </div>
+        <div className="card p-4 border-l-4 border-l-emerald-400">
+          <p className="text-xs font-medium text-rapid-text-muted">Total interno</p>
+          <p className="text-xl font-semibold mt-1.5 tabular-nums text-emerald-700">{formatMoney(financial.grandTotal)}</p>
+        </div>
       </div>
     </div>
   );
