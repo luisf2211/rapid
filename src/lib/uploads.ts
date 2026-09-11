@@ -12,7 +12,7 @@ import {
 import { uploadSignaturePng as uploadSignatureToSupabase } from "@/lib/storage/signatures";
 
 const ALLOWED_EXT = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_BYTES = 25 * 1024 * 1024; // 25 MB (el cliente comprime antes de subir)
 
 export function getUploadsRoot(): string {
   const dir = process.env.UPLOADS_DIR ?? "./uploads";
@@ -24,7 +24,7 @@ export async function saveUploadedImage(
   subfolder = "field",
 ): Promise<{ photoUrl: string; fileName: string }> {
   if (file.size > MAX_BYTES) {
-    throw new Error("La imagen no puede superar 10 MB");
+    throw new Error("La imagen es demasiado grande. Intenta con otra.");
   }
 
   const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "";

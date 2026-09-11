@@ -48,6 +48,7 @@ export async function getPublicWorkshopBySlug(
   const c = await prisma.company.findFirst({
     where: { slug: slug.trim().toLowerCase(), isActive: true, isPublicForQuotes: true },
     select: {
+      id: true,
       slug: true,
       name: true,
       logoUrl: true,
@@ -57,13 +58,21 @@ export async function getPublicWorkshopBySlug(
     },
   });
   if (!c) return null;
+  // El teléfono/logo/nombre del portal salen de la configuración del taller
+  // (módulo de Configuración) con respaldo en los campos públicos.
+  const settings = await prisma.workshopSettings
+    .findFirst({
+      where: { CompanyId: c.id },
+      select: { phone: true, logoUrl: true, businessName: true },
+    })
+    .catch(() => null);
   return {
     slug: c.slug,
-    name: c.name,
-    logoUrl: c.logoUrl,
+    name: settings?.businessName?.trim() || c.name,
+    logoUrl: settings?.logoUrl || c.logoUrl,
     city: c.publicCity,
     tagline: c.publicTagline,
-    phone: c.publicPhone,
+    phone: settings?.phone?.trim() || c.publicPhone,
   };
 }
 
@@ -263,10 +272,15 @@ export async function getPublicQuoteByToken(
     include: {
       company: {
         select: {
+          id: true,
           name: true,
           publicPhone: true,
           publicCity: true,
           logoUrl: true,
+          workshopSettings: {
+            select: { phone: true, logoUrl: true, businessName: true },
+            take: 1,
+          },
         },
       },
       photos: { orderBy: { id: "asc" }, select: { id: true, photoUrl: true } },
@@ -297,10 +311,10 @@ export async function getPublicQuoteByToken(
     validUntil: q.validUntil,
     rejectionReason: q.rejectionReason,
     workshop: {
-      name: q.company.name,
-      phone: q.company.publicPhone,
+      name: q.company.workshopSettings[0]?.businessName?.trim() || q.company.name,
+      phone: q.company.workshopSettings[0]?.phone?.trim() || q.company.publicPhone,
       city: q.company.publicCity,
-      logoUrl: q.company.logoUrl,
+      logoUrl: q.company.workshopSettings[0]?.logoUrl || q.company.logoUrl,
     },
     photos: q.photos.map((p) => ({ id: p.id, photoUrl: p.photoUrl })),
   };

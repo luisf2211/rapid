@@ -18,6 +18,7 @@ import {
   publicQuoteRequestSchema,
   type PublicQuoteRequestValues,
 } from "@/lib/validations/public-quote";
+import { compressImage } from "@/lib/images/compress-client";
 
 const STEPS = ["Tu vehículo", "Fotos", "Contacto"] as const;
 
@@ -72,7 +73,10 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
     setSubmitError(null);
     setUploading(true);
     try {
-      for (const file of Array.from(files).slice(0, 12 - photos.length)) {
+      for (const original of Array.from(files).slice(0, 12 - photos.length)) {
+        // Comprime en el navegador para que fotos pesadas de celular
+        // siempre pasen el límite y suban rápido.
+        const file = await compressImage(original);
         const formData = new FormData();
         formData.append("file", file);
         formData.append("subfolder", "quotations");
@@ -80,6 +84,8 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
         const json = await res.json();
         if (res.ok && json.photoUrl) {
           setPhotos((prev) => [...prev, json.photoUrl]);
+        } else if (!res.ok) {
+          setSubmitError(json.error || "Una foto no se pudo subir.");
         }
       }
     } catch {
