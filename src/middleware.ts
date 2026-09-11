@@ -12,6 +12,10 @@ const PUBLIC_PATHS = [
   // Portal de clientes (solicitud y seguimiento de cotización)
   "/cotizar",
   "/rastrear",
+  // Landings públicas B2B/B2C y directorio/servicios (SEO)
+  "/registrar-taller",
+  "/talleres",
+  "/servicios",
   "/api/public",
   "/api/upload",
 ];
