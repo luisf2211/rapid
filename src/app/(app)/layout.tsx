@@ -5,6 +5,7 @@ import { StockAlertsBanner } from "@/components/layout/StockAlertsBanner";
 import { SidebarProvider } from "@/components/layout/SidebarContext";
 import { getInventoryStockAlerts } from "@/services/inventory.service";
 import { getWorkshopSettings } from "@/services/workshop-settings.service";
+import { countPendingRequests } from "@/services/quote-requests.service";
 import { requireCompanySession } from "@/lib/auth/guards";
 
 export default async function AppLayout({
@@ -39,12 +40,20 @@ export default async function AppLayout({
     /* sin settings */
   }
 
+  let requestCount = 0;
+  try {
+    requestCount = await countPendingRequests();
+  } catch {
+    /* sin acceso o sin tabla */
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex bg-rapid-bg">
         <AppSidebar
           alerts={stockAlerts.alerts}
           total={stockAlerts.total}
+          requestCount={requestCount}
           session={{
             email: session.email,
             fullName: session.fullName,

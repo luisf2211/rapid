@@ -1,24 +1,17 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  BarChart3,
-  BadgeCheck,
-  Boxes,
-  Car,
+  Camera,
   CheckCircle2,
-  ClipboardList,
+  Clock,
   FileCheck,
-  FileText,
-  Layers,
-  Package,
-  Receipt,
-  Shield,
+  MessageSquare,
+  Phone,
+  Search,
+  ShieldCheck,
   Sparkles,
-  Users,
-  Wallet,
+  Star,
   Wrench,
-  Zap,
-  Paintbrush,
 } from "lucide-react";
 import { LandingHeader } from "./LandingHeader";
 import { Logo } from "@/components/layout/Logo";
@@ -29,130 +22,57 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
   "Hola, quiero registrar mi taller en Rapid.",
 );
 
-const modules = [
-  {
-    icon: BarChart3,
-    title: "Panel operativo",
-    description:
-      "Visión general del taller: órdenes activas, alertas de stock y estado del pipeline en un solo lugar.",
-  },
-  {
-    icon: FileText,
-    title: "Cotizaciones",
-    description:
-      "Presupuestos para clientes particulares y aseguradoras, con líneas de mano de obra, materiales y repuestos.",
-  },
-  {
-    icon: ClipboardList,
-    title: "Órdenes de recepción",
-    description:
-      "Recepción del vehículo con checklist, daños en carrocería, fotos y datos del cliente.",
-  },
-  {
-    icon: Boxes,
-    title: "Requisición de materiales",
-    description:
-      "Control de consumo por orden, aprobación de materiales y trazabilidad hacia inventario.",
-  },
+// ─── Cliente: cómo funciona ───────────────────────────────────────────────
+const customerSteps = [
   {
     icon: Wrench,
-    title: "Mano de obra",
-    description:
-      "Desglose por pieza: desabolladura, desarme, preparación, pintura y pulido con costos por área.",
+    title: "Elige un taller",
+    text: "Escoge el taller donde quieres cotizar tu trabajo. Sin registrarte.",
   },
   {
-    icon: Receipt,
-    title: "Facturación",
-    description:
-      "Facturas desde la orden o cotización, estados de pago e impresión lista para entregar al cliente.",
-    badge: "Pronto",
-    badgeDetail: "e-CF RD",
+    icon: Camera,
+    title: "Describe y sube fotos",
+    text: "Cuéntanos qué necesita tu vehículo y adjunta fotos del daño en segundos.",
   },
   {
-    icon: Users,
-    title: "Empleados y pagos",
-    description:
-      "Plantilla del taller, pagos por trabajo, adelantos y liquidaciones de nómina por período.",
-  },
-  {
-    icon: Package,
-    title: "Inventario",
-    description:
-      "Stock de materiales y pintura, movimientos, reservas y alertas cuando el mínimo baja.",
+    icon: FileCheck,
+    title: "Recibe tu propuesta",
+    text: "El taller revisa y te entrega su propuesta. Sigue el estado con tu enlace.",
   },
 ];
 
-const audienceSegments = [
+// ─── Cliente: por qué usarlo ──────────────────────────────────────────────
+const customerBenefits = [
   {
-    icon: Paintbrush,
-    title: "Talleres de pintura automotriz",
-    description:
-      "Para dueños de body shop y cabina que necesitan controlar recepción, materiales, mano de obra y cierre financiero de cada vehículo.",
-    points: [
-      "Checklist de recepción con daños y fotos",
-      "Cotizaciones a clientes y aseguradoras",
-      "Materiales, pintura e inventario conectados",
-    ],
+    icon: Clock,
+    title: "En minutos, no días",
+    text: "Envía tu solicitud desde el celular sin ir en persona ni esperar en el teléfono.",
   },
   {
-    icon: Sparkles,
-    title: "Car detailing",
-    description:
-      "Para dueños de centros de detailing que quieren dejar WhatsApp y libretas atrás: servicios, clientes y cobros en un solo sistema.",
-    points: [
-      "Órdenes por vehículo y paquete de servicio",
-      "Presupuestos claros antes de empezar el trabajo",
-      "Facturación y seguimiento de pagos sin fricción",
-    ],
-  },
-];
-
-const benefits = [
-  {
-    icon: Zap,
-    title: "Menos papeles, más piso de taller",
-    text: "Digitaliza recepción, materiales y mano de obra sin perder el flujo que ya conoces.",
+    icon: MessageSquare,
+    title: "Sabes que te vieron",
+    text: "Un enlace vivo te muestra cuándo el taller vio tu solicitud y cuándo respondió.",
   },
   {
-    icon: Layers,
-    title: "Todo conectado en un solo flujo",
-    text: "De la cotización a la factura: cada paso alimenta el resumen financiero de la orden.",
+    icon: ShieldCheck,
+    title: "Todo por escrito",
+    text: "Tu solicitud, fotos y la propuesta del taller quedan claras en un solo lugar.",
   },
   {
-    icon: Shield,
-    title: "Multi-empresa desde el diseño",
-    text: "Cada taller ve solo sus datos. Ideal para operar varias sucursales o franquicias.",
-  },
-  {
-    icon: Sparkles,
-    title: "Hecho para pintura automotriz",
-    text: "Checklists, daños en carrocería, requisiciones y mano de obra pensados para tu oficio.",
+    icon: Phone,
+    title: "Contacto directo",
+    text: "Si el taller necesita detalles, te llama. Y tú también puedes contactarlo.",
   },
 ];
 
-const eInvoiceBenefits = [
-  "Comprobantes fiscales electrónicos (e-CF) alineados con la DGII",
-  "Emisión directa desde la orden o cotización del taller",
-  "Menos errores, multas y tiempo en trámites manuales",
-  "Pensado para talleres y negocios pequeños que necesitan cumplir sin complicaciones",
-];
-
-const steps = [
-  {
-    step: "01",
-    title: "Recibe el vehículo",
-    text: "Crea la orden con datos del cliente, checklist de recepción, daños y fotografías.",
-  },
-  {
-    step: "02",
-    title: "Planifica materiales y trabajo",
-    text: "Genera requisiciones e imputa mano de obra por pieza y técnico.",
-  },
-  {
-    step: "03",
-    title: "Controla y factura",
-    text: "Revisa el resumen financiero, emite la factura y cierra la orden con trazabilidad.",
-  },
+// ─── Talleres: módulos (condensado) ───────────────────────────────────────
+const shopHighlights = [
+  "Solicitudes de clientes que llegan listas para cotizar",
+  "Recepción de vehículos con checklist, daños y fotos",
+  "Cotizaciones a clientes y aseguradoras",
+  "Materiales, mano de obra e inventario conectados",
+  "Facturación y control financiero por orden",
+  "Multi-empresa: cada taller ve solo sus datos",
 ];
 
 export function LandingPage() {
@@ -160,448 +80,208 @@ export function LandingPage() {
     <div className="min-h-screen bg-rapid-bg text-rapid-text">
       <LandingHeader />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-rapid-black pt-16 text-white">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          aria-hidden
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(0,200,83,0.25), transparent 45%), radial-gradient(circle at 80% 0%, rgba(0,200,83,0.12), transparent 40%)",
-          }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          aria-hidden
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
-
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-8 lg:py-28">
-          <div>
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <p className="inline-flex items-center gap-2 rounded-full border border-rapid-green/30 bg-rapid-green/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-rapid-green">
-                <Car className="h-3.5 w-3.5" />
-                Pintura automotriz · Car detailing
-              </p>
-              <p className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300">
-                <FileCheck className="h-3.5 w-3.5" />
-                Pronto · Facturación electrónica RD
-              </p>
-            </div>
-            <h1 className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.25rem]">
-              Opera tu taller con{" "}
-              <span className="text-rapid-green">claridad</span>, velocidad y
-              control total
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
-              Rapid centraliza cotizaciones, recepción de vehículos, materiales,
-              mano de obra, inventario y facturación. Pensado para dueños de
-              talleres de pintura y negocios de car detailing que quieren menos
-              caos administrativo y más autos terminados.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a href="#registro" className="btn-primary gap-2">
-                Registrar mi taller
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <Link href="/login" className="btn-secondary border-white/20 bg-white/5 text-white hover:bg-white/10">
-                Ya tengo cuenta
-              </Link>
-            </div>
-            <ul className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-rapid-green" />
-                Sin instalación compleja
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-rapid-green" />
-                Multi-empresa
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-rapid-green" />
-                Desde el móvil
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-rapid-green" />
-                e-CF para cumplir con la DGII
-              </li>
-            </ul>
-          </div>
-
-          {/* Dashboard preview mockup */}
-          <div className="relative lg:pl-4">
-            <div className="absolute -inset-4 rounded-3xl bg-rapid-green/20 blur-3xl" aria-hidden />
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#121816] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
-              <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
-                <span className="h-2.5 w-2.5 rounded-full bg-rapid-green/80" />
-                <span className="ml-2 text-xs text-slate-500">rapid.app — panel</span>
-              </div>
-              <div className="grid gap-3 p-4 sm:grid-cols-2">
-                {[
-                  { label: "Órdenes activas", value: "24", tone: "text-white" },
-                  { label: "En pintura", value: "8", tone: "text-rapid-green" },
-                  { label: "Materiales bajo mínimo", value: "3", tone: "text-amber-300" },
-                  { label: "Facturado del mes", value: "RD$ 1.2M", tone: "text-white" },
-                ].map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="rounded-xl border border-white/10 bg-white/[0.03] p-4"
-                  >
-                    <p className="text-xs text-slate-500">{stat.label}</p>
-                    <p className={`mt-1 text-2xl font-bold ${stat.tone}`}>
-                      {stat.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="mx-4 mb-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-medium text-white">Pipeline del taller</p>
-                  <span className="rounded-full bg-rapid-green/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-rapid-green">
-                    En vivo
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { plate: "A123456", status: "Recepción", pct: 15 },
-                    { plate: "B789012", status: "Materiales", pct: 45 },
-                    { plate: "C345678", status: "Pintura", pct: 72 },
-                  ].map((row) => (
-                    <div key={row.plate} className="flex items-center gap-3">
-                      <span className="w-16 text-xs text-slate-400">{row.plate}</span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className="h-full rounded-full bg-rapid-green"
-                          style={{ width: `${row.pct}%` }}
-                        />
-                      </div>
-                      <span className="w-20 text-right text-xs text-slate-400">
-                        {row.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social proof strip */}
-      <section className="border-y border-rapid-border bg-rapid-surface">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 sm:grid-cols-4 sm:px-6 lg:px-8">
-          {[
-            { value: "8+", label: "Módulos integrados" },
-            { value: "1", label: "Flujo de punta a punta" },
-            { value: "100%", label: "En la nube" },
-            { value: "24/7", label: "Acceso desde cualquier dispositivo" },
-          ].map((item) => (
-            <div key={item.label} className="text-center">
-              <p className="text-2xl font-bold text-rapid-black sm:text-3xl">
-                {item.value}
-              </p>
-              <p className="mt-1 text-sm text-rapid-text-muted">{item.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Audience — paint shops & detailing */}
-      <section id="para-quien" className="scroll-mt-20 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-rapid-green">
-              Para quién es
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-rapid-black sm:text-4xl">
-              Hecho para dueños de talleres de pintura y car detailing
-            </h2>
-            <p className="mt-4 text-lg text-rapid-text-muted">
-              No es un ERP genérico. Rapid habla el idioma de quien recibe
-              vehículos, cotiza servicios, coordina al equipo y necesita saber
-              cuánto gana cada orden.
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-6 lg:grid-cols-2">
-            {audienceSegments.map((segment) => (
-              <article
-                key={segment.title}
-                className="card flex flex-col p-8 transition-shadow hover:shadow-float"
-              >
-                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-rapid-black text-rapid-green">
-                  <segment.icon className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-bold text-rapid-black">
-                  {segment.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-rapid-text-muted sm:text-base">
-                  {segment.description}
-                </p>
-                <ul className="mt-6 flex-1 space-y-2.5">
-                  {segment.points.map((point) => (
-                    <li
-                      key={point}
-                      className="flex items-start gap-2.5 text-sm text-rapid-text-body"
-                    >
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-rapid-green" />
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-
-          <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-rapid-text-muted sm:text-base">
-            Ya sea que operes una cabina de pintura, un body shop o un centro de
-            detailing con varios bays, Rapid te da visibilidad sobre tu negocio
-            desde el primer vehículo del día.
+      {/* ─── Hero (cliente) ─────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-white pt-16">
+        <div className="mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-24">
+          <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-rapid-border bg-rapid-surface-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-rapid-text-muted">
+            <Sparkles className="h-3.5 w-3.5 text-rapid-green" />
+            Pintura automotriz · Detailing
           </p>
+          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.08] tracking-tight text-rapid-text sm:text-5xl lg:text-6xl">
+            Cotiza el trabajo de tu carro,{" "}
+            <span className="text-rapid-green">sin complicarte</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-rapid-text-muted">
+            Elige un taller, envía fotos de tu vehículo y recibe una propuesta.
+            Rápido, sencillo y desde tu celular.
+          </p>
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link href="/cotizar" className="btn-primary min-w-[220px] gap-2 text-base">
+              Solicitar cotización
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+            <Link href="/rastrear" className="btn-secondary min-w-[200px] gap-2 text-base">
+              <Search className="h-4 w-4" />
+              Seguir mi solicitud
+            </Link>
+          </div>
+          <ul className="mx-auto mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-rapid-text-muted">
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-rapid-green" />
+              Sin registro
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-rapid-green" />
+              Con fotos
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-rapid-green" />
+              Seguimiento en vivo
+            </li>
+          </ul>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="funcionalidades" className="scroll-mt-20 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      {/* ─── Taller destacado ───────────────────────────────────────────── */}
+      <section className="border-y border-rapid-border bg-rapid-surface">
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          <Link
+            href="/cotizar/bear-jack"
+            className="card card-interactive group flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rapid-black text-lg font-bold text-rapid-green">
+                BJ
+              </div>
+              <div>
+                <p className="section-label flex items-center gap-1.5">
+                  <Star className="h-3.5 w-3.5 text-rapid-green" />
+                  Taller destacado
+                </p>
+                <h2 className="mt-0.5 text-lg font-bold text-rapid-text">
+                  Bear Jack
+                </h2>
+                <p className="text-sm text-rapid-text-muted">
+                  Pintura automotriz y detailing premium
+                </p>
+              </div>
+            </div>
+            <span className="btn-primary w-full justify-center sm:w-auto">
+              Cotizar con Bear Jack
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      {/* ─── Cómo funciona (cliente) ────────────────────────────────────── */}
+      <section id="como-funciona" className="scroll-mt-20 py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-rapid-green">
-              Funcionalidades
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight text-rapid-black sm:text-4xl">
-              Todo lo que tu taller necesita, en una sola plataforma
+            <p className="section-label">Cómo funciona</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-rapid-text sm:text-4xl">
+              Tres pasos y listo
             </h2>
-            <p className="mt-4 text-lg text-rapid-text-muted">
-              Rapid no es un Excel disfrazado: es un sistema operativo para
-              talleres de pintura que quieren crecer con orden.
-            </p>
           </div>
 
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {modules.map((mod) => (
-              <article
-                key={mod.title}
-                className="group relative card p-6 transition-shadow hover:shadow-float"
-              >
-                {"badge" in mod && mod.badge ? (
-                  <div className="absolute right-4 top-4 flex flex-col items-end gap-1">
-                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-                      {mod.badge}
-                    </span>
-                    {"badgeDetail" in mod && mod.badgeDetail ? (
-                      <span className="text-[10px] font-medium text-rapid-text-muted">
-                        {mod.badgeDetail}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
-                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-rapid-black text-rapid-green transition-colors group-hover:bg-rapid-green group-hover:text-rapid-black">
-                  <mod.icon className="h-5 w-5" />
+          <div className="mt-14 grid gap-6 sm:grid-cols-3">
+            {customerSteps.map((step, i) => (
+              <div key={step.title} className="text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rapid-green-soft text-rapid-green-dark">
+                  <step.icon className="h-6 w-6" />
                 </div>
-                <h3 className="text-base font-semibold text-rapid-black">
-                  {mod.title}
+                <h3 className="mt-5 text-lg font-bold text-rapid-text">
+                  <span className="text-rapid-text-muted-soft">{i + 1}. </span>
+                  {step.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-rapid-text-muted">
-                  {mod.description}
+                  {step.text}
                 </p>
-              </article>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link href="/cotizar" className="btn-primary gap-2">
+              Empezar ahora
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Beneficios (cliente) ───────────────────────────────────────── */}
+      <section className="border-y border-rapid-border bg-rapid-surface py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="section-label">Por qué te conviene</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-rapid-text sm:text-4xl">
+              Pensado para hacerte la vida fácil
+            </h2>
+          </div>
+
+          <div className="mt-14 grid gap-5 sm:grid-cols-2">
+            {customerBenefits.map((b) => (
+              <div
+                key={b.title}
+                className="card flex items-start gap-4 p-6"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rapid-green-soft text-rapid-green-dark">
+                  <b.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-rapid-text">{b.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-rapid-text-muted">
+                    {b.text}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* E-invoicing RD — coming soon */}
-      <section className="border-y border-rapid-border bg-rapid-surface py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
-            <div>
-              <p className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-800">
-                <Sparkles className="h-3.5 w-3.5" />
-                Próximamente
-              </p>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-rapid-black sm:text-4xl">
-                Facturación electrónica para República Dominicana
-              </h2>
-              <p className="mt-4 text-lg leading-relaxed text-rapid-text-muted">
-                La funcionalidad que más necesitan los pequeños negocios: emitir
-                comprobantes fiscales electrónicos (e-CF) desde el mismo flujo
-                donde ya cotizas, recibes y cierras órdenes — sin sistemas
-                aparte ni dolores de cabeza con la DGII.
-              </p>
-              <ul className="mt-8 space-y-3">
-                {eInvoiceBenefits.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm sm:text-base">
-                    <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-rapid-green" />
-                    <span className="text-rapid-text-body">{item}</span>
+      {/* ─── Portal para talleres (dueños) ──────────────────────────────── */}
+      <section id="talleres" className="scroll-mt-20 py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="surface-dark overflow-hidden p-8 sm:p-12 lg:p-14">
+            <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+              <div>
+                <p className="inline-flex items-center gap-2 rounded-full border border-rapid-green/30 bg-rapid-green/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-rapid-green">
+                  <Wrench className="h-3.5 w-3.5" />
+                  ¿Tienes un taller?
+                </p>
+                <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+                  Recibe solicitudes y opera tu taller con Rapid
+                </h2>
+                <p className="mt-4 text-lg on-dark-muted">
+                  Rapid es el sistema operativo para talleres de pintura y
+                  detailing: recibe las solicitudes de clientes, cotiza, controla
+                  materiales y mano de obra, y factura — todo en un flujo.
+                </p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <a href="#registro" className="btn-primary gap-2">
+                    Registrar mi taller
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                  <Link
+                    href="/login"
+                    className="btn-secondary border-white/20 bg-white/5 text-white hover:bg-white/10"
+                  >
+                    Ya tengo cuenta
+                  </Link>
+                </div>
+              </div>
+
+              <ul className="grid gap-3">
+                {shopHighlights.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm"
+                  >
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-rapid-green" />
+                    <span className="text-white/90">{item}</span>
                   </li>
                 ))}
               </ul>
-              <a href="#registro" className="btn-primary mt-8 inline-flex gap-2">
-                Quiero acceso anticipado
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-
-            <div className="relative">
-              <div
-                className="pointer-events-none absolute -inset-4 rounded-3xl bg-rapid-green/15 blur-3xl"
-                aria-hidden
-              />
-              <div className="relative overflow-hidden rounded-2xl border border-rapid-border bg-rapid-bg p-6 shadow-float sm:p-8">
-                <div className="flex items-center justify-between gap-3 border-b border-rapid-border pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rapid-green/15 text-rapid-green">
-                      <FileCheck className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-rapid-black">
-                        e-CF · Factura de consumo
-                      </p>
-                      <p className="text-xs text-rapid-text-muted">
-                        Orden #1042 · Taller Rapid Demo
-                      </p>
-                    </div>
-                  </div>
-                  <span className="rounded-full bg-rapid-green/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-rapid-green-dark">
-                    Válido DGII
-                  </span>
-                </div>
-
-                <div className="mt-5 space-y-3 text-sm">
-                  <div className="flex justify-between gap-4">
-                    <span className="text-rapid-text-muted">Cliente</span>
-                    <span className="font-medium text-rapid-black">María Pérez</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="text-rapid-text-muted">RNC / cédula</span>
-                    <span className="font-medium text-rapid-black">001-1234567-8</span>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <span className="text-rapid-text-muted">NCF electrónico</span>
-                    <span className="font-mono text-xs font-medium text-rapid-black sm:text-sm">
-                      E31-000000012345678
-                    </span>
-                  </div>
-                  <div className="rounded-xl border border-rapid-border bg-rapid-surface p-4">
-                    <div className="flex justify-between text-rapid-text-muted">
-                      <span>Mano de obra + repuestos</span>
-                      <span>RD$ 18,500</span>
-                    </div>
-                    <div className="mt-2 flex justify-between text-rapid-text-muted">
-                      <span>ITBIS</span>
-                      <span>RD$ 3,330</span>
-                    </div>
-                    <div className="mt-3 flex justify-between border-t border-rapid-border pt-3 text-base font-bold text-rapid-black">
-                      <span>Total</span>
-                      <span>RD$ 21,830</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="mt-5 text-center text-xs text-rapid-text-muted">
-                  Vista previa ilustrativa · Disponible próximamente en Rapid
-                </p>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Workflow */}
+      {/* ─── Registro de taller ─────────────────────────────────────────── */}
       <section
-        id="flujo"
-        className="scroll-mt-20 border-y border-rapid-border bg-rapid-surface py-20 sm:py-24"
+        id="registro"
+        className="scroll-mt-20 border-t border-rapid-border bg-rapid-surface py-20 sm:py-24"
       >
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-rapid-green">
-                Cómo funciona
-              </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-rapid-black sm:text-4xl">
-                Del ingreso del auto al cobro, sin perder el hilo
-              </h2>
-              <p className="mt-4 text-lg text-rapid-text-muted">
-                El flujo de Rapid sigue la lógica real del piso de taller:
-                recepción, materiales, mano de obra y cierre financiero.
-              </p>
-            </div>
-            <div className="space-y-4">
-              {steps.map((item) => (
-                <div
-                  key={item.step}
-                  className="flex gap-4 rounded-2xl border border-rapid-border bg-rapid-bg p-5"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rapid-black text-sm font-bold text-rapid-green">
-                    {item.step}
-                  </span>
-                  <div>
-                    <h3 className="font-semibold text-rapid-black">{item.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-rapid-text-muted">
-                      {item.text}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits */}
-      <section id="beneficios" className="scroll-mt-20 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="surface-dark overflow-hidden p-8 sm:p-12 lg:p-14">
-            <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-rapid-green">
-                  Por qué Rapid
-                </p>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                  Diseñado para talleres que no pueden permitirse el desorden
-                </h2>
-                <p className="mt-4 text-lg on-dark-muted">
-                  Cada minuto en papeles es un minuto menos en el cabina. Rapid
-                  te devuelve tiempo operativo y visibilidad sobre tu negocio.
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {benefits.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-xl border border-white/10 bg-white/[0.04] p-5"
-                  >
-                    <item.icon className="h-5 w-5 text-rapid-green" />
-                    <h3 className="mt-3 font-semibold">{item.title}</h3>
-                    <p className="mt-2 text-sm on-dark-muted">{item.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA / Registration */}
-      <section id="registro" className="scroll-mt-20 border-t border-rapid-border bg-rapid-surface py-20 sm:py-24">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-rapid-green text-rapid-black shadow-[0_8px_30px_rgba(0,200,83,0.35)]">
-            <Wallet className="h-7 w-7" />
-          </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-rapid-black sm:text-4xl">
-            Únete a los talleres que ya operan con Rapid
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <h2 className="text-3xl font-bold tracking-tight text-rapid-text sm:text-4xl">
+            Monta tu taller en Rapid
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-rapid-text-muted">
-            Solicita el alta de tu empresa y te activamos con usuarios, datos
-            aislados y acceso completo a todos los módulos. Regístrate hoy y
-            sé de los primeros en usar facturación electrónica RD cuando esté
-            disponible.
+            Solicita el alta de tu empresa y te activamos con acceso completo,
+            datos aislados y tu perfil público para recibir cotizaciones de
+            clientes.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
             <a
@@ -623,64 +303,57 @@ export function LandingPage() {
               Acceder a mi cuenta
             </Link>
           </div>
-          <p className="mt-6 text-sm text-rapid-text-muted">
-            ¿Eres administrador de plataforma?{" "}
-            <Link href="/login" className="font-medium text-rapid-green hover:underline">
-              Inicia sesión aquí
-            </Link>
-          </p>
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ─── Footer ─────────────────────────────────────────────────────── */}
       <footer className="border-t border-rapid-border bg-rapid-black py-12 text-slate-400">
-        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:flex-row lg:items-start lg:justify-between lg:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <Logo variant="dark" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed">
-              Sistema SaaS para dueños de talleres de pintura automotriz y
-              negocios de car detailing. Cotizaciones, recepción, materiales,
-              mano de obra e inventario en un solo lugar.
+              Cotiza el trabajo de tu vehículo con talleres de pintura y
+              detailing. Y si tienes un taller, opéralo completo con Rapid.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
             <div>
-              <p className="text-sm font-semibold text-white">Producto</p>
+              <p className="text-sm font-semibold text-white">Para clientes</p>
               <ul className="mt-3 space-y-2 text-sm">
                 <li>
-                  <a href="#para-quien" className="hover:text-white">
-                    Para quién es
-                  </a>
+                  <Link href="/cotizar" className="hover:text-white">
+                    Solicitar cotización
+                  </Link>
                 </li>
                 <li>
-                  <a href="#funcionalidades" className="hover:text-white">
-                    Funcionalidades
-                  </a>
+                  <Link href="/rastrear" className="hover:text-white">
+                    Seguir mi solicitud
+                  </Link>
                 </li>
                 <li>
-                  <a href="#flujo" className="hover:text-white">
+                  <a href="#como-funciona" className="hover:text-white">
                     Cómo funciona
-                  </a>
-                </li>
-                <li>
-                  <a href="#beneficios" className="hover:text-white">
-                    Beneficios
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Acceso</p>
+              <p className="text-sm font-semibold text-white">Para talleres</p>
               <ul className="mt-3 space-y-2 text-sm">
                 <li>
-                  <Link href="/login" className="hover:text-white">
-                    Iniciar sesión
-                  </Link>
+                  <a href="#talleres" className="hover:text-white">
+                    El portal de talleres
+                  </a>
                 </li>
                 <li>
                   <a href="#registro" className="hover:text-white">
                     Registrar taller
                   </a>
+                </li>
+                <li>
+                  <Link href="/login" className="hover:text-white">
+                    Iniciar sesión
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -688,10 +361,7 @@ export function LandingPage() {
               <p className="text-sm font-semibold text-white">Contacto</p>
               <ul className="mt-3 space-y-2 text-sm">
                 <li>
-                  <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className="hover:text-white"
-                  >
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">
                     {CONTACT_EMAIL}
                   </a>
                 </li>
@@ -709,7 +379,7 @@ export function LandingPage() {
             </div>
           </div>
         </div>
-        <div className="mx-auto mt-10 max-w-6xl border-t border-white/10 px-4 pt-6 text-center text-xs sm:px-6 lg:px-8">
+        <div className="mx-auto mt-10 max-w-5xl border-t border-white/10 px-4 pt-6 text-center text-xs sm:px-6">
           © {new Date().getFullYear()} Rapid. Todos los derechos reservados.
         </div>
       </footer>

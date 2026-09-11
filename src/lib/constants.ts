@@ -249,6 +249,7 @@ export const QUOTATION_STATUSES = {
 } as const;
 
 export const QUOTATION_STATUS_LABELS: Record<string, string> = {
+  REQUESTED: "Solicitud",
   DRAFT: "Borrador",
   PENDING: "Pendiente",
   APPROVED: "Aprobada",

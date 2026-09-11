@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { QUOTATION_STATUS_LABELS } from "@/lib/constants";
 
 const styles: Record<string, string> = {
+  REQUESTED: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
   DRAFT: "bg-gray-50 text-gray-600 border-gray-200/80",
   PENDING: "bg-amber-50 text-amber-700 border-amber-200/80",
   APPROVED: "bg-emerald-50 text-emerald-700 border-emerald-200/80",

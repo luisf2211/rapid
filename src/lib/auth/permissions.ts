@@ -13,6 +13,10 @@ export const SYSTEM_MODULES = {
     label: "Cotizaciones",
     paths: ["/quotations"],
   },
+  solicitudes: {
+    label: "Solicitudes de clientes",
+    paths: ["/solicitudes"],
+  },
   "work-orders": {
     label: "Órdenes de recepción",
     paths: ["/work-orders"],

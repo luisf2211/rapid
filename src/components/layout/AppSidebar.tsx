@@ -12,6 +12,7 @@ import { useSidebar } from "./SidebarContext";
 interface Props {
   alerts: InventoryStockAlert[];
   total: number;
+  requestCount?: number;
   session: {
     email: string;
     fullName: string | null;
@@ -23,7 +24,13 @@ interface Props {
   };
 }
 
-export function AppSidebar({ alerts, total, session, workshop }: Props) {
+export function AppSidebar({
+  alerts,
+  total,
+  requestCount = 0,
+  session,
+  workshop,
+}: Props) {
   const { collapsed, toggle, ready } = useSidebar();
 
   return (
@@ -89,7 +96,7 @@ export function AppSidebar({ alerts, total, session, workshop }: Props) {
 
         {/* Navigation */}
         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain">
-          <SidebarNav stockAlertCount={total} />
+          <SidebarNav stockAlertCount={total} requestCount={requestCount} />
           <SidebarStockAlerts alerts={alerts} total={total} />
         </div>
 

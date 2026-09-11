@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils";
 import { isNavActive, sidebarNavGroups, type NavGroup } from "./nav-config";
 import { useSidebar } from "./SidebarContext";
 
-export function SidebarNav({ stockAlertCount = 0 }: { stockAlertCount?: number }) {
+export function SidebarNav({
+  stockAlertCount = 0,
+  requestCount = 0,
+}: {
+  stockAlertCount?: number;
+  requestCount?: number;
+}) {
   const pathname = usePathname();
   const { collapsed } = useSidebar();
 
@@ -41,6 +47,7 @@ export function SidebarNav({ stockAlertCount = 0 }: { stockAlertCount?: number }
           pathname={pathname}
           collapsed={collapsed}
           stockAlertCount={stockAlertCount}
+          requestCount={requestCount}
         />
       ))}
     </nav>
@@ -54,6 +61,7 @@ function SidebarGroup({
   pathname,
   collapsed,
   stockAlertCount,
+  requestCount,
 }: {
   group: NavGroup;
   isOpen: boolean;
@@ -61,6 +69,7 @@ function SidebarGroup({
   pathname: string;
   collapsed: boolean;
   stockAlertCount: number;
+  requestCount: number;
 }) {
   if (collapsed) {
     return (
@@ -69,6 +78,7 @@ function SidebarGroup({
           const active = isNavActive(pathname, item.href);
           const Icon = item.icon;
           const showBadge = item.stockAlerts && stockAlertCount > 0;
+          const showRequestBadge = item.requestAlerts && requestCount > 0;
 
           return (
             <Link
@@ -86,6 +96,9 @@ function SidebarGroup({
                 <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.25 : 1.75} />
                 {showBadge && (
                   <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
+                )}
+                {showRequestBadge && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-rapid-green ring-2 ring-white" />
                 )}
               </span>
             </Link>
@@ -129,6 +142,7 @@ function SidebarGroup({
             const active = isNavActive(pathname, item.href);
             const Icon = item.icon;
             const showBadge = item.stockAlerts && stockAlertCount > 0;
+            const showRequestBadge = item.requestAlerts && requestCount > 0;
 
             return (
               <li key={item.href}>
@@ -149,6 +163,11 @@ function SidebarGroup({
                   {showBadge && (
                     <span className="shrink-0 min-h-[18px] min-w-[18px] px-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold flex items-center justify-center">
                       {stockAlertCount > 99 ? "99+" : stockAlertCount}
+                    </span>
+                  )}
+                  {showRequestBadge && (
+                    <span className="shrink-0 min-h-[18px] min-w-[18px] px-1 rounded-full bg-rapid-green text-white text-[10px] font-bold flex items-center justify-center">
+                      {requestCount > 99 ? "99+" : requestCount}
                     </span>
                   )}
                 </Link>

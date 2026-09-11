@@ -17,6 +17,7 @@ import {
   Shield,
   Building2,
   ListChecks,
+  Inbox,
 } from "lucide-react";
 
 export type NavItem = {
@@ -24,6 +25,7 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   stockAlerts?: boolean;
+  requestAlerts?: boolean;
 };
 
 export type NavGroup = {
@@ -36,6 +38,7 @@ export const sidebarNavGroups: NavGroup[] = [
     label: "Inicio",
     items: [
       { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
+      { href: "/solicitudes", label: "Solicitudes", icon: Inbox, requestAlerts: true },
       { href: "/quotations", label: "Cotizaciones", icon: FileText },
     ],
   },

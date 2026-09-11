@@ -13,6 +13,12 @@ model Company {
   slug             String             @unique(map: "UQ_Company_Slug") @map("Slug") @db.VarChar(80)
   isActive         Boolean            @default(true) @map("IsActive")
   createdAt        DateTime           @default(now()) @map("CreatedAt")
+  isPublicForQuotes Boolean           @default(false) @map("IsPublicForQuotes")
+  publicRank        Int               @default(100) @map("PublicRank")
+  logoUrl           String?           @map("LogoUrl") @db.VarChar(500)
+  publicPhone       String?           @map("PublicPhone") @db.VarChar(50)
+  publicCity        String?           @map("PublicCity") @db.VarChar(120)
+  publicTagline     String?           @map("PublicTagline") @db.VarChar(200)
   users              User[]
   workOrders         WorkOrder[]
   inventoryParts     InventoryPart[]
@@ -348,6 +354,11 @@ model Quotation {
   updatedBy        String?                 @map("UpdatedBy") @db.VarChar(150)
   deductibleAmount Decimal?                @map("DeductibleAmount") @db.Decimal(18, 2)
   policyNumber     String?                 @map("PolicyNumber") @db.VarChar(80)
+  publicToken      String?                 @unique(map: "UQ_Quotation_PublicToken") @map("PublicToken") @db.VarChar(40)
+  requestSource    String?                 @map("RequestSource") @db.VarChar(30)
+  customerMessage  String?                 @map("CustomerMessage")
+  viewedByShopAt   DateTime?               @map("ViewedByShopAt")
+  respondedAt      DateTime?               @map("RespondedAt")
   invoices         Invoice[]
   workOrder        WorkOrder?              @relation("QuotationConvertedWorkOrder", fields: [workOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Quotation_WorkOrder")
   damages          QuotationDamage[]

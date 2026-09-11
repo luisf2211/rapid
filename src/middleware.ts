@@ -5,7 +5,16 @@ import { AUTH_COOKIE_NAME, USER_ROLES } from "@/lib/auth/constants";
 import { hasModuleAccess } from "@/lib/auth/permissions";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const PUBLIC_PATHS = ["/", "/login", "/api/auth/login"];
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/api/auth/login",
+  // Portal de clientes (solicitud y seguimiento de cotización)
+  "/cotizar",
+  "/rastrear",
+  "/api/public",
+  "/api/upload",
+];
 
 function getAuthSecret(): Uint8Array {
   const secret =
