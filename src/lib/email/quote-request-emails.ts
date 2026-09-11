@@ -121,3 +121,117 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+// ─── Avances de la solicitud (notificaciones al cliente) ─────────────────────
+
+export type QuoteStatusEmailData = {
+  workshopName: string;
+  customerName: string;
+  customerEmail: string | null;
+  publicToken: string;
+  vehicle: string;
+};
+
+/** Aviso al cliente: el taller aceptó la solicitud y la está cotizando. */
+export async function sendCustomerAcceptedEmail(
+  data: QuoteStatusEmailData,
+): Promise<boolean> {
+  if (!data.customerEmail) return false;
+  const link = `${getAppBaseUrl()}/rastrear/${data.publicToken}`;
+  const body = `
+    <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">
+      Hola ${escapeHtml(data.customerName)}, buenas noticias:
+      <strong>${escapeHtml(data.workshopName)}</strong> recibió tu solicitud
+      ${data.vehicle ? `de tu ${escapeHtml(data.vehicle)} ` : ""}y ya está
+      preparando tu cotización.
+    </p>
+    <p style="margin:0 0 20px;color:#374151;font-size:15px;line-height:1.6;">
+      Te avisaremos cuando esté lista. Mientras tanto puedes ver el estado aquí:
+    </p>
+    <p style="margin:0 0 20px;">${button(link, "Ver estado")}</p>
+  `;
+  return sendEmail({
+    to: data.customerEmail,
+    subject: `Tu solicitud está en proceso — ${data.workshopName}`,
+    html: layout("El taller está preparando tu cotización", body),
+  });
+}
+
+export type QuoteReadyEmailData = QuoteStatusEmailData & {
+  quotationNumber: number | null;
+  grandTotal: number;
+  estimatedDays: number | null;
+  currency?: string;
+};
+
+function money(n: number, currency = "DOP"): string {
+  return new Intl.NumberFormat("es-DO", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+  }).format(n);
+}
+
+/** Aviso al cliente: la cotización está lista (con total y enlace al desglose). */
+export async function sendCustomerQuoteReadyEmail(
+  data: QuoteReadyEmailData,
+): Promise<boolean> {
+  if (!data.customerEmail) return false;
+  const link = `${getAppBaseUrl()}/rastrear/${data.publicToken}`;
+  const body = `
+    <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">
+      Hola ${escapeHtml(data.customerName)}, tu cotización con
+      <strong>${escapeHtml(data.workshopName)}</strong> ya está lista.
+    </p>
+    <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px;margin:0 0 20px;text-align:center;">
+      <p style="margin:0;color:#6b7280;font-size:13px;">Total estimado</p>
+      <p style="margin:6px 0 0;color:${INK};font-size:28px;font-weight:700;">${money(data.grandTotal, data.currency)}</p>
+      ${
+        data.estimatedDays != null
+          ? `<p style="margin:8px 0 0;color:#6b7280;font-size:13px;">Tiempo estimado: ${data.estimatedDays} días</p>`
+          : ""
+      }
+    </div>
+    <p style="margin:0 0 20px;color:#374151;font-size:15px;line-height:1.6;">
+      Revisa el desglose completo y responde al taller desde aquí:
+    </p>
+    <p style="margin:0 0 20px;">${button(link, "Ver mi cotización")}</p>
+    <p style="margin:0;color:#6b7280;font-size:13px;word-break:break-all;">${link}</p>
+  `;
+  return sendEmail({
+    to: data.customerEmail,
+    subject: `Tu cotización está lista — ${data.workshopName}`,
+    html: layout("Tu cotización está lista", body),
+  });
+}
+
+/** Aviso al cliente: el taller no puede tomar el trabajo (con motivo). */
+export async function sendCustomerRejectedEmail(
+  data: QuoteStatusEmailData & { reason: string | null },
+): Promise<boolean> {
+  if (!data.customerEmail) return false;
+  const link = `${getAppBaseUrl()}/rastrear/${data.publicToken}`;
+  const body = `
+    <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">
+      Hola ${escapeHtml(data.customerName)}, lamentamos informarte que
+      <strong>${escapeHtml(data.workshopName)}</strong> no podrá tomar tu
+      solicitud en este momento.
+    </p>
+    ${
+      data.reason
+        ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px 16px;margin:0 0 20px;">
+             <p style="margin:0;color:#991b1b;font-size:14px;line-height:1.5;">${escapeHtml(data.reason)}</p>
+           </div>`
+        : ""
+    }
+    <p style="margin:0 0 20px;color:#374151;font-size:15px;line-height:1.6;">
+      Puedes solicitar una cotización con otro taller cuando quieras.
+    </p>
+    <p style="margin:0 0 20px;">${button(`${getAppBaseUrl()}/cotizar`, "Cotizar con otro taller")}</p>
+  `;
+  return sendEmail({
+    to: data.customerEmail,
+    subject: `Sobre tu solicitud — ${data.workshopName}`,
+    html: layout("Actualización de tu solicitud", body),
+  });
+}

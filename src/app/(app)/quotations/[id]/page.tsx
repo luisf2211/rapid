@@ -146,6 +146,11 @@ export default async function QuotationDetailPage({
                 status={quotation.status}
                 workOrderId={quotation.workOrderId}
                 workOrderNumber={quotation.workOrder?.orderNumber}
+                canSendToCustomer={
+                  Boolean(quotation.publicToken) &&
+                  Boolean(quotation.email) &&
+                  (toPlainNumber(quotation.grandTotal) ?? 0) > 0
+                }
               />
             </div>
           </div>

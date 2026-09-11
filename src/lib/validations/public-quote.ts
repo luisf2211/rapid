@@ -26,10 +26,9 @@ export const publicQuoteRequestSchema = z.object({
   email: z
     .string()
     .trim()
+    .min(1, "Necesitamos tu correo para avisarte del avance")
     .max(150)
-    .email("Email inválido")
-    .optional()
-    .or(z.literal("")),
+    .email("Email inválido"),
 
   // Vehículo
   brand: optionalStr(80),

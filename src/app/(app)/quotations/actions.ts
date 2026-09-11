@@ -18,6 +18,7 @@ import {
   rejectQuotation,
   updateQuotation,
 } from "@/services/quotations.service";
+import { sendQuoteToCustomer } from "@/services/quote-requests.service";
 
 export type ActionState =
   | { ok: true; id: number }
@@ -77,6 +78,22 @@ export async function rejectQuotationAction(
     return {
       ok: false,
       error: e instanceof Error ? e.message : "Error al rechazar",
+    };
+  }
+}
+
+export async function sendQuoteToCustomerAction(
+  id: number,
+): Promise<ActionState> {
+  try {
+    await sendQuoteToCustomer(id);
+    revalidatePath("/quotations");
+    revalidatePath(`/quotations/${id}`);
+    return { ok: true, id };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "No se pudo enviar la cotización",
     };
   }
 }

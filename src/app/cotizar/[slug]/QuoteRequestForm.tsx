@@ -292,9 +292,10 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
               {...register("phone")}
             />
             <TextInput
-              label="Correo (opcional)"
+              label="Correo"
               type="email"
               placeholder="tucorreo@ejemplo.com"
+              hint="Te avisamos por aquí cuando tu cotización esté lista."
               error={errors.email?.message}
               {...register("email")}
             />

@@ -3,11 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Check, X, ClipboardList } from "lucide-react";
+import { Check, ClipboardList, Send } from "lucide-react";
 import {
   approveQuotationAction,
   convertQuotationAction,
   rejectQuotationAction,
+  sendQuoteToCustomerAction,
 } from "@/app/(app)/quotations/actions";
 
 export function QuotationWorkflowActions({
@@ -15,15 +16,18 @@ export function QuotationWorkflowActions({
   status,
   workOrderId,
   workOrderNumber,
+  canSendToCustomer = false,
 }: {
   id: number;
   status: string;
   workOrderId?: number | null;
   workOrderNumber?: number | null;
+  canSendToCustomer?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
 
@@ -72,6 +76,26 @@ export function QuotationWorkflowActions({
       )}
 
       <div className="flex flex-wrap items-center gap-2">
+        {canSendToCustomer &&
+          status !== "CONVERTED" &&
+          status !== "REJECTED" && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-rapid-green text-white hover:bg-rapid-green-dark transition-colors disabled:opacity-60"
+              disabled={pending}
+              onClick={() =>
+                run(async () => {
+                  const res = await sendQuoteToCustomerAction(id);
+                  if (res.ok) setSent(true);
+                  return res;
+                })
+              }
+            >
+              <Send className="w-4 h-4" />
+              {sent ? "Reenviar al cliente" : "Enviar cotización al cliente"}
+            </button>
+          )}
+
         {(status === "DRAFT" || status === "PENDING") && (
           <>
             <button
