@@ -55,7 +55,9 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.endsWith(".svg")
+    pathname.endsWith(".svg") ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml"
   ) {
     return supabaseResponse;
   }
@@ -112,6 +114,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|uploads|print).*)",
+    "/((?!_next/static|_next/image|uploads|print|robots.txt|sitemap.xml|icon.svg|favicon.ico).*)",
   ],
 };
