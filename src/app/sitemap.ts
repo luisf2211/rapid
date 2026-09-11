@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { listApprovedWorkshopSlugs } from "@/services/workshops-directory.service";
+import { allServiceSlugs } from "@/lib/content/services";
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_APP_URL ?? "https://rapidcar.app"
@@ -15,8 +16,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/cotizar`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/registrar-taller`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${SITE_URL}/talleres`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/servicios`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/rastrear`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
   ];
+
+  // Páginas de servicios (contenido SEO estático).
+  for (const slug of allServiceSlugs()) {
+    base.push({
+      url: `${SITE_URL}/servicios/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    });
+  }
 
   // Perfil público de cada taller aprobado (SEO local).
   try {

@@ -63,11 +63,11 @@ const steps = [
 ];
 
 const services = [
-  "Pintura de vehículos",
-  "Pintura de bumper",
-  "Desabolladura y pintura",
-  "Reparación de rayones",
-  "Detailing y pulido",
+  { label: "Pintura de vehículos", slug: "pintura-de-vehiculos" },
+  { label: "Pintura de bumper", slug: "pintura-de-bumper" },
+  { label: "Desabolladura y pintura", slug: "desabolladura-y-pintura" },
+  { label: "Reparación de rayones", slug: "reparacion-de-rayones" },
+  { label: "Detailing y pulido", slug: "detailing" },
 ];
 
 const faqs = [
@@ -184,11 +184,13 @@ export default async function CotizarPage() {
           </h2>
           <ul className="mt-8 flex flex-wrap gap-3">
             {services.map((s) => (
-              <li
-                key={s}
-                className="rounded-full border border-rapid-border px-4 py-2 text-[15px] text-rapid-text-body"
-              >
-                {s}
+              <li key={s.slug}>
+                <Link
+                  href={`/servicios/${s.slug}`}
+                  className="inline-block rounded-full border border-rapid-border px-4 py-2 text-[15px] text-rapid-text-body transition-colors hover:border-rapid-text/30 hover:text-rapid-text"
+                >
+                  {s.label}
+                </Link>
               </li>
             ))}
           </ul>
