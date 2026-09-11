@@ -3,41 +3,43 @@ import { cn } from "@/lib/utils";
 interface LogoProps {
   className?: string;
   variant?: "light" | "dark";
-  /** Solo ícono (sidebar contraído) */
+  /** Solo marca compacta (sidebar contraído) */
   compact?: boolean;
 }
 
+/**
+ * Wordmark tipográfico de Rapid. Sin iconos genéricos: solo el nombre
+ * con un punto verde de acento. Limpio y con carácter (estilo Vercel/Linear).
+ */
 export function Logo({ className, variant = "light", compact = false }: LogoProps) {
   const textColor = variant === "dark" ? "text-white" : "text-rapid-text";
+
+  if (compact) {
+    // Marca compacta: la "R" con el punto de acento.
+    return (
+      <span
+        className={cn(
+          "inline-flex items-baseline text-[19px] font-bold tracking-[-0.03em]",
+          textColor,
+          className,
+        )}
+      >
+        R
+        <span className="ml-[1px] h-[5px] w-[5px] translate-y-[-1px] rounded-full bg-rapid-green" />
+      </span>
+    );
+  }
+
   return (
-    <div
+    <span
       className={cn(
-        "flex items-center gap-2",
-        compact && "justify-center",
+        "inline-flex items-baseline text-[19px] font-bold lowercase tracking-[-0.03em]",
+        textColor,
         className,
       )}
     >
-      <div className="w-8 h-8 rounded-lg bg-rapid-green flex items-center justify-center shadow-[0_1px_3px_rgba(0,200,83,0.3)]">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          className="w-[18px] h-[18px] text-white"
-          aria-hidden="true"
-        >
-          <path
-            d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"
-            fill="currentColor"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      {!compact && (
-        <span className={cn("font-bold tracking-tight text-[15px]", textColor)}>
-          Rapid
-        </span>
-      )}
-    </div>
+      rapid
+      <span className="ml-[2px] mb-[3px] h-[6px] w-[6px] rounded-full bg-rapid-green" />
+    </span>
   );
 }

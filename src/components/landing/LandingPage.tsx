@@ -104,11 +104,20 @@ export function LandingPage({
           <div className="relative">
             <div className="aspect-[4/5] w-full overflow-hidden rounded-3xl bg-rapid-surface-strong">
               {/* Reemplazar por una foto real: <img src="/hero.jpg" ... /> */}
-              <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#e9ecef,transparent_60%),radial-gradient(circle_at_80%_90%,#e3e6ea,transparent_55%)]">
-                <span className="text-sm text-rapid-text-muted-soft">
-                  Foto del taller
-                </span>
-              </div>
+              {featuredWorkshop?.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={featuredWorkshop.logoUrl}
+                  alt={featuredWorkshop.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#e9ecef,transparent_60%),radial-gradient(circle_at_80%_90%,#e3e6ea,transparent_55%)]">
+                  <span className="text-sm text-rapid-text-muted-soft">
+                    Foto del taller
+                  </span>
+                </div>
+              )}
             </div>
             {featuredWorkshop && (
               <Link
