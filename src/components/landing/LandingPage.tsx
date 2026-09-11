@@ -75,7 +75,28 @@ const shopHighlights = [
   "Multi-empresa: cada taller ve solo sus datos",
 ];
 
-export function LandingPage() {
+export type FeaturedWorkshop = {
+  slug: string;
+  name: string;
+  tagline: string | null;
+  logoUrl: string | null;
+};
+
+function initialsOf(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+export function LandingPage({
+  featuredWorkshop,
+}: {
+  featuredWorkshop?: FeaturedWorkshop | null;
+}) {
   return (
     <div className="min-h-screen bg-rapid-bg text-rapid-text">
       <LandingHeader />
@@ -123,36 +144,49 @@ export function LandingPage() {
       </section>
 
       {/* ─── Taller destacado ───────────────────────────────────────────── */}
-      <section className="border-y border-rapid-border bg-rapid-surface">
-        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-          <Link
-            href="/cotizar/bear-jack"
-            className="card card-interactive group flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rapid-black text-lg font-bold text-rapid-green">
-                BJ
+      {featuredWorkshop && (
+        <section className="border-y border-rapid-border bg-rapid-surface">
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+            <Link
+              href={`/cotizar/${featuredWorkshop.slug}`}
+              className="card card-interactive group flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="flex items-center gap-4">
+                {featuredWorkshop.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={featuredWorkshop.logoUrl}
+                    alt={featuredWorkshop.name}
+                    className="h-14 w-14 rounded-2xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rapid-black text-lg font-bold text-rapid-green">
+                    {initialsOf(featuredWorkshop.name)}
+                  </div>
+                )}
+                <div>
+                  <p className="section-label flex items-center gap-1.5">
+                    <Star className="h-3.5 w-3.5 text-rapid-green" />
+                    Taller destacado
+                  </p>
+                  <h2 className="mt-0.5 text-lg font-bold text-rapid-text">
+                    {featuredWorkshop.name}
+                  </h2>
+                  {featuredWorkshop.tagline && (
+                    <p className="text-sm text-rapid-text-muted">
+                      {featuredWorkshop.tagline}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="section-label flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5 text-rapid-green" />
-                  Taller destacado
-                </p>
-                <h2 className="mt-0.5 text-lg font-bold text-rapid-text">
-                  Bear Jack
-                </h2>
-                <p className="text-sm text-rapid-text-muted">
-                  Pintura automotriz y detailing premium
-                </p>
-              </div>
-            </div>
-            <span className="btn-primary w-full justify-center sm:w-auto">
-              Cotizar con Bear Jack
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </Link>
-        </div>
-      </section>
+              <span className="btn-primary w-full justify-center sm:w-auto">
+                Cotizar con {featuredWorkshop.name}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ─── Cómo funciona (cliente) ────────────────────────────────────── */}
       <section id="como-funciona" className="scroll-mt-20 py-20 sm:py-24">

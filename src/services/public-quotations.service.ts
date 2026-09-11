@@ -29,17 +29,26 @@ export async function listPublicWorkshops(): Promise<PublicWorkshop[]> {
       publicCity: true,
       publicTagline: true,
       publicPhone: true,
+      workshopSettings: {
+        select: { phone: true, logoUrl: true, businessName: true },
+        take: 1,
+      },
     },
   });
 
-  return companies.map((c) => ({
-    slug: c.slug,
-    name: c.name,
-    logoUrl: c.logoUrl,
-    city: c.publicCity,
-    tagline: c.publicTagline,
-    phone: c.publicPhone,
-  }));
+  // El nombre, logo y teléfono salen de la configuración del taller
+  // (módulo de Configuración) con respaldo en los campos públicos.
+  return companies.map((c) => {
+    const s = c.workshopSettings[0];
+    return {
+      slug: c.slug,
+      name: s?.businessName?.trim() || c.name,
+      logoUrl: s?.logoUrl || c.logoUrl,
+      city: c.publicCity,
+      tagline: c.publicTagline,
+      phone: s?.phone?.trim() || c.publicPhone,
+    };
+  });
 }
 
 export async function getPublicWorkshopBySlug(
@@ -96,12 +105,19 @@ export async function createPublicQuoteRequest(
       isActive: true,
       isPublicForQuotes: true,
     },
-    select: { id: true, name: true },
+    select: {
+      id: true,
+      name: true,
+      workshopSettings: { select: { businessName: true }, take: 1 },
+    },
   });
 
   if (!company) {
     throw new Error("El taller seleccionado no está disponible");
   }
+
+  const workshopName =
+    company.workshopSettings[0]?.businessName?.trim() || company.name;
 
   const publicToken = randomUUID().replace(/-/g, "");
 
@@ -161,7 +177,7 @@ export async function createPublicQuoteRequest(
   // Notificaciones por correo (best-effort, no bloquea la respuesta al cliente).
   await notifyNewRequest({
     companyId: company.id,
-    workshopName: company.name,
+    workshopName,
     requestId: created.id,
     publicToken,
     input,
@@ -172,7 +188,7 @@ export async function createPublicQuoteRequest(
 
   return {
     publicToken,
-    workshopName: company.name,
+    workshopName,
   };
 }
 
