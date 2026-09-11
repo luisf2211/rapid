@@ -61,7 +61,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname.endsWith(".svg") ||
     pathname === "/robots.txt" ||
-    pathname === "/sitemap.xml"
+    pathname === "/sitemap.xml" ||
+    pathname.includes("opengraph-image") ||
+    pathname.includes("twitter-image")
   ) {
     return supabaseResponse;
   }
@@ -118,6 +120,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|uploads|print|robots.txt|sitemap.xml|icon.svg|favicon.ico).*)",
+    "/((?!_next/static|_next/image|uploads|print|robots.txt|sitemap.xml|icon.svg|favicon.ico|opengraph-image|.*opengraph-image).*)",
   ],
 };
