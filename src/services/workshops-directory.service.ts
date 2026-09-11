@@ -165,6 +165,31 @@ export async function getWorkshopProfile(
   };
 }
 
+/**
+ * Umbral mínimo de talleres para publicar/indexar una página de ciudad.
+ * Evita crear páginas de ciudad vacías o con contenido pobre.
+ */
+export const MIN_WORKSHOPS_PER_CITY = 3;
+
+/** Devuelve la ciudad si el slug tiene densidad suficiente para publicarse. */
+export async function resolveCityWithDensity(
+  citySlug: string,
+): Promise<{ citySlug: string; city: string; count: number } | null> {
+  const cities = await listWorkshopCities();
+  const match = cities.find((c) => c.citySlug === citySlug);
+  if (!match || match.count < MIN_WORKSHOPS_PER_CITY) return null;
+  return match;
+}
+
+/** ¿Existe un taller (cualquiera, activo) con este slug? */
+export async function workshopSlugExists(slug: string): Promise<boolean> {
+  const c = await prisma.company.findFirst({
+    where: { slug: slug.trim().toLowerCase(), isActive: true },
+    select: { id: true },
+  });
+  return c != null;
+}
+
 /** Slugs de talleres aprobados (para generateStaticParams / sitemap). */
 export async function listApprovedWorkshopSlugs(): Promise<string[]> {
   const rows = await prisma.company.findMany({
