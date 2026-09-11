@@ -24,7 +24,7 @@ export const publicQuoteRequestSchema = z.object({
     .min(7, "Necesitamos un teléfono para contactarte")
     .max(50),
   email: z
-    .string()
+    .string({ message: "Necesitamos tu correo para avisarte del avance" })
     .trim()
     .min(1, "Necesitamos tu correo para avisarte del avance")
     .max(150)
