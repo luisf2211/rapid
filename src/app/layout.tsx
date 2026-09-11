@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationSchema, websiteSchema } from "@/lib/seo/jsonld";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +16,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rapid · Sistema para talleres de pintura automotriz",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Rapid · Cotiza la reparación de tu vehículo online",
+    template: `%s · ${SITE_NAME}`,
+  },
   description:
-    "Rapid · MVP operativo para órdenes de recepción, requisición de materiales y mano de obra.",
+    "Cotiza pintura, desabolladura, bumper, rayones y detailing con talleres cerca de ti. Y si tienes un taller, gestiona tu operación y recibe nuevos clientes con Rapid.",
+  applicationName: SITE_NAME,
+  alternates: { canonical: "/" },
 };
 
 export default function RootLayout({
@@ -33,6 +42,7 @@ export default function RootLayout({
         className="min-h-full bg-rapid-bg text-rapid-text"
         suppressHydrationWarning
       >
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         {children}
       </body>
     </html>

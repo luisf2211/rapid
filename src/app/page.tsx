@@ -4,53 +4,26 @@ import { LandingPage } from "@/components/landing/LandingPage";
 import { getSession } from "@/lib/auth/session";
 import { USER_ROLES } from "@/lib/auth/constants";
 import { listPublicWorkshops } from "@/services/public-quotations.service";
+import { buildMetadata } from "@/lib/seo/metadata";
 
-const SITE_URL = (
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://rapidcar.app"
-).replace(/\/$/, "");
-
-const TITLE = "Rapid · Cotiza el trabajo de tu carro en minutos";
-const DESCRIPTION =
-  "Pide cotización a talleres de pintura automotriz y detailing sin llamadas. Sube fotos de tu vehículo, recibe una propuesta y sigue el estado en línea. Rápido y desde tu celular.";
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: TITLE,
-    template: "%s · Rapid",
-  },
-  description: DESCRIPTION,
-  applicationName: "Rapid",
+export const metadata: Metadata = buildMetadata({
+  title: "Rapid · Cotiza la reparación de tu vehículo online",
+  description:
+    "Pide cotización de pintura, desabolladura, bumper, rayones o detailing a talleres cerca de ti. Sube fotos, recibe tu propuesta y sigue el estado en línea. ¿Tienes un taller? Gestiona tu operación con Rapid.",
+  path: "/",
   keywords: [
     "cotizar pintura de carro",
-    "taller de pintura automotriz",
-    "car detailing",
-    "cotización de reparación de vehículo",
-    "latonería y pintura",
+    "cotizar reparación de vehículo",
+    "pintura automotriz",
+    "taller de pintura",
+    "reparar bumper",
+    "desabolladura y pintura",
+    "reparación de rayones",
+    "detailing",
+    "software para talleres",
     "República Dominicana",
-    "Rapid",
   ],
-  alternates: { canonical: "/" },
-  authors: [{ name: "Rapid" }],
-  openGraph: {
-    type: "website",
-    url: SITE_URL,
-    siteName: "Rapid",
-    title: TITLE,
-    description: DESCRIPTION,
-    locale: "es_DO",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
-};
+});
 
 export const dynamic = "force-dynamic";
 
