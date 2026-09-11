@@ -58,6 +58,20 @@ export const publicQuoteRequestSchema = z.object({
     )
     .max(12, "Máximo 12 fotos")
     .default([]),
+
+  // Atribución first-touch (opcional, para saber de qué canal vino la solicitud)
+  attribution: z
+    .object({
+      source: z.string().max(120).optional(),
+      medium: z.string().max(120).optional(),
+      campaign: z.string().max(120).optional(),
+      content: z.string().max(120).optional(),
+      term: z.string().max(120).optional(),
+      referrer: z.string().max(200).optional(),
+      landing: z.string().max(200).optional(),
+      ts: z.string().max(40).optional(),
+    })
+    .optional(),
 });
 
 export type PublicQuoteRequestInput = z.infer<typeof publicQuoteRequestSchema>;

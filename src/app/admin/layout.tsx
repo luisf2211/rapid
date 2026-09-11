@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, LogOut, Users } from "lucide-react";
 import { requirePlatformAdmin } from "@/lib/auth/guards";
 import { logoutAction } from "@/app/(auth)/actions";
+
+// Panel de administración de plataforma: no indexar.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({
   children,

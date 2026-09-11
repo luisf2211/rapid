@@ -159,6 +159,9 @@ export async function createPublicQuoteRequest(
         customerMessage: input.message.trim(),
         internalNotes: `Solicitud del cliente (portal): ${input.message.trim()}`,
         requestSource: "CUSTOMER_PORTAL",
+        attribution: input.attribution
+          ? JSON.stringify(input.attribution)
+          : null,
         publicToken,
         laborSubtotal: 0,
         materialSubtotal: 0,

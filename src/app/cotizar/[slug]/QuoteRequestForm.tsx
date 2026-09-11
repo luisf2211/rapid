@@ -19,6 +19,8 @@ import {
   type PublicQuoteRequestValues,
 } from "@/lib/validations/public-quote";
 import { compressImage } from "@/lib/images/compress-client";
+import { track } from "@/lib/analytics/track";
+import { readAttributionCookie } from "@/lib/analytics/attribution";
 
 const STEPS = ["Tu vehículo", "Fotos", "Contacto"] as const;
 
@@ -61,6 +63,7 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
     let valid = true;
     if (step === 0) {
       valid = await trigger(["brand", "model", "vehicleYear", "message"]);
+      if (valid) track("quote_started", { workshop: slug });
     }
     if (valid) setStep((s) => Math.min(s + 1, STEPS.length - 1));
   }
@@ -88,6 +91,7 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
           setSubmitError(json.error || "Una foto no se pudo subir.");
         }
       }
+      track("photos_uploaded", { workshop: slug });
     } catch {
       setSubmitError("No se pudieron subir algunas fotos. Intenta de nuevo.");
     } finally {
@@ -106,6 +110,7 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
       const payload = {
         ...values,
         photos: photos.map((photoUrl) => ({ photoUrl })),
+        attribution: readAttributionCookie() ?? undefined,
       };
       const res = await fetch("/api/public/quote-request", {
         method: "POST",
@@ -117,6 +122,7 @@ export function QuoteRequestForm({ slug, workshopName }: Props) {
         setSubmitError(json.error || "No se pudo enviar la solicitud");
         return;
       }
+      track("quote_submitted", { workshop: slug });
       router.push(`/rastrear/${json.publicToken}`);
     } catch {
       setSubmitError("Error de red. Revisa tu conexión e intenta de nuevo.");

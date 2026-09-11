@@ -369,6 +369,7 @@ model Quotation {
   customerMessage  String?                 @map("CustomerMessage")
   viewedByShopAt   DateTime?               @map("ViewedByShopAt")
   respondedAt      DateTime?               @map("RespondedAt")
+  attribution      String?                 @map("Attribution")
   invoices         Invoice[]
   workOrder        WorkOrder?              @relation("QuotationConvertedWorkOrder", fields: [workOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Quotation_WorkOrder")
   damages          QuotationDamage[]

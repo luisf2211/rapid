@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { MobileTopBar } from "@/components/layout/MobileTopBar";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -7,6 +8,11 @@ import { getInventoryStockAlerts } from "@/services/inventory.service";
 import { getWorkshopSettings } from "@/services/workshop-settings.service";
 import { countPendingRequests } from "@/services/quote-requests.service";
 import { requireCompanySession } from "@/lib/auth/guards";
+
+// Área privada del taller: nunca indexar.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AppLayout({
   children,

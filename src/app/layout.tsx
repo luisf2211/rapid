@@ -4,6 +4,7 @@ import "./globals.css";
 import { SITE_URL, SITE_NAME } from "@/lib/seo/config";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationSchema, websiteSchema } from "@/lib/seo/jsonld";
+import { Analytics } from "@/components/analytics/Analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <Analytics />
         {children}
       </body>
     </html>
