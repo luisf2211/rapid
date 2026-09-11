@@ -11,6 +11,12 @@ export function PublicHeader() {
         </Link>
         <div className="flex items-center gap-5 sm:gap-6">
           <Link
+            href="/talleres"
+            className="hidden text-[15px] text-rapid-text-muted transition-colors hover:text-rapid-text sm:inline"
+          >
+            Talleres
+          </Link>
+          <Link
             href="/rastrear"
             className="hidden text-[15px] text-rapid-text-muted transition-colors hover:text-rapid-text sm:inline"
           >

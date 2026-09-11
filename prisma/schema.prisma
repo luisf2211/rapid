@@ -19,6 +19,16 @@ model Company {
   publicPhone       String?           @map("PublicPhone") @db.VarChar(50)
   publicCity        String?           @map("PublicCity") @db.VarChar(120)
   publicTagline     String?           @map("PublicTagline") @db.VarChar(200)
+  publicStatus      String            @default("DRAFT") @map("PublicStatus") @db.VarChar(20)
+  isPublicListed    Boolean           @default(false) @map("IsPublicListed")
+  publicDescription String?           @map("PublicDescription")
+  citySlug          String?           @map("CitySlug") @db.VarChar(120)
+  provinceSlug      String?           @map("ProvinceSlug") @db.VarChar(120)
+  publicWhatsapp    String?           @map("PublicWhatsapp") @db.VarChar(50)
+  latitude          Decimal?          @map("Latitude") @db.Decimal(10, 7)
+  longitude         Decimal?          @map("Longitude") @db.Decimal(10, 7)
+  publicServices    String?           @map("PublicServices")
+  onboardingCompletedAt DateTime?     @map("OnboardingCompletedAt")
   users              User[]
   workOrders         WorkOrder[]
   inventoryParts     InventoryPart[]
