@@ -60,95 +60,72 @@ export function LandingPage({
       <LandingHeader />
 
       {/* ─── Hero ────────────────────────────────────────────────────────
-          Asimétrico, alineado a la izquierda. Tipografía protagonista.
+          Simple y centrado. Puro tipografía, sin imágenes.
           El verde solo como acento (subrayado del titular). */}
       <section className="border-b border-rapid-border pt-16">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:py-24">
-          <div className="flex flex-col justify-center">
-            <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-rapid-text-muted">
-              Pintura automotriz &amp; detailing
-            </p>
-            <h1 className="mt-5 text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.02em] text-rapid-text sm:text-6xl">
-              Arregla tu carro
-              <br />
-              sin dar tantas
-              <br />
-              <span className="relative whitespace-nowrap">
-                vueltas
-                <span className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-rapid-green" />
-              </span>
-              .
-            </h1>
-            <p className="mt-7 max-w-md text-lg leading-relaxed text-rapid-text-body">
-              Pide una cotización, manda fotos del daño y deja que el taller te
-              responda. Todo desde el teléfono, sin llamadas ni filas.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link
-                href="/cotizar"
-                className="btn-primary gap-2 px-6 text-base"
-              >
-                Pedir cotización
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/rastrear"
-                className="text-[15px] font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:decoration-rapid-green"
-              >
-                Ya envié una, ver estado
-              </Link>
-            </div>
+        <div className="mx-auto max-w-3xl px-5 pb-16 pt-20 text-center sm:px-8 sm:pb-20 sm:pt-28">
+          <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-rapid-text-muted">
+            Pintura automotriz &amp; detailing
+          </p>
+          <h1 className="mx-auto mt-6 text-[2.7rem] font-semibold leading-[1.04] tracking-[-0.025em] text-rapid-text sm:text-[4.25rem]">
+            Arregla tu carro sin dar tantas{" "}
+            <span className="relative whitespace-nowrap">
+              vueltas
+              <span className="absolute -bottom-1 left-0 h-[4px] w-full rounded-full bg-rapid-green" />
+            </span>
+          </h1>
+          <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-rapid-text-body">
+            Pide una cotización, manda fotos del daño y deja que el taller te
+            responda. Todo desde el teléfono, sin llamadas ni filas.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            <Link href="/cotizar" className="btn-primary gap-2 px-6 text-base">
+              Pedir cotización
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/rastrear"
+              className="text-[15px] font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:decoration-rapid-green"
+            >
+              Ya envié una, ver estado
+            </Link>
           </div>
+        </div>
 
-          {/* Zona de imagen — lista para foto real del taller/trabajo */}
-          <div className="relative">
-            <div className="aspect-[4/5] w-full overflow-hidden rounded-3xl bg-rapid-surface-strong">
-              {/* Reemplazar por una foto real: <img src="/hero.jpg" ... /> */}
-              {featuredWorkshop?.logoUrl ? (
+        {/* Taller destacado — tira limpia debajo del hero, sin imagen */}
+        {featuredWorkshop && (
+          <div className="mx-auto max-w-3xl px-5 pb-14 sm:px-8">
+            <Link
+              href={`/cotizar/${featuredWorkshop.slug}`}
+              className="group flex items-center gap-4 rounded-2xl border border-rapid-border bg-white p-4 transition-colors hover:border-rapid-text/25"
+            >
+              {featuredWorkshop.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={featuredWorkshop.logoUrl}
                   alt={featuredWorkshop.name}
-                  className="h-full w-full object-cover"
+                  className="h-12 w-12 rounded-xl object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#e9ecef,transparent_60%),radial-gradient(circle_at_80%_90%,#e3e6ea,transparent_55%)]">
-                  <span className="text-sm text-rapid-text-muted-soft">
-                    Foto del taller
-                  </span>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rapid-black text-sm font-semibold text-white">
+                  {initialsOf(featuredWorkshop.name)}
                 </div>
               )}
-            </div>
-            {featuredWorkshop && (
-              <Link
-                href={`/cotizar/${featuredWorkshop.slug}`}
-                className="absolute -bottom-5 left-5 right-5 flex items-center gap-3 rounded-2xl border border-rapid-border bg-white p-3 shadow-[0_12px_40px_rgba(0,0,0,0.10)] transition-transform hover:-translate-y-0.5 sm:left-8 sm:right-auto sm:pr-6"
-              >
-                {featuredWorkshop.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={featuredWorkshop.logoUrl}
-                    alt={featuredWorkshop.name}
-                    className="h-11 w-11 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rapid-black text-sm font-semibold text-white">
-                    {initialsOf(featuredWorkshop.name)}
-                  </div>
-                )}
-                <div className="pr-2">
-                  <p className="text-[11px] uppercase tracking-wide text-rapid-text-muted-soft">
-                    Disponible ahora
-                  </p>
-                  <p className="text-sm font-semibold text-rapid-text">
-                    {featuredWorkshop.name}
-                  </p>
-                </div>
-                <ArrowUpRight className="ml-auto hidden h-4 w-4 text-rapid-text-muted sm:block" />
-              </Link>
-            )}
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-wide text-rapid-text-muted-soft">
+                  Disponible para cotizar
+                </p>
+                <p className="truncate font-semibold text-rapid-text">
+                  {featuredWorkshop.name}
+                </p>
+              </div>
+              <span className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-rapid-text">
+                Cotizar
+                <ArrowUpRight className="h-4 w-4 text-rapid-text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </Link>
           </div>
-        </div>
+        )}
       </section>
 
       {/* ─── Cómo funciona ──────────────────────────────────────────────

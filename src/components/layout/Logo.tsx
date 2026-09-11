@@ -33,12 +33,12 @@ export function Logo({ className, variant = "light", compact = false }: LogoProp
   return (
     <span
       className={cn(
-        "inline-flex items-baseline text-[19px] font-bold lowercase tracking-[-0.03em]",
+        "inline-flex items-baseline text-[20px] font-bold tracking-[-0.03em]",
         textColor,
         className,
       )}
     >
-      rapid
+      Rapid
       <span className="ml-[2px] mb-[3px] h-[6px] w-[6px] rounded-full bg-rapid-green" />
     </span>
   );
