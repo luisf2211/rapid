@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Car, Wrench } from "lucide-react";
 import { LandingHeader } from "./LandingHeader";
 import { Logo } from "@/components/layout/Logo";
 
@@ -60,41 +60,79 @@ export function LandingPage({
       <LandingHeader />
 
       {/* ─── Hero ────────────────────────────────────────────────────────
-          Simple y centrado. Puro tipografía, sin imágenes.
-          El verde solo como acento (subrayado del titular). */}
+          Presenta Rapid y bifurca claramente en dos: cliente y taller. */}
       <section className="border-b border-rapid-border pt-16">
-        <div className="mx-auto max-w-3xl px-5 pb-16 pt-20 text-center sm:px-8 sm:pb-20 sm:pt-28">
+        <div className="mx-auto max-w-4xl px-5 pb-12 pt-20 text-center sm:px-8 sm:pt-28">
           <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-rapid-text-muted">
             Pintura automotriz &amp; detailing
           </p>
-          <h1 className="mx-auto mt-6 text-[2.7rem] font-semibold leading-[1.04] tracking-[-0.025em] text-rapid-text sm:text-[4.25rem]">
-            Arregla tu carro sin dar tantas{" "}
+          <h1 className="mx-auto mt-6 text-[2.5rem] font-semibold leading-[1.05] tracking-[-0.025em] text-rapid-text sm:text-[3.75rem]">
+            El puente entre tu carro y{" "}
             <span className="relative whitespace-nowrap">
-              vueltas
+              el taller
               <span className="absolute -bottom-1 left-0 h-[4px] w-full rounded-full bg-rapid-green" />
             </span>
           </h1>
-          <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-rapid-text-body">
-            Pide una cotización, manda fotos del daño y deja que el taller te
-            responda. Todo desde el teléfono, sin llamadas ni filas.
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-rapid-text-body">
+            Cotiza la reparación de tu vehículo en minutos, o gestiona tu taller
+            y recibe nuevos clientes. ¿Con cuál empezamos?
           </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <Link href="/cotizar" className="btn-primary gap-2 px-6 text-base">
-              Pedir cotización
+        </div>
+
+        {/* Dos puertas: cliente / taller */}
+        <div className="mx-auto grid max-w-4xl gap-4 px-5 pb-16 sm:px-8 sm:pb-20 md:grid-cols-2">
+          {/* B2C */}
+          <div className="flex flex-col rounded-3xl border border-rapid-border p-7 transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rapid-green-soft text-rapid-green-dark">
+              <Car className="h-6 w-6" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-rapid-text">
+              Tengo un vehículo
+            </h2>
+            <p className="mt-2 flex-1 leading-relaxed text-rapid-text-muted">
+              Manda fotos del daño y recibe una cotización de un taller. Gratis,
+              sin llamadas.
+            </p>
+            <Link href="/cotizar" className="btn-primary mt-6 w-full gap-2">
+              Cotizar mi vehículo
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/rastrear"
-              className="text-[15px] font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:decoration-rapid-green"
+              className="mt-3 text-center text-sm font-medium text-rapid-text-muted underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:text-rapid-text hover:decoration-rapid-green"
             >
               Ya envié una, ver estado
             </Link>
           </div>
+
+          {/* B2B */}
+          <div className="flex flex-col rounded-3xl border border-rapid-border bg-rapid-surface-soft p-7 transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rapid-black text-rapid-green">
+              <Wrench className="h-6 w-6" />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-rapid-text">
+              Tengo un taller
+            </h2>
+            <p className="mt-2 flex-1 leading-relaxed text-rapid-text-muted">
+              Gestiona cotizaciones, clientes y órdenes, y recibe nuevas
+              solicitudes desde Rapid.
+            </p>
+            <Link href="/registrar-taller" className="btn-dark mt-6 w-full gap-2">
+              Registrar mi taller
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/login"
+              className="mt-3 text-center text-sm font-medium text-rapid-text-muted underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:text-rapid-text hover:decoration-rapid-green"
+            >
+              Ya tengo cuenta
+            </Link>
+          </div>
         </div>
 
-        {/* Taller destacado — tira limpia debajo del hero, sin imagen */}
+        {/* Taller destacado — tira limpia debajo, sin imagen */}
         {featuredWorkshop && (
-          <div className="mx-auto max-w-3xl px-5 pb-14 sm:px-8">
+          <div className="mx-auto max-w-4xl px-5 pb-14 sm:px-8">
             <Link
               href={`/cotizar/${featuredWorkshop.slug}`}
               className="group flex items-center gap-4 rounded-2xl border border-rapid-border bg-white p-4 transition-colors hover:border-rapid-text/25"
@@ -190,10 +228,10 @@ export function LandingPage({
               perdidos.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <a href="#registro" className="btn-dark gap-2">
-                Registrar mi taller
+              <Link href="/registrar-taller" className="btn-dark gap-2">
+                Conocer el software
                 <ArrowRight className="h-4 w-4" />
-              </a>
+              </Link>
               <Link
                 href="/login"
                 className="text-[15px] font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:decoration-rapid-green"
@@ -229,20 +267,17 @@ export function LandingPage({
               para recibir cotizaciones. Escríbenos y te activamos.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Link href="/registrar-taller/crear" className="btn-primary gap-2 px-6">
+                Crear mi cuenta gratis
+                <ArrowRight className="h-4 w-4" />
+              </Link>
               <a
                 href={`https://wa.me/${CONTACT_WHATSAPP}?text=${WHATSAPP_MESSAGE}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary gap-2 px-6"
-              >
-                Escríbenos por WhatsApp
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-              <a
-                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Registro de taller Rapid")}`}
                 className="text-[15px] font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:decoration-rapid-green"
               >
-                O por correo
+                O escríbenos por WhatsApp
               </a>
             </div>
           </div>
