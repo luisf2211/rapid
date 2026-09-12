@@ -100,6 +100,132 @@ export async function createCompany(input: {
   });
 }
 
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // quitar acentos
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70);
+}
+
+function citySlugify(input: string): string {
+  return slugify(input);
+}
+
+export type RegisterWorkshopInput = {
+  ownerFirstName: string;
+  ownerLastName: string;
+  ownerEmail: string;
+  ownerPhone: string;
+  password: string;
+  workshopName: string;
+  rnc?: string;
+  workshopPhone?: string;
+  whatsapp?: string;
+  address?: string;
+  city: string;
+  services: string[];
+  description?: string;
+};
+
+export type RegisterWorkshopResult =
+  | { ok: true; session: SessionPayload }
+  | { ok: false; error: string };
+
+/**
+ * Registro self-service de un taller. Crea Company (estado PENDING, no listada),
+ * WorkshopSettings con el perfil, y el usuario OWNER (COMPANY_ADMIN).
+ * Devuelve el SessionPayload para iniciar sesión automáticamente.
+ * El taller NO aparece en el directorio público hasta ser aprobado.
+ */
+export async function registerWorkshop(
+  input: RegisterWorkshopInput,
+): Promise<RegisterWorkshopResult> {
+  const email = input.ownerEmail.trim().toLowerCase();
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return { ok: false, error: "Ya existe una cuenta con este correo" };
+  }
+
+  // Slug único a partir del nombre del taller.
+  const base = slugify(input.workshopName) || "taller";
+  let slug = base;
+  for (let i = 2; i < 100; i++) {
+    const taken = await prisma.company.findUnique({ where: { slug } });
+    if (!taken) break;
+    slug = `${base}-${i}`;
+  }
+
+  const passwordHash = await hashPassword(input.password);
+  const fullName = `${input.ownerFirstName.trim()} ${input.ownerLastName.trim()}`.trim();
+  const servicesCsv = input.services.join(",");
+  const phone = input.workshopPhone?.trim() || input.ownerPhone.trim();
+
+  const result = await prisma.$transaction(async (tx) => {
+    const company = await tx.company.create({
+      data: {
+        name: input.workshopName.trim(),
+        slug,
+        isActive: true,
+        // Estado de aprobación: pendiente, no listado (no se indexa aún).
+        publicStatus: "PENDING",
+        isPublicListed: false,
+        isPublicForQuotes: false,
+        publicCity: input.city.trim(),
+        citySlug: citySlugify(input.city),
+        publicWhatsapp: input.whatsapp?.trim() || null,
+        publicServices: servicesCsv,
+        publicDescription: input.description?.trim() || null,
+      },
+    });
+
+    const settingsId =
+      ((await tx.workshopSettings.aggregate({ _max: { id: true } }))._max.id ??
+        0) + 1;
+
+    await tx.workshopSettings.create({
+      data: {
+        id: settingsId,
+        CompanyId: company.id,
+        businessName: input.workshopName.trim(),
+        rnc: input.rnc?.trim() || null,
+        phone,
+        email,
+        address: input.address?.trim() || null,
+        defaultTaxRate: 0.18,
+      },
+    });
+
+    const user = await tx.user.create({
+      data: {
+        email,
+        passwordHash,
+        fullName,
+        role: USER_ROLES.COMPANY_ADMIN, // OWNER del taller
+        companyId: company.id,
+        isActive: true,
+      },
+    });
+
+    return { company, user };
+  });
+
+  const session: SessionPayload = {
+    userId: result.user.id,
+    email: result.user.email,
+    fullName: result.user.fullName,
+    role: result.user.role as SessionPayload["role"],
+    companyId: result.company.id,
+    companyName: result.company.name,
+    permissions: null,
+  };
+
+  return { ok: true, session };
+}
+
 export async function listUsers(params?: { companyId?: number }) {
   return prisma.user.findMany({
     where: params?.companyId ? { companyId: params.companyId } : undefined,

@@ -13,6 +13,7 @@ export type AnalyticsEvent =
   // B2B
   | "workshop_landing_view"
   | "workshop_registration_started"
+  | "workshop_registration_completed"
   | "directory_view"
   | "workshop_profile_view";
 

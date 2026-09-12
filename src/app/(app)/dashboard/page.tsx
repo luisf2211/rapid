@@ -6,10 +6,17 @@ import { DashboardQuickLinks } from "@/components/dashboard/DashboardQuickLinks"
 import { DashboardRecentOrders } from "@/components/dashboard/DashboardRecentOrders";
 import { getDashboardStats } from "@/services/work-orders.service";
 import { getFinanceStats } from "@/services/finance-stats.service";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { getWorkshopOnboarding } from "@/services/workshops-directory.service";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
+  const { welcome } = await searchParams;
   let stats: Awaited<ReturnType<typeof getDashboardStats>> | null = null;
   let financeStats: Awaited<ReturnType<typeof getFinanceStats>> | null = null;
   let error: string | null = null;
@@ -22,8 +29,50 @@ export default async function DashboardPage() {
     error = e instanceof Error ? e.message : "Error desconocido";
   }
 
+  // Onboarding: mostrar checklist si viene del registro o si aún hay pasos pendientes.
+  let onboarding: Awaited<ReturnType<typeof getWorkshopOnboarding>> = null;
+  try {
+    const { requireCompanySession } = await import("@/lib/auth/guards");
+    const session = await requireCompanySession();
+    onboarding = await getWorkshopOnboarding(session.companyId);
+  } catch {
+    /* sin sesión de empresa o sin datos */
+  }
+
+  const showOnboarding =
+    onboarding != null &&
+    (welcome === "1" ||
+      onboarding.pendingApproval ||
+      !onboarding.hasProfile ||
+      !onboarding.hasQuotation);
+
   return (
     <>
+      {showOnboarding && onboarding && (
+        <OnboardingChecklist
+          workshopName={onboarding.workshopName}
+          pendingApproval={onboarding.pendingApproval}
+          items={[
+            { label: "Taller creado", href: "/settings", done: true },
+            {
+              label: "Completa tu perfil público",
+              href: "/settings",
+              done: onboarding.hasProfile,
+            },
+            {
+              label: "Crea tu primera cotización",
+              href: "/quotations/new",
+              done: onboarding.hasQuotation,
+            },
+            {
+              label: "Invita a un empleado",
+              href: "/employees",
+              done: onboarding.hasEmployee,
+            },
+          ]}
+        />
+      )}
+
       {error && (
         <div className="card border-amber-200 bg-amber-50 p-4 mb-5 text-sm text-amber-800">
           <p className="font-medium">Sin conexión a la base de datos</p>

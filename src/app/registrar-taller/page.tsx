@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   ClipboardList,
   FileText,
   Globe,
@@ -101,15 +100,10 @@ export default function RegistrarTallerPage() {
             nuevos clientes.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <a
-              href={`https://wa.me/${BRAND.whatsapp}?text=${WHATSAPP_MESSAGE}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary gap-2 px-6 text-base"
-            >
+            <Link href="/registrar-taller/crear" className="btn-primary gap-2 px-6 text-base">
               Registrar mi taller
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
             <Link
               href="/login"
               className="text-[15px] font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 transition-colors hover:decoration-rapid-green"
@@ -165,22 +159,19 @@ export default function RegistrarTallerPage() {
             ))}
           </ol>
           <div className="mt-8">
-            <a
-              href={`https://wa.me/${BRAND.whatsapp}?text=${WHATSAPP_MESSAGE}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary gap-2 px-6"
-            >
+            <Link href="/registrar-taller/crear" className="btn-primary gap-2 px-6">
               Registrar mi taller
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
             <p className="mt-4 text-sm text-rapid-text-muted">
-              O escríbenos a{" "}
+              ¿Prefieres ayuda? Escríbenos por{" "}
               <a
-                href={`mailto:${BRAND.email}?subject=${encodeURIComponent("Registro de taller Rapid")}`}
+                href={`https://wa.me/${BRAND.whatsapp}?text=${WHATSAPP_MESSAGE}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-medium text-rapid-text underline decoration-rapid-border decoration-2 underline-offset-4 hover:decoration-rapid-green"
               >
-                {BRAND.email}
+                WhatsApp
               </a>
               .
             </p>

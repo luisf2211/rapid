@@ -190,6 +190,44 @@ export async function workshopSlugExists(slug: string): Promise<boolean> {
   return c != null;
 }
 
+export type WorkshopOnboarding = {
+  workshopName: string;
+  pendingApproval: boolean;
+  hasProfile: boolean;
+  hasQuotation: boolean;
+  hasEmployee: boolean;
+};
+
+/** Estado de onboarding de un taller para el checklist del dashboard. */
+export async function getWorkshopOnboarding(
+  companyId: number,
+): Promise<WorkshopOnboarding | null> {
+  const c = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: {
+      name: true,
+      publicStatus: true,
+      publicDescription: true,
+      onboardingCompletedAt: true,
+      workshopSettings: { select: { businessName: true }, take: 1 },
+    },
+  });
+  if (!c) return null;
+
+  const [quotationCount, employeeCount] = await Promise.all([
+    prisma.quotation.count({ where: { CompanyId: companyId } }),
+    prisma.employee.count({ where: { CompanyId: companyId } }).catch(() => 0),
+  ]);
+
+  return {
+    workshopName: c.workshopSettings[0]?.businessName?.trim() || c.name,
+    pendingApproval: c.publicStatus === "PENDING",
+    hasProfile: Boolean(c.publicDescription?.trim()),
+    hasQuotation: quotationCount > 0,
+    hasEmployee: employeeCount > 0,
+  };
+}
+
 /** Slugs de talleres aprobados (para generateStaticParams / sitemap). */
 export async function listApprovedWorkshopSlugs(): Promise<string[]> {
   const rows = await prisma.company.findMany({
