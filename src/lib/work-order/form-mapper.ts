@@ -35,17 +35,25 @@ function normalizePhotoType(value: string | null | undefined): PhotoInput["photo
   return "RECEPTION";
 }
 
-type DamageView = "front" | "back" | "left" | "right" | "top";
+type DamageView = "front" | "rear" | "left" | "right" | "top";
 type DamageTypeId = "GOLPE" | "ABOLLADURA" | "RAYON" | "ROTURA" | "PINTURA";
 type SeverityId = "LEVE" | "MODERADO" | "SEVERO";
 
 /** Normaliza la vista guardada (uppercase o lowercase) al id del diagrama. */
 function normalizeView(value: string | null | undefined): DamageView {
   const v = (value ?? "").toLowerCase();
-  if (v === "front" || v === "back" || v === "left" || v === "right" || v === "top") {
-    return v;
-  }
+  if (v === "front" || v === "left" || v === "right" || v === "top") return v;
+  if (v === "rear" || v === "back") return "rear"; // "back" legacy → "rear"
   return "left";
+}
+
+/** Convierte coords guardadas a 0–1. Soporta datos legacy en escala 0–100. */
+function toNormalized(value: unknown): number {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return 0.5;
+  // Si viene en 0–100 (legacy), lo bajamos a 0–1.
+  const norm = n > 1 ? n / 100 : n;
+  return Math.max(0, Math.min(1, norm));
 }
 
 /** Traduce el tipo de daño (nuevo id o enum legacy) al catálogo actual. */
@@ -159,8 +167,8 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
     checklist,
     damages: order.damages.map((d) => ({
       view: normalizeView(d.vehicleSide),
-      x: toPlainNumber(d.positionX) ?? 50,
-      y: toPlainNumber(d.positionY) ?? 50,
+      x: toNormalized(toPlainNumber(d.positionX)),
+      y: toNormalized(toPlainNumber(d.positionY)),
       damageTypeId: normalizeDamageTypeId(d.damageType),
       severity: normalizeSeverity(d.severity),
       vehiclePartId: d.vehiclePartId ?? "",

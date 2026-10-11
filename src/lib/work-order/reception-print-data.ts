@@ -8,8 +8,8 @@ import {
   damageTypeLetter,
   severityLabel,
   partLabelById,
+  type VehicleView,
 } from "@/lib/vehicle-damage/catalog";
-import type { VehicleView } from "@/components/vehicle-inspection/VehicleSilhouettes";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
 
@@ -19,10 +19,15 @@ const photoTypeMap = Object.fromEntries(
 
 function normalizeView(value: string | null | undefined): VehicleView {
   const v = (value ?? "").toLowerCase();
-  if (v === "front" || v === "back" || v === "left" || v === "right" || v === "top") {
-    return v;
-  }
+  if (v === "front" || v === "left" || v === "right" || v === "top") return v;
+  if (v === "rear" || v === "back") return "rear";
   return "left";
+}
+
+/** Convierte coords guardadas a 0–1. Soporta datos legacy en escala 0–100. */
+function toNorm(n: number): number {
+  const v = n > 1 ? n / 100 : n;
+  return Math.max(0, Math.min(1, v));
 }
 
 /** Traduce tipo legacy (SCRATCH/DENT/...) o id nuevo al id del catálogo. */
@@ -172,8 +177,8 @@ export function buildReceptionPrintData(
       return {
         number: i + 1,
         view: normalizeView(d.vehicleSide),
-        x: d.positionX != null ? Number(d.positionX) : 50,
-        y: d.positionY != null ? Number(d.positionY) : 50,
+        x: d.positionX != null ? toNorm(Number(d.positionX)) : 0.5,
+        y: d.positionY != null ? toNorm(Number(d.positionY)) : 0.5,
         damageTypeId: typeId,
         typeLabel: damageTypeLabel(typeId),
         typeLetter: damageTypeLetter(typeId),

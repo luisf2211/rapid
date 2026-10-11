@@ -254,7 +254,7 @@
 }
 
 
-/* ─── Daños / condición exterior (en página 1) ─────────────────────────────── */
+/* ─── Daños / condición exterior (PNG + overlay, página 1) ─────────────────── */
 
 .idoc-inspection-block {
   margin-top: 10px;
@@ -272,46 +272,50 @@
   margin-top: 4px;
 }
 
-/* Fila de 3 vistas */
-.idoc-inspection-row-3 {
+.idoc-insp-view {
+  margin-bottom: 3mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.idoc-insp-label {
+  font-size: 7pt;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 1mm;
+}
+
+.idoc-insp-img-wrap {
+  position: relative;
+  width: 100%;
+  border: 0.5px solid #d0d0d0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.idoc-insp-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Fila de 3 vistas pequeñas (frontal/trasera/superior) */
+.idoc-insp-row-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 4mm;
-  margin-bottom: 4mm;
-}
-
-.idoc-inspection-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.idoc-inspection-svg-wrap {
-  position: relative;
-  width: 100%;
-  border: 0.5px solid #ccc;
-  border-radius: 2px;
-  background: #fff;
-}
-
-.idoc-inspection-silhouette {
-  color: #d1d5db;
-}
-
-.idoc-inspection-view-label {
-  margin-top: 2px;
-  font-size: 7pt;
-  font-weight: 600;
-  color: #000;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  margin-bottom: 3mm;
 }
 
 /* Marcador numerado — negro, legible en blanco y negro */
-.idoc-damage-marker {
-  width: 16px;
-  height: 16px;
+.idoc-insp-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background: #000;
   color: #fff;
@@ -320,24 +324,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #fff;
+  border: 1.5px solid #fff;
   box-shadow: 0 0 0 1px #000;
 }
 
-.idoc-damage-marker-letter {
-  font-size: 5pt;
-  font-weight: 700;
-  margin-left: 1px;
+/* Detalle + leyenda lado a lado */
+.idoc-insp-detail {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6mm;
+  align-items: start;
+  margin-top: 2mm;
 }
 
-/* Leyenda */
-.idoc-inspection-legend {
+.idoc-insp-legend {
   border: 0.5px solid #ccc;
   border-radius: 2px;
   padding: 6px 8px;
+  min-width: 150px;
 }
 
-.idoc-inspection-legend-title {
+.idoc-insp-legend-title {
   font-size: 7pt;
   font-weight: 700;
   text-transform: uppercase;
@@ -345,12 +352,12 @@
   margin-bottom: 3px;
 }
 
-.idoc-inspection-legend ul {
+.idoc-insp-legend ul {
   list-style: none;
   margin: 0;
   padding: 0;
   font-size: 8pt;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Página 2: condiciones legales y firmas */
@@ -361,12 +368,9 @@
 
 @media print {
   .idoc-inspection-block,
-  .idoc-inspection-svg-wrap {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .idoc-damage-marker {
+  .idoc-insp-img-wrap,
+  .idoc-insp-img,
+  .idoc-insp-marker {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

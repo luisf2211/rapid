@@ -4,20 +4,20 @@ import { useRef, useState } from "react";
 import { Camera, Check, Loader2, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  SILHOUETTE_COMPONENTS,
-  VIEW_DIMENSIONS,
-  type VehicleView,
-} from "@/components/vehicle-inspection/VehicleSilhouettes";
-import {
   DAMAGE_TYPES,
   DAMAGE_TYPE_BY_ID,
   SEVERITIES,
   VEHICLE_VIEWS,
-  VEHICLE_PARTS_BY_VIEW,
-  detectPart,
+  VEHICLE_PARTS,
   type DamageTypeId,
   type SeverityId,
+  type VehicleView,
 } from "@/lib/vehicle-damage/catalog";
+import {
+  VEHICLE_IMAGES,
+  VEHICLE_IMAGE_RATIO,
+  toPercent,
+} from "@/lib/vehicle-damage/images";
 import type { DamageInput } from "@/lib/validations/work-order";
 
 interface Props {
@@ -35,31 +35,29 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
   const [activeView, setActiveView] = useState<VehicleView>("left");
   const [draft, setDraft] = useState<DraftState>({ mode: "closed" });
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const svgWrapRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  const dims = VIEW_DIMENSIONS[activeView];
-  const Silhouette = SILHOUETTE_COMPONENTS[activeView];
   const viewDamages = value
     .map((d, index) => ({ d, index }))
     .filter((x) => x.d.view === activeView);
 
   function handleTap(e: React.PointerEvent<HTMLDivElement>) {
     if (draft.mode !== "closed") return;
-    const wrap = svgWrapRef.current;
-    if (!wrap) return;
-    const rect = wrap.getBoundingClientRect();
-    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    const img = imgRef.current;
+    if (!img) return;
+    // Coordenadas calculadas contra el rect REAL de la imagen, no del card.
+    const rect = img.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
 
-    const part = detectPart(activeView, x, y);
     const newDamage: DamageInput = {
       view: activeView,
-      x: Math.round(x * 10) / 10,
-      y: Math.round(y * 10) / 10,
+      x: Math.round(x * 10000) / 10000,
+      y: Math.round(y * 10000) / 10000,
       damageTypeId: activeType,
       severity: "LEVE",
-      vehiclePartId: part?.id ?? "",
-      partName: part?.label ?? "",
+      vehiclePartId: "",
+      partName: "",
       observations: "",
       photos: [],
     };
@@ -79,8 +77,12 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
     setSelectedIndex(null);
   }
 
-  function closeDraft() {
-    setDraft({ mode: "closed" });
+  function selectDamage(index: number) {
+    const d = value[index];
+    if (!d) return;
+    setSelectedIndex(index);
+    setActiveView(d.view);
+    setDraft({ mode: "edit", index });
   }
 
   const draftIndex = draft.mode !== "closed" ? draft.index : null;
@@ -126,54 +128,59 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
       </div>
 
       {/* 2. Selector de vista */}
-      <div>
-        <div className="flex flex-wrap gap-2">
-          {VEHICLE_VIEWS.map((v) => {
-            const active = activeView === v.id;
-            const count = value.filter((d) => d.view === v.id).length;
-            return (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => setActiveView(v.id)}
-                className={cn(
-                  "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors min-h-11",
-                  active
-                    ? "bg-rapid-black text-white"
-                    : "bg-rapid-surface-soft text-rapid-text-muted hover:text-rapid-text",
-                )}
-              >
-                {v.label}
-                {count > 0 && (
-                  <span
-                    className={cn(
-                      "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold",
-                      active ? "bg-white/20" : "bg-rapid-green text-white",
-                    )}
-                  >
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {VEHICLE_VIEWS.map((v) => {
+          const active = activeView === v.id;
+          const count = value.filter((d) => d.view === v.id).length;
+          return (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => setActiveView(v.id)}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors min-h-11",
+                active
+                  ? "bg-rapid-black text-white"
+                  : "bg-rapid-surface-soft text-rapid-text-muted hover:text-rapid-text",
+              )}
+            >
+              {v.label}
+              {count > 0 && (
+                <span
+                  className={cn(
+                    "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold",
+                    active ? "bg-white/20" : "bg-rapid-green text-white",
+                  )}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* 3 + 6. Diagrama + lista */}
+      {/* 3 + 11. Diagrama (PNG + overlay) + lista */}
       <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-        {/* Diagrama */}
+        {/* Canvas */}
         <div>
           <div
-            ref={svgWrapRef}
             onPointerDown={handleTap}
             className={cn(
-              "relative select-none touch-none overflow-hidden rounded-xl border border-rapid-border bg-white",
+              "relative mx-auto w-full select-none overflow-hidden rounded-xl border border-rapid-border bg-white",
               draft.mode === "closed" ? "cursor-crosshair" : "cursor-default",
             )}
-            style={{ aspectRatio: `${dims.w} / ${dims.h}` }}
+            style={{ aspectRatio: String(VEHICLE_IMAGE_RATIO[activeView]) }}
           >
-            <Silhouette className="absolute inset-0 h-full w-full text-gray-300" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={imgRef}
+              src={VEHICLE_IMAGES[activeView]}
+              alt={`Vista ${activeView}`}
+              draggable={false}
+              className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+            />
+            {/* Overlay de marcadores — mismo rect que la imagen */}
             {viewDamages.map(({ d, index }) => {
               const def = DAMAGE_TYPE_BY_ID[d.damageTypeId];
               const num = index + 1;
@@ -184,16 +191,15 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedIndex(index);
-                    setDraft({ mode: "edit", index });
+                    selectDamage(index);
                   }}
                   className={cn(
                     "absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-[11px] font-bold text-white shadow-md transition-transform",
-                    isSel && "scale-125 ring-2 ring-rapid-black",
+                    isSel && "z-10 scale-125 ring-2 ring-rapid-black",
                   )}
                   style={{
-                    left: `${d.x}%`,
-                    top: `${d.y}%`,
+                    left: toPercent(d.x),
+                    top: toPercent(d.y),
                     backgroundColor: def?.color ?? "#dc2626",
                   }}
                   title={`${num}. ${def?.label ?? ""}`}
@@ -204,14 +210,14 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
             })}
           </div>
           <p className="mt-2 text-center text-xs text-rapid-text-muted-soft">
-            Selecciona un tipo y toca el vehículo para marcar un daño
+            Selecciona el tipo de daño y toca sobre el vehículo para señalarlo.
           </p>
         </div>
 
         {/* Lista de daños */}
         <div className="rounded-xl border border-rapid-border bg-rapid-surface-soft p-3">
           <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-rapid-text-muted">
-            Daños detectados ({value.length})
+            Daños registrados ({value.length})
           </p>
           {value.length === 0 ? (
             <p className="px-1 py-6 text-center text-sm text-rapid-text-muted-soft">
@@ -226,11 +232,7 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
                   <li key={index}>
                     <button
                       type="button"
-                      onClick={() => {
-                        setSelectedIndex(index);
-                        setActiveView(d.view);
-                        setDraft({ mode: "edit", index });
-                      }}
+                      onClick={() => selectDamage(index)}
                       className={cn(
                         "flex w-full items-start gap-2.5 rounded-lg border p-2.5 text-left transition-colors",
                         isSel
@@ -270,15 +272,14 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
         </div>
       </div>
 
-      {/* 5. Editor del daño (panel) */}
+      {/* Editor del daño */}
       {draftDamage && draftIndex != null && (
         <DamageEditorPanel
           damage={draftDamage}
-          view={draftDamage.view}
           isNew={draft.mode === "new"}
           onPatch={(patch) => updateDamage(draftIndex, patch)}
           onRemove={() => removeDamage(draftIndex)}
-          onClose={closeDraft}
+          onClose={() => setDraft({ mode: "closed" })}
         />
       )}
     </div>
@@ -287,21 +288,18 @@ export function VehicleDamageInspector({ value, onChange }: Props) {
 
 function DamageEditorPanel({
   damage,
-  view,
   isNew,
   onPatch,
   onRemove,
   onClose,
 }: {
   damage: DamageInput;
-  view: VehicleView;
   isNew: boolean;
   onPatch: (patch: Partial<DamageInput>) => void;
   onRemove: () => void;
   onClose: () => void;
 }) {
   const def = DAMAGE_TYPE_BY_ID[damage.damageTypeId];
-  const parts = VEHICLE_PARTS_BY_VIEW[view] ?? [];
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -355,12 +353,12 @@ function DamageEditorPanel({
             className="form-input"
             value={damage.vehiclePartId || ""}
             onChange={(e) => {
-              const p = parts.find((x) => x.id === e.target.value);
+              const p = VEHICLE_PARTS.find((x) => x.id === e.target.value);
               onPatch({ vehiclePartId: e.target.value, partName: p?.label ?? "" });
             }}
           >
-            <option value="">Sin definir</option>
-            {parts.map((p) => (
+            <option value="">Seleccionar…</option>
+            {VEHICLE_PARTS.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
               </option>

@@ -36,10 +36,10 @@ export type ChecklistInput = z.infer<typeof checklistSchema>;
 
 export const damageSchema = z.object({
   // Vista del vehículo donde se marcó el daño.
-  view: z.enum(["front", "back", "left", "right", "top"]),
-  // Coordenadas normalizadas (0–100 % del viewBox de la vista).
-  x: z.number().min(0).max(100),
-  y: z.number().min(0).max(100),
+  view: z.enum(["front", "rear", "left", "right", "top"]),
+  // Coordenadas normalizadas (0.0–1.0 relativas a la imagen del vehículo).
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
   // Catálogo de daño (ids estables, migrables a tabla).
   damageTypeId: z.enum(["GOLPE", "ABOLLADURA", "RAYON", "ROTURA", "PINTURA"]),
   severity: z.enum(["LEVE", "MODERADO", "SEVERO"]).default("LEVE"),

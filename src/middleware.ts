@@ -59,7 +59,9 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname.endsWith(".svg") ||
+    pathname.startsWith("/reception/") ||
+    pathname.startsWith("/workshop/") ||
+    /\.(svg|png|jpe?g|webp|gif|ico)$/i.test(pathname) ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
     pathname.includes("opengraph-image") ||

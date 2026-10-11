@@ -1,19 +1,20 @@
 /**
  * Sección de daños / condición exterior del vehículo para impresión.
- * Muestra las 5 vistas con marcadores numerados y una tabla de detalle.
- * Pensado para ser legible en blanco y negro (no depende del color).
+ * Usa los MISMOS PNG y las MISMAS coordenadas normalizadas que la app.
+ * Marcadores numerados (número + letra), legibles en blanco y negro.
  */
 
-import {
-  SILHOUETTE_COMPONENTS,
-  VIEW_DIMENSIONS,
-  VIEW_LABELS,
-  type VehicleView,
-} from "@/components/vehicle-inspection/VehicleSilhouettes";
-import { DAMAGE_TYPES } from "@/lib/vehicle-damage/catalog";
+import { DAMAGE_TYPES, type VehicleView } from "@/lib/vehicle-damage/catalog";
+import { VEHICLE_IMAGES, VEHICLE_IMAGE_RATIO, toPercent } from "@/lib/vehicle-damage/images";
 import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
 
-const ALL_VIEWS: VehicleView[] = ["left", "right", "front", "back", "top"];
+const VIEW_LABELS: Record<VehicleView, string> = {
+  left: "Lateral izquierdo",
+  right: "Lateral derecho",
+  front: "Frontal",
+  rear: "Trasera",
+  top: "Superior",
+};
 
 type PrintDamage = ReceptionPrintData["damages"][number];
 
@@ -24,7 +25,7 @@ interface DamageInspectionPageProps {
   plate: string | null;
 }
 
-/** Una vista del vehículo con sus marcadores numerados. */
+/** Una vista del vehículo (PNG) con sus marcadores numerados. */
 function PrintView({
   view,
   damages,
@@ -32,45 +33,31 @@ function PrintView({
   view: VehicleView;
   damages: PrintDamage[];
 }) {
-  const dims = VIEW_DIMENSIONS[view];
-  const Silhouette = SILHOUETTE_COMPONENTS[view];
   const viewDamages = damages.filter((d) => d.view === view);
-
   return (
-    <div className="idoc-inspection-view">
+    <div className="idoc-insp-view">
+      <div className="idoc-insp-label">{VIEW_LABELS[view]}</div>
       <div
-        className="idoc-inspection-svg-wrap"
-        style={{ position: "relative", aspectRatio: `${dims.w} / ${dims.h}` }}
+        className="idoc-insp-img-wrap"
+        style={{ aspectRatio: String(VEHICLE_IMAGE_RATIO[view]) }}
       >
-        <Silhouette
-          className="idoc-inspection-silhouette"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={VEHICLE_IMAGES[view]} alt={VIEW_LABELS[view]} className="idoc-insp-img" />
         {viewDamages.map((d) => (
-          <div
+          <span
             key={d.number}
-            className="idoc-damage-marker"
-            style={{
-              position: "absolute",
-              left: `${d.x}%`,
-              top: `${d.y}%`,
-              transform: "translate(-50%, -50%)",
-            }}
+            className="idoc-insp-marker"
+            style={{ left: toPercent(d.x), top: toPercent(d.y) }}
           >
             {d.number}
-            <span className="idoc-damage-marker-letter">{d.typeLetter}</span>
-          </div>
+          </span>
         ))}
       </div>
-      <div className="idoc-inspection-view-label">{VIEW_LABELS[view]}</div>
     </div>
   );
 }
 
-export function DamageInspectionPage({
-  data,
-  orderNumber,
-}: DamageInspectionPageProps) {
+export function DamageInspectionPage({ data }: DamageInspectionPageProps) {
   const damages = data.damages;
 
   return (
@@ -83,17 +70,41 @@ export function DamageInspectionPage({
         </p>
       ) : (
         <>
-          {/* Diagramas: 3 arriba, 2 abajo */}
-          <div className="idoc-inspection-row-3">
-            <PrintView view="left" damages={damages} />
-            <PrintView view="right" damages={damages} />
+          {/* Laterales grandes (ancho completo) */}
+          <PrintView view="left" damages={damages} />
+          <PrintView view="right" damages={damages} />
+
+          {/* Frontal, trasera, superior — más pequeños */}
+          <div className="idoc-insp-row-3">
+            <PrintView view="front" damages={damages} />
+            <PrintView view="rear" damages={damages} />
             <PrintView view="top" damages={damages} />
           </div>
-          <div className="idoc-inspection-row-3">
-            <PrintView view="front" damages={damages} />
-            <PrintView view="back" damages={damages} />
-            <div className="idoc-inspection-legend">
-              <div className="idoc-inspection-legend-title">Leyenda</div>
+
+          {/* Detalle + leyenda */}
+          <div className="idoc-insp-detail">
+            <table className="idoc-table idoc-table--compact">
+              <thead>
+                <tr>
+                  <th className="num">#</th>
+                  <th>Pieza</th>
+                  <th>Daño</th>
+                  <th>Severidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {damages.map((d) => (
+                  <tr key={d.number}>
+                    <td className="num">{d.number} {d.typeLetter}</td>
+                    <td>{d.partLabel}</td>
+                    <td>{d.typeLabel}</td>
+                    <td>{d.severityLabel}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="idoc-insp-legend">
+              <div className="idoc-insp-legend-title">Tipo de daño</div>
               <ul>
                 {DAMAGE_TYPES.map((t) => (
                   <li key={t.id}>
@@ -103,30 +114,6 @@ export function DamageInspectionPage({
               </ul>
             </div>
           </div>
-
-          {/* Tabla de detalle */}
-          <table className="idoc-table idoc-table--compact" style={{ marginTop: 8 }}>
-            <thead>
-              <tr>
-                <th className="num">#</th>
-                <th>Área / Pieza</th>
-                <th>Tipo de daño</th>
-                <th>Severidad</th>
-              </tr>
-            </thead>
-            <tbody>
-              {damages.map((d) => (
-                <tr key={d.number}>
-                  <td className="num">
-                    {d.number} {d.typeLetter}
-                  </td>
-                  <td>{d.partLabel}</td>
-                  <td>{d.typeLabel}</td>
-                  <td>{d.severityLabel}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </>
       )}
     </div>

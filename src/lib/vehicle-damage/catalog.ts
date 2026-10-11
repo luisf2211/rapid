@@ -6,7 +6,8 @@
  * guardan en BD son strings estables.
  */
 
-import type { VehicleView } from "@/components/vehicle-inspection/VehicleSilhouettes";
+// Vista del vehículo (coincide con los nombres de los PNG en /public/reception).
+export type VehicleView = "left" | "right" | "front" | "rear" | "top";
 
 // ─── Tipos de daño ───────────────────────────────────────────────────────────
 export type DamageTypeId = "GOLPE" | "ABOLLADURA" | "RAYON" | "ROTURA" | "PINTURA";
@@ -60,85 +61,40 @@ export function severityLabel(id: string | null | undefined): string {
 
 // ─── Vistas del vehículo ──────────────────────────────────────────────────────
 export const VEHICLE_VIEWS: { id: VehicleView; label: string }[] = [
-  { id: "left", label: "Lateral izq." },
-  { id: "right", label: "Lateral der." },
-  { id: "front", label: "Frontal" },
-  { id: "back", label: "Trasera" },
+  { id: "left", label: "Izquierda" },
+  { id: "right", label: "Derecha" },
+  { id: "front", label: "Frente" },
+  { id: "rear", label: "Atrás" },
   { id: "top", label: "Superior" },
 ];
 
-// ─── Piezas / regiones del vehículo ───────────────────────────────────────────
-// Regiones rectangulares normalizadas (x,y,w,h en 0–100 del viewBox de la vista).
-// Permiten autodetectar la pieza al tocar. Son parametrizables: ampliar o ajustar
-// aquí sin tocar la UI. El `id` es estable para persistirse.
-export type VehiclePart = {
-  id: string;
-  label: string;
-  /** Región aproximada [x, y, w, h] en % para autodetección por toque. */
-  region: [number, number, number, number];
-};
+// ─── Piezas del vehículo (catálogo plano) ─────────────────────────────────────
+// El usuario elige la pieza manualmente tras tocar. Ids estables para persistir.
+// Parametrizable: ampliar aquí sin tocar la UI. Diseñado para que una futura
+// detección automática pueda rellenar vehiclePartId sin cambiar el modelo.
+export type VehiclePart = { id: string; label: string };
 
-export const VEHICLE_PARTS_BY_VIEW: Record<VehicleView, VehiclePart[]> = {
-  left: [
-    { id: "front_bumper_l", label: "Bumper delantero", region: [0, 35, 15, 45] },
-    { id: "front_fender_l", label: "Guardalodo del. izq.", region: [15, 30, 15, 50] },
-    { id: "front_door_l", label: "Puerta del. izq.", region: [30, 25, 20, 55] },
-    { id: "rear_door_l", label: "Puerta tras. izq.", region: [50, 25, 20, 55] },
-    { id: "rear_fender_l", label: "Guardalodo tras. izq.", region: [70, 30, 15, 50] },
-    { id: "rear_bumper_l", label: "Bumper trasero", region: [85, 35, 15, 45] },
-    { id: "roof_l", label: "Techo", region: [28, 5, 44, 20] },
-  ],
-  right: [
-    { id: "rear_bumper_r", label: "Bumper trasero", region: [0, 35, 15, 45] },
-    { id: "rear_fender_r", label: "Guardalodo tras. der.", region: [15, 30, 15, 50] },
-    { id: "rear_door_r", label: "Puerta tras. der.", region: [30, 25, 20, 55] },
-    { id: "front_door_r", label: "Puerta del. der.", region: [50, 25, 20, 55] },
-    { id: "front_fender_r", label: "Guardalodo del. der.", region: [70, 30, 15, 50] },
-    { id: "front_bumper_r", label: "Bumper delantero", region: [85, 35, 15, 45] },
-    { id: "roof_r", label: "Techo", region: [28, 5, 44, 20] },
-  ],
-  front: [
-    { id: "hood", label: "Bonete / Capó", region: [20, 10, 60, 30] },
-    { id: "front_bumper", label: "Bumper delantero", region: [15, 60, 70, 30] },
-    { id: "windshield", label: "Parabrisas", region: [25, 40, 50, 20] },
-    { id: "headlight_l", label: "Faro izquierdo", region: [8, 45, 15, 20] },
-    { id: "headlight_r", label: "Faro derecho", region: [77, 45, 15, 20] },
-  ],
-  back: [
-    { id: "trunk", label: "Baúl / Tapa trasera", region: [20, 15, 60, 30] },
-    { id: "rear_bumper", label: "Bumper trasero", region: [15, 60, 70, 30] },
-    { id: "rear_glass", label: "Cristal trasero", region: [25, 40, 50, 20] },
-    { id: "taillight_l", label: "Stop izquierdo", region: [8, 45, 15, 20] },
-    { id: "taillight_r", label: "Stop derecho", region: [77, 45, 15, 20] },
-  ],
-  top: [
-    { id: "hood_top", label: "Bonete", region: [25, 5, 50, 22] },
-    { id: "roof_top", label: "Techo", region: [25, 30, 50, 40] },
-    { id: "trunk_top", label: "Baúl", region: [25, 73, 50, 22] },
-  ],
-};
-
-/** Autodetecta la pieza tocada en una vista a partir de coords normalizadas. */
-export function detectPart(
-  view: VehicleView,
-  x: number,
-  y: number,
-): VehiclePart | null {
-  const parts = VEHICLE_PARTS_BY_VIEW[view] ?? [];
-  for (const p of parts) {
-    const [rx, ry, rw, rh] = p.region;
-    if (x >= rx && x <= rx + rw && y >= ry && y <= ry + rh) return p;
-  }
-  // Si no cae en ninguna región, devuelve la primera como fallback editable.
-  return parts[0] ?? null;
-}
-
-export function allPartsFlat(): VehiclePart[] {
-  return Object.values(VEHICLE_PARTS_BY_VIEW).flat();
-}
+export const VEHICLE_PARTS: VehiclePart[] = [
+  { id: "front_bumper", label: "Bumper delantero" },
+  { id: "hood", label: "Capó / Bonete" },
+  { id: "front_fender_l", label: "Guardalodo del. izq." },
+  { id: "front_fender_r", label: "Guardalodo del. der." },
+  { id: "front_door_l", label: "Puerta del. izq." },
+  { id: "front_door_r", label: "Puerta del. der." },
+  { id: "rear_door_l", label: "Puerta tras. izq." },
+  { id: "rear_door_r", label: "Puerta tras. der." },
+  { id: "rocker_l", label: "Faldón izquierdo" },
+  { id: "rocker_r", label: "Faldón derecho" },
+  { id: "quarter_l", label: "Cuarto trasero izq." },
+  { id: "quarter_r", label: "Cuarto trasero der." },
+  { id: "roof", label: "Techo" },
+  { id: "trunk", label: "Baúl" },
+  { id: "rear_bumper", label: "Bumper trasero" },
+  { id: "other", label: "Otro" },
+];
 
 export function partLabelById(id: string | null | undefined): string {
   if (!id) return "—";
-  const found = allPartsFlat().find((p) => p.id === id);
+  const found = VEHICLE_PARTS.find((p) => p.id === id);
   return found?.label ?? id;
 }
