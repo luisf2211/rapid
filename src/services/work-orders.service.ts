@@ -9,7 +9,6 @@ const WORK_ORDER_STATUSES_COMPLETE_ON_PAID = [
 ] as const;
 import { checklistFieldToDbItemName } from "@/lib/checklist";
 import { requireCompanyIdFromSession, companyWhere } from "@/lib/auth/tenant";
-import { zoneName } from "@/lib/vehicle-zones";
 import { mileageValueToStore } from "@/lib/work-order/mileage";
 import type { WorkOrderInput } from "@/lib/validations/work-order";
 
@@ -78,7 +77,7 @@ export async function getWorkOrderById(id: number) {
         orderBy: { id: "asc" },
         include: { checklist: true },
       },
-      damages: { orderBy: { id: "asc" } },
+      damages: { orderBy: { id: "asc" }, include: { photos: true } },
       photos: { orderBy: { id: "asc" } },
       materialRequisitions: {
         include: { items: true },
@@ -120,7 +119,7 @@ export async function getWorkOrderForReceptionPrint(id: number) {
         orderBy: { id: "asc" },
         include: { checklist: true },
       },
-      damages: { orderBy: { id: "asc" } },
+      damages: { orderBy: { id: "asc" }, include: { photos: true } },
       photos: { orderBy: { id: "asc" } },
       quotation: {
         select: { quotationNumber: true, quotationType: true },
@@ -148,16 +147,22 @@ function buildChecklistRows(input: WorkOrderInput) {
 
 function mapDamages(input: WorkOrderInput) {
   return input.damages.map((d) => ({
-    vehicleSide: d.vehicleSide,
-    damageType: d.damageType,
-    description: d.description || null,
-    zoneNumber: d.zoneNumber ?? null,
-    // Nombre de la zona congelado al guardar (desnormalizado): resiliente a
-    // futuros cambios del catálogo de zonas. Derivado en el servidor, no del cliente.
-    PartName: d.zoneNumber != null ? zoneName(d.zoneNumber) : null,
-    // positionX/Y quedan solo como legacy: no se escriben para daños con zona.
-    positionX: d.zoneNumber != null ? null : d.positionX ?? null,
-    positionY: d.zoneNumber != null ? null : d.positionY ?? null,
+    // Vista persistida como VehicleSide (uppercase) por compatibilidad con el schema.
+    vehicleSide: d.view.toUpperCase(),
+    // Tipo de daño del catálogo nuevo (GOLPE/ABOLLADURA/...).
+    damageType: d.damageTypeId,
+    severity: d.severity,
+    vehiclePartId: d.vehiclePartId || null,
+    PartName: d.partName || null,
+    description: d.observations || null,
+    // Coordenadas normalizadas 0–100.
+    positionX: d.x,
+    positionY: d.y,
+    // Fotos por daño (nested create).
+    photos:
+      d.photos && d.photos.length > 0
+        ? { create: d.photos.map((photoUrl) => ({ photoUrl })) }
+        : undefined,
   }));
 }
 

@@ -5,7 +5,6 @@ import { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
 import { getWorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { buildReceptionPrintData } from "@/lib/work-order/reception-print-data";
 import { ReceptionOrderDocument } from "@/components/work-order/print/ReceptionOrderDocument";
-import { DamageInspectionPage } from "@/components/work-order/print/DamageInspectionPage";
 import { PrintToolbar } from "@/components/quotation/print/PrintToolbar";
 
 export const dynamic = "force-dynamic";
@@ -40,14 +39,6 @@ export default async function WorkOrderReceptionPrintPage({
       />
       <div style={{ padding: "16px", "--brand-color": brandColor } as React.CSSProperties}>
         <ReceptionOrderDocument data={data} workshop={workshop} />
-        {data.damages.length > 0 && (
-          <DamageInspectionPage
-            data={data}
-            orderNumber={data.docNumber}
-            customerName={data.customerName}
-            plate={data.plate}
-          />
-        )}
       </div>
     </>
   );

@@ -254,47 +254,29 @@
 }
 
 
-/* ─── Página de inspección de daños (hoja separada) ────────────────────────── */
+/* ─── Daños / condición exterior (en página 1) ─────────────────────────────── */
 
-.idoc-inspection-page {
-  page-break-before: always;
-  break-before: page;
-  padding-top: 8px;
+.idoc-inspection-block {
+  margin-top: 10px;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
-.idoc-inspection-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  border-bottom: 1.5px solid #000;
-  padding-bottom: 4px;
-  margin-bottom: 10px;
-}
-
-.idoc-inspection-header-title {
-  font-size: 11pt;
-  font-weight: 700;
-  color: #000;
-}
-
-.idoc-inspection-header-meta {
+.idoc-inspection-empty {
   font-size: 9pt;
-  color: #000;
+  font-style: italic;
+  color: #333;
+  border: 0.5px dashed #999;
+  border-radius: 3px;
+  padding: 8px 10px;
+  margin-top: 4px;
 }
 
-/* Fila de 3 vistas (Frente, Atrás, Techo) */
+/* Fila de 3 vistas */
 .idoc-inspection-row-3 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 4mm;
-  margin-bottom: 4mm;
-}
-
-/* Fila de vistas de ancho completo (Izquierda, Derecha) */
-.idoc-inspection-row-full {
-  display: flex;
-  flex-direction: column;
-  gap: 3mm;
   margin-bottom: 4mm;
 }
 
@@ -326,13 +308,70 @@
   letter-spacing: 0.3px;
 }
 
-@media print {
-  .idoc-inspection-page {
-    page-break-before: always;
-  }
+/* Marcador numerado — negro, legible en blanco y negro */
+.idoc-damage-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  font-size: 8pt;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 1px #000;
+}
 
+.idoc-damage-marker-letter {
+  font-size: 5pt;
+  font-weight: 700;
+  margin-left: 1px;
+}
+
+/* Leyenda */
+.idoc-inspection-legend {
+  border: 0.5px solid #ccc;
+  border-radius: 2px;
+  padding: 6px 8px;
+}
+
+.idoc-inspection-legend-title {
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 3px;
+}
+
+.idoc-inspection-legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 8pt;
+  line-height: 1.5;
+}
+
+/* Página 2: condiciones legales y firmas */
+.idoc-page-2 {
+  page-break-before: always;
+  break-before: page;
+}
+
+@media print {
+  .idoc-inspection-block,
   .idoc-inspection-svg-wrap {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .idoc-damage-marker {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .idoc-page-2 {
+    page-break-before: always;
   }
 }

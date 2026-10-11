@@ -20,26 +20,13 @@ import { TextAreaInput } from "@/components/forms/TextAreaInput";
 import { ChecklistGrid } from "@/components/forms/ChecklistGrid";
 import { PhotoUploadList } from "@/components/forms/PhotoUploadList";
 import { SignaturePad } from "@/components/forms/SignaturePad";
-import { VehicleInspectionDiagram, type VehicleAnnotation } from "@/components/vehicle-inspection";
+import { VehicleDamageInspector } from "@/components/work-order/VehicleDamageInspector";
 import { LEGACY_CHECKLIST_ITEMS } from "@/lib/constants";
 import {
   createWorkOrderAction,
   updateWorkOrderAction,
 } from "@/app/(app)/work-orders/actions";
 import { useWorkOrderDraft } from "@/lib/work-order/use-work-order-draft";
-
-/** Maps annotation tool to the closest damage type for backward compat */
-function toolToDamageType(tool: string): DamageInput["damageType"] {
-  switch (tool) {
-    case "scratch": return "SCRATCH";
-    case "circle": return "DENT";
-    case "crack": return "BROKEN";
-    case "crossMark": return "OTHER";
-    case "arrow": return "OTHER";
-    case "text": return "OTHER";
-    default: return "OTHER";
-  }
-}
 
 interface Props {
   mode: "create" | "edit";
@@ -360,21 +347,36 @@ export function WorkOrderForm({
         </div>
       </section>
 
-      <section className="card p-5">
+      {/* Daños del vehículo */}
+      <section id="daños" className="card p-5">
         <SectionHeader
-          title="Firma del cliente"
-          subtitle="El cliente firma digitalmente conforme con la recepción del vehículo"
+          title="Daños del vehículo"
+          subtitle="Elige el tipo de daño y toca sobre el vehículo para marcarlo"
         />
         <Controller
           control={control}
-          name="customerReceivedSignature"
+          name="damages"
           render={({ field }) => (
-            <SignaturePad
-              value={field.value ?? ""}
+            <VehicleDamageInspector
+              value={(field.value ?? []) as DamageInput[]}
               onChange={field.onChange}
-              error={errors.customerReceivedSignature?.message}
             />
           )}
+        />
+      </section>
+
+      {/* Fotografías generales */}
+      <section id="fotos" className="card p-5">
+        <SectionHeader
+          title="Fotografías generales"
+          subtitle="Fotos generales del vehículo al momento de la recepción."
+        />
+        <PhotoUploadList
+          control={control}
+          fields={photosArray.fields}
+          append={photosArray.append}
+          remove={photosArray.remove}
+          errors={errors}
         />
       </section>
 
@@ -387,65 +389,22 @@ export function WorkOrderForm({
         <ChecklistGrid control={control} legacyFields={legacyChecklistFields} />
       </section>
 
-      {/* Daños */}
-      <section id="daños" className="card p-5">
+      {/* Firma del cliente */}
+      <section className="card p-5">
         <SectionHeader
-          title="Daños del vehículo"
-          subtitle="Selecciona una herramienta y toca sobre el vehículo para marcar daños"
+          title="Firma del cliente"
+          subtitle="El cliente firma digitalmente conforme con la recepción del vehículo y los daños señalados"
         />
         <Controller
           control={control}
-          name="damages"
-          render={({ field }) => {
-            // Map form damages to annotations
-            const annotations: VehicleAnnotation[] = (field.value ?? []).map((d: DamageInput, i: number) => ({
-              id: `damage_${i}`,
-              view: (d.vehicleSide?.toLowerCase() ?? "left") as VehicleAnnotation["view"],
-              tool: (d.annotationTool ?? "crossMark") as VehicleAnnotation["tool"],
-              x: d.positionX ?? 50,
-              y: d.positionY ?? 50,
-              x2: d.positionX2,
-              y2: d.positionY2,
-              text: d.description || undefined,
-              number: i + 1,
-            }));
-
-            const handleChange = (newAnnotations: VehicleAnnotation[]) => {
-              const damages: DamageInput[] = newAnnotations.map((ann) => ({
-                vehicleSide: ann.view.toUpperCase() as DamageInput["vehicleSide"],
-                annotationTool: ann.tool,
-                damageType: toolToDamageType(ann.tool),
-                positionX: ann.x,
-                positionY: ann.y,
-                positionX2: ann.x2,
-                positionY2: ann.y2,
-                description: ann.text || "",
-              }));
-              field.onChange(damages);
-            };
-
-            return (
-              <VehicleInspectionDiagram
-                annotations={annotations}
-                onChange={handleChange}
-              />
-            );
-          }}
-        />
-      </section>
-
-      {/* Fotos */}
-      <section id="fotos" className="card p-5">
-        <SectionHeader
-          title="Fotografías"
-          subtitle="Carga imágenes desde tu dispositivo. Se guardan en el servidor local del taller."
-        />
-        <PhotoUploadList
-          control={control}
-          fields={photosArray.fields}
-          append={photosArray.append}
-          remove={photosArray.remove}
-          errors={errors}
+          name="customerReceivedSignature"
+          render={({ field }) => (
+            <SignaturePad
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              error={errors.customerReceivedSignature?.message}
+            />
+          )}
         />
       </section>
 

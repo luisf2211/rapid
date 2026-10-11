@@ -35,15 +35,19 @@ export const checklistSchema = z.object(checklistShape);
 export type ChecklistInput = z.infer<typeof checklistSchema>;
 
 export const damageSchema = z.object({
-  vehicleSide: z.enum(["FRONT", "BACK", "LEFT", "RIGHT", "TOP"]),
-  damageType: z.enum(["SCRATCH", "DENT", "PAINT_DAMAGE", "BROKEN", "OTHER"]).optional(),
-  annotationTool: z.enum(["crossMark", "circle", "scratch", "arrow", "crack", "text"]).optional(),
-  description: z.string().max(250).optional().or(z.literal("")),
-  zoneNumber: z.number().int().positive().optional(),
-  positionX: z.number().min(0).max(100).optional(),
-  positionY: z.number().min(0).max(100).optional(),
-  positionX2: z.number().min(0).max(100).optional(),
-  positionY2: z.number().min(0).max(100).optional(),
+  // Vista del vehículo donde se marcó el daño.
+  view: z.enum(["front", "back", "left", "right", "top"]),
+  // Coordenadas normalizadas (0–100 % del viewBox de la vista).
+  x: z.number().min(0).max(100),
+  y: z.number().min(0).max(100),
+  // Catálogo de daño (ids estables, migrables a tabla).
+  damageTypeId: z.enum(["GOLPE", "ABOLLADURA", "RAYON", "ROTURA", "PINTURA"]),
+  severity: z.enum(["LEVE", "MODERADO", "SEVERO"]).default("LEVE"),
+  vehiclePartId: z.string().max(60).optional().or(z.literal("")),
+  partName: z.string().max(150).optional().or(z.literal("")),
+  observations: z.string().max(250).optional().or(z.literal("")),
+  // Fotos del daño (URLs ya subidas a /api/upload).
+  photos: z.array(z.string().max(500)).max(8).default([]),
 });
 
 export type DamageInput = z.infer<typeof damageSchema>;

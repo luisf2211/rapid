@@ -1,23 +1,42 @@
 import { checklistDisplayItems, checklistRowsToDetails } from "@/lib/checklist";
-import {
-  DAMAGE_SIDES,
-  DAMAGE_TYPES,
-  PHOTO_TYPES,
-  WORK_ORDER_STATUS_LABELS,
-} from "@/lib/constants";
+import { PHOTO_TYPES, WORK_ORDER_STATUS_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/formatters/date";
 import { formatMileage } from "@/lib/work-order/mileage";
-import { VEHICLE_ZONE_MAP } from "@/lib/vehicle-zones";
+import {
+  DAMAGE_TYPE_BY_ID,
+  damageTypeLabel,
+  damageTypeLetter,
+  severityLabel,
+  partLabelById,
+} from "@/lib/vehicle-damage/catalog";
+import type { VehicleView } from "@/components/vehicle-inspection/VehicleSilhouettes";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import type { getWorkOrderForReceptionPrint } from "@/services/work-orders.service";
 
-const sideMap = Object.fromEntries(DAMAGE_SIDES.map((s) => [s.value, s.label]));
-const damageTypeMap = Object.fromEntries(
-  DAMAGE_TYPES.map((d) => [d.value, d.label]),
-);
 const photoTypeMap = Object.fromEntries(
   PHOTO_TYPES.map((p) => [p.value, p.label]),
 );
+
+function normalizeView(value: string | null | undefined): VehicleView {
+  const v = (value ?? "").toLowerCase();
+  if (v === "front" || v === "back" || v === "left" || v === "right" || v === "top") {
+    return v;
+  }
+  return "left";
+}
+
+/** Traduce tipo legacy (SCRATCH/DENT/...) o id nuevo al id del catálogo. */
+function normalizeDamageTypeId(value: string | null | undefined): string {
+  const v = (value ?? "").toUpperCase();
+  if (DAMAGE_TYPE_BY_ID[v]) return v;
+  switch (v) {
+    case "SCRATCH": return "RAYON";
+    case "DENT": return "ABOLLADURA";
+    case "BROKEN": return "ROTURA";
+    case "PAINT_DAMAGE": return "PINTURA";
+    default: return "GOLPE";
+  }
+}
 
 function formatTime(value: Date | null | undefined): string {
   if (!value) return "";
@@ -74,17 +93,16 @@ export type ReceptionPrintData = {
   }[];
   checklistSummary: string;
   damages: {
-    zone: number | null;
-    zoneName: string | null;
-    side: string;
-    type: string;
-    description: string;
-    hasMarker: boolean;
-    annotationTool: string | null;
-    positionX: number | null;
-    positionY: number | null;
-    positionX2: number | null;
-    positionY2: number | null;
+    number: number;
+    view: VehicleView;
+    x: number;
+    y: number;
+    damageTypeId: string;
+    typeLabel: string;
+    typeLetter: string;
+    severityLabel: string;
+    partLabel: string;
+    observations: string;
   }[];
   photos: { url: string; label: string; description: string | null }[];
 };
@@ -149,21 +167,19 @@ export function buildReceptionPrintData(
     observations: reception?.observations ?? null,
     checklist,
     checklistSummary: `${checkedCount} de ${checklist.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
-    damages: order.damages.map((d) => {
-      const zone = d.zoneNumber ?? null;
-      const zoneDef = zone != null ? VEHICLE_ZONE_MAP[zone] : null;
+    damages: order.damages.map((d, i) => {
+      const typeId = normalizeDamageTypeId(d.damageType);
       return {
-        zone,
-        zoneName: zoneDef?.name ?? d.PartName ?? null,
-        side: d.vehicleSide ? sideMap[d.vehicleSide] ?? d.vehicleSide : "—",
-        type: d.damageType ? damageTypeMap[d.damageType] ?? d.damageType : "—",
-        description: d.description ?? "—",
-        hasMarker: zoneDef != null || d.positionX != null,
-        annotationTool: (d as Record<string, unknown>).annotationTool as string | null ?? null,
-        positionX: d.positionX != null ? Number(d.positionX) : null,
-        positionY: d.positionY != null ? Number(d.positionY) : null,
-        positionX2: (d as Record<string, unknown>).positionX2 != null ? Number((d as Record<string, unknown>).positionX2) : null,
-        positionY2: (d as Record<string, unknown>).positionY2 != null ? Number((d as Record<string, unknown>).positionY2) : null,
+        number: i + 1,
+        view: normalizeView(d.vehicleSide),
+        x: d.positionX != null ? Number(d.positionX) : 50,
+        y: d.positionY != null ? Number(d.positionY) : 50,
+        damageTypeId: typeId,
+        typeLabel: damageTypeLabel(typeId),
+        typeLetter: damageTypeLetter(typeId),
+        severityLabel: severityLabel(d.severity),
+        partLabel: d.PartName || partLabelById(d.vehiclePartId) || "—",
+        observations: d.description ?? "",
       };
     }),
     photos: order.photos.map((p) => ({

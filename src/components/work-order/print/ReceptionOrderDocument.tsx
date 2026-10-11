@@ -2,6 +2,7 @@ import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
 import { InvoicePrintFooter } from "@/components/invoice/print/InvoicePrintFooter";
 import { PrintWorkshopReceiverSignature } from "@/components/print/PrintWorkshopReceiverSignature";
+import { DamageInspectionPage } from "@/components/work-order/print/DamageInspectionPage";
 import { resolvePhotoUrl } from "@/lib/photos";
 
 function field(label: string, value: string | null | undefined) {
@@ -114,6 +115,14 @@ export function ReceptionOrderDocument({
         </div>
       )}
 
+      {/* Daños / condición exterior — en página 1, antes del checklist */}
+      <DamageInspectionPage
+        data={data}
+        orderNumber={data.docNumber}
+        customerName={data.customerName}
+        plate={data.plate}
+      />
+
       <h3 className="idoc-section-title">
         Checklist de recepción
         <span style={{ fontWeight: 400, marginLeft: 8, textTransform: "none" }}>
@@ -139,13 +148,7 @@ export function ReceptionOrderDocument({
         ))}
       </div>
 
-      {data.damages.length > 0 && (
-        <p className="idoc-damage-note" style={{ fontSize: "8pt", marginTop: 8, fontStyle: "italic" }}>
-          Ver hoja adjunta de inspección de daños ({data.damages.length} señalado{data.damages.length > 1 ? "s" : ""}).
-        </p>
-      )}
-
-      <div className="idoc-legal-section">
+      <div className="idoc-legal-section idoc-page-2">
         <h3 className="idoc-section-title">Condiciones legales y garantías del servicio</h3>
         <ol className="idoc-legal-list">
           <li>El cliente declara ser propietario del vehículo o estar debidamente autorizado para solicitar los servicios objeto de esta orden de trabajo.</li>

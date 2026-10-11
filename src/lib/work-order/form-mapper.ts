@@ -35,6 +35,47 @@ function normalizePhotoType(value: string | null | undefined): PhotoInput["photo
   return "RECEPTION";
 }
 
+type DamageView = "front" | "back" | "left" | "right" | "top";
+type DamageTypeId = "GOLPE" | "ABOLLADURA" | "RAYON" | "ROTURA" | "PINTURA";
+type SeverityId = "LEVE" | "MODERADO" | "SEVERO";
+
+/** Normaliza la vista guardada (uppercase o lowercase) al id del diagrama. */
+function normalizeView(value: string | null | undefined): DamageView {
+  const v = (value ?? "").toLowerCase();
+  if (v === "front" || v === "back" || v === "left" || v === "right" || v === "top") {
+    return v;
+  }
+  return "left";
+}
+
+/** Traduce el tipo de daño (nuevo id o enum legacy) al catálogo actual. */
+function normalizeDamageTypeId(value: string | null | undefined): DamageTypeId {
+  const v = (value ?? "").toUpperCase();
+  // Ids nuevos
+  if (v === "GOLPE" || v === "ABOLLADURA" || v === "RAYON" || v === "ROTURA" || v === "PINTURA") {
+    return v as DamageTypeId;
+  }
+  // Enums legacy
+  switch (v) {
+    case "SCRATCH":
+      return "RAYON";
+    case "DENT":
+      return "ABOLLADURA";
+    case "BROKEN":
+      return "ROTURA";
+    case "PAINT_DAMAGE":
+      return "PINTURA";
+    default:
+      return "GOLPE";
+  }
+}
+
+function normalizeSeverity(value: string | null | undefined): SeverityId {
+  const v = (value ?? "").toUpperCase();
+  if (v === "LEVE" || v === "MODERADO" || v === "SEVERO") return v as SeverityId;
+  return "LEVE";
+}
+
 export function makeDefaultWorkOrderFormValues(): WorkOrderFormValues {
   return {
     customerName: "",
@@ -117,22 +158,15 @@ export function workOrderToFormValues(order: WorkOrderDetail): WorkOrderFormValu
     notes: order.notes ?? "",
     checklist,
     damages: order.damages.map((d) => ({
-      vehicleSide: (d.vehicleSide ?? "FRONT") as
-        | "FRONT"
-        | "BACK"
-        | "LEFT"
-        | "RIGHT"
-        | "TOP",
-      damageType: (d.damageType ?? "OTHER") as
-        | "SCRATCH"
-        | "DENT"
-        | "PAINT_DAMAGE"
-        | "BROKEN"
-        | "OTHER",
-      description: d.description ?? "",
-      zoneNumber: d.zoneNumber ?? undefined,
-      positionX: toPlainNumber(d.positionX) ?? undefined,
-      positionY: toPlainNumber(d.positionY) ?? undefined,
+      view: normalizeView(d.vehicleSide),
+      x: toPlainNumber(d.positionX) ?? 50,
+      y: toPlainNumber(d.positionY) ?? 50,
+      damageTypeId: normalizeDamageTypeId(d.damageType),
+      severity: normalizeSeverity(d.severity),
+      vehiclePartId: d.vehiclePartId ?? "",
+      partName: d.PartName ?? "",
+      observations: d.description ?? "",
+      photos: (d.photos ?? []).map((p) => p.photoUrl),
     })),
     photos: order.photos.map((p) => ({
       photoUrl: p.photoUrl,

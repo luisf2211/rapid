@@ -8,7 +8,7 @@ import type {
 } from "@/lib/validations/work-order";
 
 /** Subir la versión invalida los borradores guardados con una forma anterior. */
-const DRAFT_VERSION = 2;
+const DRAFT_VERSION = 3;
 const DRAFT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const SAVE_DEBOUNCE_MS = 800;
 
