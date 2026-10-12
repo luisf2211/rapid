@@ -175,6 +175,8 @@ model WorkOrderReception {
   customerReceivedSignature String?                       @map("CustomerReceivedSignature") @db.VarChar(500)
   receivedBy                String?                       @map("ReceivedBy") @db.VarChar(150)
   deliveredBy               String?                       @map("DeliveredBy") @db.VarChar(150)
+  termsVersion              Int?                          @map("TermsVersion")
+  termsAcceptedAt           DateTime?                     @map("TermsAcceptedAt")
   createdAt                 DateTime?                     @default(now()) @map("CreatedAt")
   workOrder                 WorkOrder                     @relation(fields: [workOrderId], references: [id], onUpdate: NoAction, map: "FK_WorkOrderReception_WorkOrder")
   checklist                 WorkOrderReceptionChecklist[]
@@ -579,6 +581,9 @@ model WorkshopSettings {
   updatedBy       String?   @map("UpdatedBy") @db.VarChar(150)
   stampUrl        String?   @map("StampUrl") @db.VarChar(500)
   brandColor      String?   @map("BrandColor") @db.VarChar(7)
+  termsContent    String?   @map("TermsContent")
+  termsVersion    Int       @default(1) @map("TermsVersion")
+  termsUpdatedAt  DateTime? @map("TermsUpdatedAt")
   company         Company?  @relation(fields: [CompanyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_WorkshopSettings_Company")
 
   @@map("WorkshopSettings")

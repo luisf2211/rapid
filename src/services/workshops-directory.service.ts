@@ -228,6 +228,44 @@ export async function getWorkshopOnboarding(
   };
 }
 
+export type PublicTerms = {
+  workshopName: string;
+  version: number;
+  updatedAt: Date | null;
+  paragraphs: string[];
+};
+
+/** Términos y condiciones públicos de un taller por slug (sin sesión). */
+export async function getPublicTerms(slug: string): Promise<PublicTerms | null> {
+  const c = await prisma.company.findFirst({
+    where: { slug: slug.trim().toLowerCase(), isActive: true },
+    select: {
+      name: true,
+      workshopSettings: {
+        select: {
+          businessName: true,
+          termsContent: true,
+          termsVersion: true,
+          termsUpdatedAt: true,
+        },
+        take: 1,
+      },
+    },
+  });
+  if (!c) return null;
+
+  const { resolveTerms, DEFAULT_TERMS_VERSION } = await import(
+    "@/lib/workshop/default-terms"
+  );
+  const s = c.workshopSettings[0];
+  return {
+    workshopName: s?.businessName?.trim() || c.name,
+    version: s?.termsVersion ?? DEFAULT_TERMS_VERSION,
+    updatedAt: s?.termsUpdatedAt ?? null,
+    paragraphs: resolveTerms(s?.termsContent),
+  };
+}
+
 /** Slugs de talleres aprobados (para generateStaticParams / sitemap). */
 export async function listApprovedWorkshopSlugs(): Promise<string[]> {
   const rows = await prisma.company.findMany({

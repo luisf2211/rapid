@@ -80,6 +80,7 @@ export type ReceptionPrintData = {
   vehicleYear: number | null;
   color: string | null;
   plate: string | null;
+  vin: string | null;
   mileage: string | null;
   engine: string | null;
   quotationRef: string | null;
@@ -97,6 +98,8 @@ export type ReceptionPrintData = {
     comment: string | null;
   }[];
   checklistSummary: string;
+  checklistChecked: number;
+  checklistTotal: number;
   damages: {
     number: number;
     view: VehicleView;
@@ -151,6 +154,7 @@ export function buildReceptionPrintData(
     vehicleYear: order.vehicleYear,
     color: order.color,
     plate: order.plate,
+    vin: order.Vin ?? null,
     mileage: formatMileage(order.mileage, order.mileageUnit),
     engine: order.engine,
     quotationRef,
@@ -171,6 +175,8 @@ export function buildReceptionPrintData(
     requestedDamages: reception?.requestedDamages ?? null,
     observations: reception?.observations ?? null,
     checklist,
+    checklistChecked: checkedCount,
+    checklistTotal: checklist.length,
     checklistSummary: `${checkedCount} de ${checklist.length} verificados${commentCount > 0 ? ` · ${commentCount} con comentario` : ""}`,
     damages: order.damages.map((d, i) => {
       const typeId = normalizeDamageTypeId(d.damageType);

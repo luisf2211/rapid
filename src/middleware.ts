@@ -16,6 +16,8 @@ const PUBLIC_PATHS = [
   "/registrar-taller",
   "/talleres",
   "/servicios",
+  // Condiciones públicas del taller (destino del QR en la orden impresa)
+  "/terminos",
   "/api/public",
   "/api/upload",
 ];

@@ -1,381 +1,499 @@
-/* Hoja de orden de recepción — blanco y negro (comparte base .idoc con factura) */
+/* ════════════════════════════════════════════════════════════════════════
+   ORDEN DE RECEPCIÓN — documento compacto A4 (una página)
+   Diseñado para impresión: líneas finas, denso, legible en blanco y negro.
+   ════════════════════════════════════════════════════════════════════════ */
 
-.idoc-checklist-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 3px;
-  font-size: 7pt;
-  margin-bottom: 8px;
+@page {
+  size: A4 portrait;
+  margin: 6mm 7mm;
 }
 
-.idoc-check-item {
-  border: 1px solid #000;
-  padding: 2px 4px;
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
-  min-height: 22px;
+.rdoc {
+  font-family: Arial, Helvetica, sans-serif;
   color: #000;
+  font-size: 8pt;
+  line-height: 1.3;
+  max-width: 196mm;
+  margin: 0 auto;
 }
 
-.idoc-check-box {
-  width: 10px;
-  height: 10px;
-  border: 1px solid #000;
+.rdoc * {
+  box-sizing: border-box;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.rdoc-header {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 6mm;
+  border-bottom: 1.5px solid #000;
+  padding-bottom: 3mm;
+  margin-bottom: 3mm;
+  break-inside: avoid;
+}
+
+.rdoc-header-left {
+  display: flex;
+  gap: 3mm;
+  align-items: flex-start;
+}
+
+.rdoc-logo,
+.rdoc-logo-mark {
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
-  margin-top: 1px;
+  object-fit: contain;
+}
+
+.rdoc-logo-mark {
+  background: #0a0d0c;
+  color: #fff;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 8px;
-  font-weight: 700;
-}
-
-.idoc-check-box.on {
-  background: #000;
-  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 
-.idoc-check-label {
-  flex: 1;
-  line-height: 1.25;
-  color: #000;
-  font-weight: 600;
+.rdoc-brand-name {
+  font-size: 14pt;
+  font-weight: 800;
+  line-height: 1.1;
 }
 
-.idoc-check-comment {
+.rdoc-brand-tag {
   font-size: 7pt;
-  color: #000;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #333;
+  margin-top: 1px;
+}
+
+.rdoc-brand-meta {
+  font-size: 7pt;
+  color: #444;
   margin-top: 2px;
-  font-style: italic;
+  line-height: 1.35;
 }
 
-.idoc-photos {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin: 8px 0 12px;
+.rdoc-header-right {
+  text-align: right;
 }
 
-.idoc-photo {
+.rdoc-doc-title {
+  font-size: 13pt;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.rdoc-doc-number {
+  font-size: 10pt;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.rdoc-status {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 8px;
   border: 1px solid #000;
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  background: #f5f5f5;
+  border-radius: 10px;
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.idoc-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(100%);
-}
-
-.idoc-photo-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8pt;
-  color: #666;
-}
-
-.idoc-text-block {
-  font-size: 9pt;
-  white-space: pre-wrap;
-  margin: 0;
-}
-
-.idoc-signatures-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
-  page-break-inside: avoid;
-  align-items: end;
-}
-
-.idoc-sig-signature-img {
-  height: 40px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  border-bottom: 1px solid #000;
-  padding-bottom: 3px;
-}
-
-.idoc-sig-signature-img img {
-  max-height: 36px;
-  max-width: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-/* Daños señalizados — solo el diagrama es indivisible; la tabla puede fluir */
-.idoc-damage-section {
-  margin-top: 10px;
-}
-
-/* Layout lado a lado: diagrama a la izquierda, tabla a la derecha */
-.idoc-damage-layout {
-  display: grid;
-  grid-template-columns: 48% 1fr;
-  column-gap: 4mm;
-  align-items: start;
-  margin-top: 6px;
-}
-
-.idoc-damage-diagram-block {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-.idoc-damage-table-block {
-  min-width: 0;
-}
-
-.idoc-table--compact {
+.rdoc-doc-meta {
+  margin-top: 3px;
   font-size: 7.5pt;
+  color: #444;
+  line-height: 1.4;
 }
 
-.idoc-table--compact th,
-.idoc-table--compact td {
-  padding: 2px 4px;
+/* ─── Secciones y títulos ────────────────────────────────────────────────── */
+.rdoc-section {
+  margin-bottom: 3mm;
 }
 
-/* Daños señalizados — figura con las 5 vistas del vehículo simétricas.
-   Fila 1: Frente | Atrás (mismo tamaño, simétricos)
-   Fila 2: Izquierda (ancho completo)
-   Fila 3: Derecha (ancho completo, mismo tamaño que izquierda)
-   Fila 4: Techo (centrado, tamaño fijo) */
-.idoc-damage-figure {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3mm;
-  break-inside: avoid;
-  page-break-inside: avoid;
+.rdoc-section-title {
+  font-size: 8pt;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 1px;
+  margin: 0 0 2mm;
 }
 
-/* Fila de Front + Back simétricos */
-.idoc-damage-row-pair {
+.rdoc-section-sub {
+  font-weight: 400;
+  text-transform: none;
+  margin-left: 6px;
+  color: #555;
+}
+
+/* ─── Cliente + Vehículo ─────────────────────────────────────────────────── */
+.rdoc-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3mm;
-  width: 100%;
-}
-
-.idoc-damage-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.idoc-damage-view svg {
-  width: 100%;
-  height: auto;
-  display: block;
-  color: #000;
-}
-
-/* Laterales: mismos al ancho completo del contenedor */
-.idoc-damage-view--left,
-.idoc-damage-view--right {
-  width: 100%;
-}
-
-/* Techo: ancho fijo centrado para que no se estire */
-.idoc-damage-view--top {
-  width: 20mm;
-}
-
-.idoc-damage-view-label {
-  margin-top: 2px;
-  font-size: 7pt;
-  font-weight: 600;
-  color: #000;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.idoc-damage-footnote {
-  margin: 4px 0 0;
-  font-size: 7pt;
-  font-style: italic;
-  color: #000;
-}
-
-@media print {
-  .idoc-checklist-grid {
-    page-break-inside: avoid;
-  }
-
-  .idoc-damage-diagram-block {
-    page-break-inside: avoid;
-  }
-
-  .idoc-damage-view svg {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-}
-
-
-/* ─── Condiciones legales ──────────────────────────────────────────────────── */
-
-.idoc-legal-section {
-  margin-top: 16px;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-.idoc-legal-list {
-  font-size: 7pt;
-  line-height: 1.4;
-  color: #000;
-  margin: 6px 0 8px;
-  padding-left: 14px;
-  list-style: decimal;
-}
-
-.idoc-legal-list li {
-  margin-bottom: 3px;
-}
-
-.idoc-legal-accept {
-  font-size: 8pt;
-  font-weight: 700;
-  color: #000;
-  margin: 8px 0 0;
-}
-
-
-/* ─── Daños / condición exterior (PNG + overlay, página 1) ─────────────────── */
-
-.idoc-inspection-block {
-  margin-top: 10px;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-.idoc-inspection-empty {
-  font-size: 9pt;
-  font-style: italic;
-  color: #333;
-  border: 0.5px dashed #999;
-  border-radius: 3px;
-  padding: 8px 10px;
-  margin-top: 4px;
-}
-
-.idoc-insp-view {
-  margin-bottom: 3mm;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-.idoc-insp-label {
-  font-size: 7pt;
-  font-weight: 700;
-  color: #000;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 1mm;
-}
-
-.idoc-insp-img-wrap {
-  position: relative;
-  width: 100%;
-  border: 0.5px solid #d0d0d0;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.idoc-insp-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Fila de 3 vistas pequeñas (frontal/trasera/superior) */
-.idoc-insp-row-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
   gap: 4mm;
   margin-bottom: 3mm;
 }
 
-/* Marcador numerado — negro, legible en blanco y negro */
-.idoc-insp-marker {
+.rdoc-box {
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 2mm 3mm;
+}
+
+.rdoc-box-title {
+  font-size: 7.5pt;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin: 0 0 1.5mm;
+  color: #111;
+}
+
+.rdoc-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1px;
+}
+
+.rdoc-row-label {
+  width: 28mm;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #333;
+}
+
+.rdoc-row-value {
+  flex: 1;
+  color: #000;
+}
+
+/* ─── Recepción ──────────────────────────────────────────────────────────── */
+.rdoc-reception-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4mm;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 2mm 3mm;
+}
+
+.rdoc-mini-label {
+  display: block;
+  font-size: 6.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #666;
+}
+
+.rdoc-mini-value {
+  display: block;
+  font-size: 8pt;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+/* ─── Daños / condición exterior ─────────────────────────────────────────── */
+.rdoc-damage {
+  break-inside: avoid;
+}
+
+.rdoc-damage-empty {
+  font-size: 8pt;
+  font-style: italic;
+  color: #444;
+  border: 1px dashed #bbb;
+  border-radius: 4px;
+  padding: 3mm;
+  margin: 0;
+}
+
+.rdoc-dmg-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr 44mm;
+  gap: 3mm;
+  align-items: stretch;
+  margin-bottom: 2mm;
+}
+
+.rdoc-dmg-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3mm;
+  align-items: start;
+}
+
+.rdoc-dmg-view {
+  break-inside: avoid;
+}
+
+.rdoc-dmg-view-label {
+  font-size: 6.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 1px;
+  color: #333;
+}
+
+.rdoc-dmg-img-wrap {
+  position: relative;
+  width: 100%;
+  border: 0.75px solid #d0d7de;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rdoc-dmg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Laterales panorámicos; vistas pequeñas contenidas para ahorrar alto */
+.rdoc-dmg-view--wide .rdoc-dmg-img-wrap {
+  aspect-ratio: 2172 / 724;
+}
+
+.rdoc-dmg-view--small .rdoc-dmg-img-wrap {
+  aspect-ratio: 16 / 9;
+}
+
+.rdoc-dmg-marker {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #000;
   color: #fff;
-  font-size: 8pt;
+  font-size: 7.5pt;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1.5px solid #fff;
   box-shadow: 0 0 0 1px #000;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
-/* Detalle + leyenda lado a lado */
-.idoc-insp-detail {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6mm;
-  align-items: start;
-  margin-top: 2mm;
+/* Leyenda — ocupa su columna de forma nítida */
+.rdoc-dmg-legend {
+  border: 0.75px solid #d0d7de;
+  border-radius: 3px;
+  padding: 2mm 2.5mm;
+  height: 100%;
 }
 
-.idoc-insp-legend {
-  border: 0.5px solid #ccc;
-  border-radius: 2px;
-  padding: 6px 8px;
-  min-width: 150px;
-}
-
-.idoc-insp-legend-title {
+.rdoc-dmg-legend-title {
   font-size: 7pt;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  margin-bottom: 3px;
+  border-bottom: 0.75px solid #d0d7de;
+  padding-bottom: 1mm;
+  margin-bottom: 1.5mm;
 }
 
-.idoc-insp-legend ul {
+.rdoc-dmg-legend ul {
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 8pt;
-  line-height: 1.6;
+  font-size: 7.5pt;
+  line-height: 1.7;
 }
 
-/* Página 2: condiciones legales y firmas */
-.idoc-page-2 {
-  page-break-before: always;
-  break-before: page;
+.rdoc-dmg-legend li {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+}
+
+.rdoc-dmg-legend strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  border: 1px solid #000;
+  border-radius: 2px;
+  font-size: 7pt;
+  font-weight: 800;
+}
+
+/* ─── Checklist (matriz compacta 4 columnas) ─────────────────────────────── */
+.rdoc-checklist {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px 5mm;
+}
+
+.rdoc-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 7pt;
+  padding: 0.5px 0;
+}
+
+.rdoc-check-box {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rdoc-check-box.on {
+  background: #000;
+  color: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.rdoc-check-label {
+  color: #000;
+}
+
+/* ─── Observaciones ──────────────────────────────────────────────────────── */
+.rdoc-observations {
+  font-size: 7.5pt;
+  margin: 0;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 2mm 3mm;
+  white-space: pre-wrap;
+}
+
+/* ─── Aceptación de condiciones + QR ─────────────────────────────────────── */
+.rdoc-terms {
+  display: grid;
+  grid-template-columns: 1fr 24mm;
+  gap: 4mm;
+  align-items: center;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 2mm 3mm;
+  break-inside: avoid;
+}
+
+.rdoc-terms-text p {
+  margin: 0 0 1mm;
+  font-size: 7.5pt;
+  line-height: 1.35;
+}
+
+.rdoc-terms-note {
+  color: #555;
+}
+
+.rdoc-terms-qr {
+  text-align: center;
+}
+
+.rdoc-terms-qr img {
+  width: 22mm;
+  height: 22mm;
+}
+
+.rdoc-terms-qr span {
+  display: block;
+  font-size: 6pt;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #555;
+  margin-top: 1px;
+}
+
+/* ─── Firmas ─────────────────────────────────────────────────────────────── */
+.rdoc-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6mm;
+  margin-top: 4mm;
+  break-inside: avoid;
+  align-items: end;
+}
+
+.rdoc-sig {
+  text-align: center;
+}
+
+.rdoc-sig-img {
+  height: 12mm;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 1px solid #000;
+  padding-bottom: 1px;
+}
+
+.rdoc-sig-img img {
+  max-height: 12mm;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.rdoc-sig-line {
+  height: 12mm;
+  border-bottom: 1px solid #000;
+}
+
+.rdoc-sig-label {
+  font-size: 7pt;
+  font-weight: 700;
+  margin-top: 1mm;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rdoc-sig-name {
+  font-size: 7.5pt;
+  color: #333;
+  margin-top: 0.5mm;
 }
 
 @media print {
-  .idoc-inspection-block,
-  .idoc-insp-img-wrap,
-  .idoc-insp-img,
-  .idoc-insp-marker {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
   }
 
-  .idoc-page-2 {
-    page-break-before: always;
+  .rdoc-header,
+  .rdoc-damage,
+  .rdoc-dmg-view,
+  .rdoc-terms,
+  .rdoc-signatures,
+  .rdoc-checklist {
+    break-inside: avoid;
+  }
+
+  .rdoc-dmg-img,
+  .rdoc-dmg-marker,
+  .rdoc-check-box.on,
+  .rdoc-logo-mark {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

@@ -1,15 +1,16 @@
-import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
 import type { WorkshopPrintInfo } from "@/lib/workshop/print-info";
-import { InvoicePrintFooter } from "@/components/invoice/print/InvoicePrintFooter";
+import type { ReceptionPrintData } from "@/lib/work-order/reception-print-data";
 import { PrintWorkshopReceiverSignature } from "@/components/print/PrintWorkshopReceiverSignature";
-import { DamageInspectionPage } from "@/components/work-order/print/DamageInspectionPage";
+import { ReceptionDamageMap } from "@/components/work-order/print/ReceptionDamageMap";
 import { resolvePhotoUrl } from "@/lib/photos";
 
-function field(label: string, value: string | null | undefined) {
+/** Fila compacta label + valor. Oculta si no hay valor. */
+function Row({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null;
   return (
-    <div className="idoc-field">
-      <strong>{label}:</strong> {value}
+    <div className="rdoc-row">
+      <span className="rdoc-row-label">{label}</span>
+      <span className="rdoc-row-value">{value}</span>
     </div>
   );
 }
@@ -17,161 +18,152 @@ function field(label: string, value: string | null | undefined) {
 export function ReceptionOrderDocument({
   data,
   workshop,
+  termsUrl,
+  termsQrDataUrl,
 }: {
   data: ReceptionPrintData;
   workshop: WorkshopPrintInfo;
+  termsUrl: string | null;
+  termsQrDataUrl: string | null;
 }) {
+  const vehicleLine =
+    [data.brand, data.model, data.vehicleYear].filter(Boolean).join(" ") || null;
+
   return (
-    <article className="idoc">
-      <header className="idoc-header">
-        <div className="idoc-logo-block">
+    <article className="rdoc">
+      {/* ─── Header ─────────────────────────────────────────────── */}
+      <header className="rdoc-header">
+        <div className="rdoc-header-left">
           {workshop.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={workshop.logoUrl} alt="" className="idoc-logo-img" />
+            <img src={workshop.logoUrl} alt="" className="rdoc-logo" />
           ) : (
-            <div className="idoc-logo-mark">R</div>
+            <div className="rdoc-logo-mark">R</div>
           )}
-          <div>
-            <div className="idoc-brand-name">{workshop.businessName}</div>
-            <div className="idoc-brand-tag">{workshop.tagline}</div>
-            <div className="idoc-company-meta">
+          <div className="rdoc-brand">
+            <div className="rdoc-brand-name">{workshop.businessName}</div>
+            {workshop.tagline && (
+              <div className="rdoc-brand-tag">{workshop.tagline}</div>
+            )}
+            <div className="rdoc-brand-meta">
               {workshop.legalName && <div>{workshop.legalName}</div>}
               {workshop.rnc && <div>RNC: {workshop.rnc}</div>}
               {workshop.address && <div>{workshop.address}</div>}
-              <div>
-                {[workshop.phone, workshop.email].filter(Boolean).join(" · ")}
-              </div>
+              <div>{[workshop.phone, workshop.email].filter(Boolean).join(" · ")}</div>
             </div>
           </div>
         </div>
-        <div className="idoc-doc-meta">
-          <div className="idoc-doc-title">{data.docTitle}</div>
-          <div className="idoc-doc-number">No. {data.docNumber}</div>
-          <div className="idoc-meta-line">Fecha orden: {data.orderDate}</div>
-          <div className="idoc-meta-line">Estado: {data.statusLabel}</div>
-          {data.quotationRef && (
-            <div className="idoc-meta-line">Cotización: {data.quotationRef}</div>
-          )}
+        <div className="rdoc-header-right">
+          <div className="rdoc-doc-title">{data.docTitle}</div>
+          <div className="rdoc-doc-number">No. {data.docNumber}</div>
+          <span className="rdoc-status">{data.statusLabel}</span>
+          <div className="rdoc-doc-meta">
+            <div>Fecha orden: {data.orderDate}</div>
+            {data.quotationRef && <div>Cotización: {data.quotationRef}</div>}
+          </div>
         </div>
       </header>
 
-      <div className="idoc-grid-2">
-        <div>
-          <h3 className="idoc-section-title">Datos del cliente</h3>
-          <div className="idoc-box">
-            {field("Nombre", data.customerName)}
-            {field("Teléfono", data.phone)}
-            {field("Email", data.email)}
-            {field("Dirección", data.address)}
-          </div>
-        </div>
-        <div>
-          <h3 className="idoc-section-title">Datos del vehículo</h3>
-          <div className="idoc-box">
-            {field(
-              "Marca / Modelo",
-              [data.brand, data.model, data.vehicleYear].filter(Boolean).join(" ") ||
-                null,
-            )}
-            {field("Color", data.color)}
-            {field("Placa", data.plate)}
-            {field("Millaje", data.mileage)}
-            {field("Motor", data.engine)}
-          </div>
-        </div>
+      {/* ─── Cliente + Vehículo ─────────────────────────────────── */}
+      <div className="rdoc-grid-2">
+        <section className="rdoc-box">
+          <h2 className="rdoc-box-title">Datos del cliente</h2>
+          <Row label="Nombre" value={data.customerName} />
+          <Row label="Teléfono" value={data.phone} />
+          <Row label="Email" value={data.email} />
+          <Row label="Dirección" value={data.address} />
+        </section>
+        <section className="rdoc-box">
+          <h2 className="rdoc-box-title">Datos del vehículo</h2>
+          <Row label="Marca / Modelo" value={vehicleLine} />
+          <Row label="Color" value={data.color} />
+          <Row label="Placa" value={data.plate} />
+          <Row label="VIN" value={data.vin} />
+          <Row label="Kilometraje" value={data.mileage} />
+        </section>
       </div>
 
-      <h3 className="idoc-section-title">Recepción del vehículo</h3>
-      <div className="idoc-grid-2">
-        <div className="idoc-box">
-          {field("Entrada", data.deliveryDateTime)}
-          {field("Combustible", data.fuelLevel)}
-          {field("Recibido por (taller)", data.receivedBy)}
-          {field("Entregado por (cliente)", data.deliveredBy)}
+      {/* ─── Recepción ──────────────────────────────────────────── */}
+      <section className="rdoc-section">
+        <h2 className="rdoc-section-title">Recepción del vehículo</h2>
+        <div className="rdoc-reception-grid">
+          <div>
+            <span className="rdoc-mini-label">Entrada</span>
+            <span className="rdoc-mini-value">{data.deliveryDateTime}</span>
+          </div>
+          <div>
+            <span className="rdoc-mini-label">Salida estimada</span>
+            <span className="rdoc-mini-value">{data.exitDateTime}</span>
+          </div>
+          <div>
+            <span className="rdoc-mini-label">Combustible</span>
+            <span className="rdoc-mini-value">{data.fuelLevel}</span>
+          </div>
+          <div>
+            <span className="rdoc-mini-label">Recibido por</span>
+            <span className="rdoc-mini-value">{data.receivedBy ?? "—"}</span>
+          </div>
         </div>
-        <div className="idoc-box">
-          {field("Salida estimada", data.exitDateTime)}
-        </div>
-      </div>
+      </section>
 
-      {(data.requestedDamages || data.observations) && (
-        <div className="idoc-grid-2" style={{ marginBottom: 12 }}>
-          {data.requestedDamages && (
-            <div>
-              <h3 className="idoc-section-title">Daños solicitados</h3>
-              <div className="idoc-box">
-                <p className="idoc-text-block">{data.requestedDamages}</p>
-              </div>
+      {/* ─── Daños / condición exterior ─────────────────────────── */}
+      <ReceptionDamageMap data={data} />
+
+      {/* ─── Checklist (matriz compacta) ────────────────────────── */}
+      <section className="rdoc-section">
+        <h2 className="rdoc-section-title">
+          Checklist de recepción
+          <span className="rdoc-section-sub">
+            ({data.checklistChecked} de {data.checklistTotal} verificados)
+          </span>
+        </h2>
+        <div className="rdoc-checklist">
+          {data.checklist.map((item, i) => (
+            <div key={i} className="rdoc-check">
+              <span className={`rdoc-check-box ${item.checked ? "on" : ""}`}>
+                {item.checked ? "✓" : ""}
+              </span>
+              <span className="rdoc-check-label">{item.label}</span>
             </div>
-          )}
-          {data.observations && (
-            <div>
-              <h3 className="idoc-section-title">Observaciones</h3>
-              <div className="idoc-box">
-                <p className="idoc-text-block">{data.observations}</p>
-              </div>
-            </div>
-          )}
+          ))}
         </div>
+      </section>
+
+      {/* ─── Observaciones (condicional) ────────────────────────── */}
+      {data.observations && (
+        <section className="rdoc-section">
+          <h2 className="rdoc-section-title">Observaciones</h2>
+          <p className="rdoc-observations">{data.observations}</p>
+        </section>
       )}
 
-      {/* Daños / condición exterior — en página 1, antes del checklist */}
-      <DamageInspectionPage
-        data={data}
-        orderNumber={data.docNumber}
-        customerName={data.customerName}
-        plate={data.plate}
-      />
-
-      <h3 className="idoc-section-title">
-        Checklist de recepción
-        <span style={{ fontWeight: 400, marginLeft: 8, textTransform: "none" }}>
-          ({data.checklistSummary})
-        </span>
-      </h3>
-      <div className="idoc-checklist-grid">
-        {data.checklist.map((item, i) => (
-          <div key={i} className="idoc-check-item">
-            <span
-              className={`idoc-check-box ${item.checked ? "on" : ""}`}
-              aria-hidden
-            >
-              {item.checked ? "✓" : ""}
-            </span>
-            <div className="idoc-check-label">
-              {item.label}
-              {item.comment && (
-                <div className="idoc-check-comment">{item.comment}</div>
-              )}
-            </div>
+      {/* ─── Aceptación de condiciones + QR ─────────────────────── */}
+      <section className="rdoc-section rdoc-terms">
+        <div className="rdoc-terms-text">
+          <h2 className="rdoc-section-title">Aceptación de condiciones</h2>
+          <p>
+            El cliente declara haber revisado y aceptado las condiciones de
+            recepción, custodia, reparación y garantía aplicables a esta orden.
+          </p>
+          <p className="rdoc-terms-note">
+            Las condiciones completas están disponibles en nuestro
+            establecimiento{termsUrl ? " o escaneando el código QR." : "."}
+          </p>
+        </div>
+        {termsQrDataUrl && (
+          <div className="rdoc-terms-qr">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={termsQrDataUrl} alt="QR condiciones" />
+            <span>Condiciones</span>
           </div>
-        ))}
-      </div>
+        )}
+      </section>
 
-      <div className="idoc-legal-section idoc-page-2">
-        <h3 className="idoc-section-title">Condiciones legales y garantías del servicio</h3>
-        <ol className="idoc-legal-list">
-          <li>El cliente declara ser propietario del vehículo o estar debidamente autorizado para solicitar los servicios objeto de esta orden de trabajo.</li>
-          <li>El taller realizará únicamente los trabajos autorizados por el cliente. Cualquier trabajo adicional requerirá aprobación previa del propietario o su representante.</li>
-          <li>El cliente autoriza al taller a efectuar pruebas de manejo, inspecciones y movimientos internos del vehículo que sean necesarios para la correcta ejecución de los trabajos contratados.</li>
-          <li>El taller no se responsabiliza por objetos personales, dinero, herramientas, mercancías u otros bienes dejados dentro del vehículo.</li>
-          <li>Cuando el vehículo presente daños ocultos, defectos mecánicos, eléctricos o estructurales no visibles al momento de la recepción, el taller notificará al cliente para su evaluación y aprobación correspondiente.</li>
-          <li>Los trabajos de pintura y reparación de carrocería cuentan con garantía limitada contra defectos de aplicación, desprendimiento prematuro, agrietamiento o fallas atribuibles directamente al proceso realizado por el taller, por un período de 6 meses a partir de la fecha de entrega.</li>
-          <li>La garantía no cubre daños ocasionados por accidentes posteriores, mal uso, negligencia, fenómenos naturales, exposición a sustancias químicas, corrosión preexistente, modificaciones realizadas por terceros o falta de mantenimiento.</li>
-          <li>Las piezas, materiales o repuestos suministrados por el cliente no estarán cubiertos por garantía del taller.</li>
-          <li>El vehículo deberá ser retirado dentro de los 5 días siguientes a la notificación de finalización de los trabajos. Vencido dicho plazo, podrán generarse cargos por almacenamiento.</li>
-          <li>El cliente acepta que el vehículo permanecerá bajo custodia del taller únicamente durante el período de reparación y sujeto a las condiciones aquí establecidas.</li>
-          <li>La entrega del vehículo y la firma de conformidad por parte del cliente constituyen aceptación de los trabajos realizados, salvo observaciones expresamente anotadas en el documento de entrega.</li>
-          <li>Cualquier reclamación relacionada con los trabajos efectuados deberá presentarse dentro del período de garantía establecido y acompañarse de la documentación correspondiente.</li>
-        </ol>
-        <p className="idoc-legal-accept">Acepto las condiciones legales y de garantía anteriormente descritas.</p>
-      </div>
-
-      <h3 className="idoc-section-title">Conformidad y firmas</h3>
-      <div className="idoc-signatures-3">
-        <div className="idoc-sig-block">
+      {/* ─── Firmas ─────────────────────────────────────────────── */}
+      <section className="rdoc-signatures">
+        <div className="rdoc-sig">
           {data.customerReceivedSignature ? (
-            <div className="idoc-sig-signature-img">
+            <div className="rdoc-sig-img">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -182,27 +174,21 @@ export function ReceptionOrderDocument({
               />
             </div>
           ) : (
-            <div className="idoc-sig-line" />
+            <div className="rdoc-sig-line" />
           )}
-          <div className="idoc-sig-label">Cliente — entrega</div>
-          <p style={{ fontSize: "9pt", marginTop: 4 }}>{data.customerName}</p>
+          <div className="rdoc-sig-label">Firma cliente — entrega</div>
+          <div className="rdoc-sig-name">{data.customerName}</div>
         </div>
         <PrintWorkshopReceiverSignature
           workshop={workshop}
-          subtitle={
-            <p style={{ fontSize: "9pt", marginTop: 4 }}>
-              {data.receivedBy ?? "________________"}
-            </p>
-          }
+          subtitle={<div className="rdoc-sig-name">{data.receivedBy ?? ""}</div>}
         />
-        <div className="idoc-sig-block">
-          <div className="idoc-sig-line" />
-          <div className="idoc-sig-label">Cliente — retiro</div>
-          <p style={{ fontSize: "9pt", marginTop: 4 }}>Fecha: ___/___/______</p>
+        <div className="rdoc-sig">
+          <div className="rdoc-sig-line" />
+          <div className="rdoc-sig-label">Firma cliente — retiro</div>
+          <div className="rdoc-sig-name">Fecha: ___/___/______</div>
         </div>
-      </div>
-
-      <InvoicePrintFooter workshop={workshop} />
+      </section>
     </article>
   );
 }
